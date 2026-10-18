@@ -6,7 +6,7 @@ import { ArrowRight, BookOpen, CheckCircle2, Dog, Eye, EyeOff, Gamepad2, Heart, 
 
 const Game3D = dynamic(() => import("./Game3D"), {
   ssr: false,
-  loading: () => <main className="gameLoading"><div className="loadingPaw">🐾</div><b>Načítám svět Hodný Pes Academy…</b><span>Připravuji areál, pejska a tréninkové zóny</span><div className="loadingBar"><i /></div></main>,
+  loading: () => <main className="gameLoading"><div className="loadingPaw">🐾</div><b>Načítám svět Hodný pes: Psí dobrodružství…</b><span>Připravuji areál, pejska a tréninkové zóny</span><div className="loadingBar"><i /></div></main>,
 });
 
 type GateMode = "login" | "register";
@@ -75,12 +75,12 @@ export default function Home() {
   if (profile) return <main className="gamePage"><div className="playerWelcome"><span><PawPrint size={15}/> Přihlášeno jako {profile.name}</span><button onClick={signOut}>Odhlásit / změnit profil</button></div><Game3D /></main>;
 
   return <main className="academyLanding">
-    <div className="landingNav"><a className="landingBrand" href="#"><span><Dog size={24}/></span><div><b>HODNÝ PES</b><small>ACADEMY · 3D PSÍ SVĚT</small></div></a><span className="landingNavTag"><span/> HRAJ NA PC I MOBILU</span></div>
+    <div className="landingNav"><a className="landingBrand" href="#"><span><Dog size={24}/></span><div><b>HODNÝ PES</b><small>PSÍ DOBRODRUŽSTVÍ · 3D SVĚT</small></div></a><span className="landingNavTag"><span/> HRAJ NA PC I MOBILU</span></div>
     <div className="landingGrid">
       <section className="landingStory">
         <div className="landingEyebrow"><Sparkles size={15}/> VÝCVIK, KTERÝ JE DOBRODRUŽSTVÍ</div>
         <h1>Každý pes má svůj příběh.<br/><em>Začni ten svůj.</em></h1>
-        <p className="landingLead">Vstup do barevného 3D světa Hodný Pes Academy. Prozkoumávej výcvikový areál, sbírej pamlsky, plň malé výzvy a uč se spolupracovat se svým čtyřnohým parťákem.</p>
+        <p className="landingLead">Vstup do barevného 3D světa Hodný pes: Psí dobrodružství. Prozkoumávej výcvikový areál, sbírej pamlsky, plň malé výzvy a uč se spolupracovat se svým čtyřnohým parťákem.</p>
         <div className="landingFeatures">
           <article><span className="featureIcon purple"><Gamepad2 size={19}/></span><div><b>Opravdový 3D svět</b><p>Volný pohyb, kamera za postavou a výcvikové zóny k prozkoumání.</p></div></article>
           <article><span className="featureIcon peach"><Heart size={19}/></span><div><b>Pozitivní přístup</b><p>Za objevování získáváš XP a pamlsky. Bez trestů, s radostí.</p></div></article>
@@ -110,6 +110,6 @@ export default function Home() {
         <div className="authBottom"><span><CheckCircle2 size={14}/> Bezplatný vstup</span><span><CheckCircle2 size={14}/> PC · tablet · mobil</span><span><CheckCircle2 size={14}/> Pozitivní výcvik</span></div>
       </section>
     </div>
-    <footer className="landingFooter"><span>© Hodný Pes Academy</span><span>Učíme se spolu. Rosteme spolu. 🐾</span></footer>
+    <footer className="landingFooter"><span>© Hodný pes: Psí dobrodružství</span><span>Učíme se spolu. Rosteme spolu. 🐾</span></footer>
   </main>;
 }
