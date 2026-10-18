@@ -8,7 +8,7 @@ import * as THREE from "three";
 type Mode = "world" | "school" | "puller";
 function Grass() {
   const blades = useMemo(() => Array.from({ length: 550 }, () => ({ x: (Math.random() - .5) * 26, z: (Math.random() - .5) * 25, h: .12 + Math.random() * .28, r: Math.random() * Math.PI })), []);
-  return <group>{blades.map((b, i) => <mesh key={i} position={[b.x, b.h / 2, b.z]} rotation={[0, b.r, .12]}><coneGeometry args={[.035, b.h, 3]}/><meshStandardMaterial color={i % 4 === 0 ? "#73945a" : "#526f43"} roughness={1}/></mesh>)}</group>;
+  return <group>{blades.map((b, i) => <mesh key={i} position={[b.x, b.h / 2, b.z]} rotation={[0, b.r, .12]}><coneGeometry args={[.035, b.h, 3]}/><meshStandardMaterial color={i % 4 === 0 ? "#8eab72" : "#6f8f59"} roughness={1}/></mesh>)}</group>;
 }
 function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; cameraMode: "third-person" | "first-person" }) {
   const root = useRef<THREE.Group>(null);
@@ -104,7 +104,7 @@ function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; camera
   });
   return <group>
     <group ref={root} position={[0,0,2]}>
-      <mesh castShadow position={[0,.67,0]} scale={[.55,.62,.88]}><capsuleGeometry args={[.48,.52,6,10]}/><meshStandardMaterial color="#d5c8ad" roughness={.92}/></mesh>
+      <mesh castShadow position={[0,.67,0]} scale={[.55,.62,.88]}><capsuleGeometry args={[.48,.52,6,10]}/><meshStandardMaterial color="#c9bba7" roughness={.92}/></mesh>
       <mesh castShadow position={[0,.88,-.62]} scale={[.42,.43,.42]}><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color="#e6d8bd" roughness={.9}/></mesh>
       <mesh castShadow position={[0,.93,-.96]} scale={[.29,.22,.28]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color="#47382d" roughness={.8}/></mesh>
       {[-1,1].map(side => <group key={side}><mesh castShadow position={[side*.23,1.18,-.72]} rotation={[0,0,side*-.25]}><coneGeometry args={[.12,.4,8]}/><meshStandardMaterial color="#514137" roughness={.9}/></mesh><mesh position={[side*.14,1,-.88]}><sphereGeometry args={[.045,10,8]}/><meshStandardMaterial color="#181d19" roughness={.25}/></mesh>{[-1,1].map(front => <mesh key={front} castShadow position={[side*.3,.28,front*.43]}><capsuleGeometry args={[.09,.3,4,6]}/><meshStandardMaterial color="#d4c5a8" roughness={1}/></mesh>)}</group>)}
@@ -120,7 +120,7 @@ function World({ mode, active, cameraMode }: { mode: Mode; active: boolean; came
     <ambientLight intensity={1.1}/><directionalLight castShadow position={[-5,10,4]} intensity={2.1} shadow-mapSize={[1024,1024]}/>
     <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.05,0]} receiveShadow><planeGeometry args={[100,100]}/><meshStandardMaterial color="#526d48" roughness={1}/></mesh>
     <Grass/>
-    <mesh position={[0,.01,-5]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[3.8,4.2,64]}/><meshBasicMaterial color={mode === "puller" ? "#d8b45c" : "#d7dfc4"}/></mesh>
+    <mesh position={[0,.01,-5]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[3.8,4.2,64]}/><meshBasicMaterial color={mode === "puller" ? "#6A00F4" : "#FFD6A5"}/></mesh>
     {Array.from({length:16},(_,i)=><group key={i} position={[(i%4-1.5)*4,0,Math.floor(i/4)*-3-4]}><mesh castShadow position={[0,.45,0]}><cylinderGeometry args={[.13,.17,.9,8]}/><meshStandardMaterial color="#76563d" roughness={1}/></mesh><mesh castShadow position={[0,1.1,0]}><sphereGeometry args={[.65,8,6]}/><meshStandardMaterial color={i%2 ? "#426443" : "#59784b"} roughness={1}/></mesh></group>)}
     <Dog active={active} mode={mode} cameraMode={cameraMode}/>
     <ContactShadows position={[0,-.02,0]} opacity={.4} scale={18} blur={2.5} far={4}/>
