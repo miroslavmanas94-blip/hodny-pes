@@ -117,7 +117,7 @@ export default function FarmGame() {
       <span className="locationTabsLabel">{t("LOKACE CENTRA","CENTRE LOCATIONS")}</span>
       {[
         {id:"training",label:t("Cvičiště","Training ground"),icon:<Dog size={16}/>},
-        {id:"park",label:t("Psí park","Dog park"),icon:<Trees size={16}/>},
+        {id:"park",label:t("Psí park","Dog park"),icon:<Leaf size={16}/>},
         {id:"puller",label:"Dog Puller",icon:<CircleHelp size={16}/>},
         {id:"garden",label:t("Zahrada","Garden"),icon:<Leaf size={16}/>},
         {id:"centre",label:t("Hlavní areál","Main grounds"),icon:<House size={16}/>}
