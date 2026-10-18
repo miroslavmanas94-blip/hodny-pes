@@ -1,2 +1,22 @@
 import type { MetadataRoute } from "next";
-export default function manifest(): MetadataRoute.Manifest { return { name: "Hodný Pes Academy", short_name: "HP Academy", description: "Pozitivní výcvik jako společná hra.", start_url: "/", display: "standalone", background_color: "#fffaf4", theme_color: "#6A00F4", lang: "cs", icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }] }; }
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Hodný Pes Academy",
+    short_name: "HP Academy",
+    description: "Pozitivní výcvik jako společná hra.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#fffaf4",
+    theme_color: "#6A00F4",
+    lang: "cs",
+    icons: [
+      {
+        src: "/icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+        purpose: "any",
+      },
+    ],
+  };
+}
