@@ -57,6 +57,10 @@ export default function Game3D({ onExit }: Props) {
   }, [cameraView, selectedSkin]);
 
   useEffect(() => {
+    cameraSensitivityRef.current = cameraSensitivity / 6250;
+  }, [cameraSensitivity]);
+
+  useEffect(() => {
     const host = mountRef.current;
     if (!host) return;
 
@@ -67,9 +71,12 @@ export default function Game3D({ onExit }: Props) {
     const camera = new THREE.PerspectiveCamera(62, host.clientWidth / host.clientHeight, 0.1, 520);
     camera.position.set(0, 7, 11);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
+    const isSmallScreen = window.matchMedia("(max-width: 800px)").matches;
+    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+    const qualityPixelRatio = deviceMemory <= 2 ? 1 : isSmallScreen ? 1.2 : deviceMemory <= 4 ? 1.35 : 1.7;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, qualityPixelRatio));
     renderer.setSize(host.clientWidth, host.clientHeight);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = !isSmallScreen && deviceMemory >= 4;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
