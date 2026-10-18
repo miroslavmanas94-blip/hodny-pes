@@ -121,8 +121,9 @@ function World({ mode, active, cameraMode }: { mode: Mode; active: boolean; came
     <Environment preset="forest"/>
   </>;
 }
-export default function GameCanvas({ mode, active }: { mode: Mode; active: boolean }) {
-  return <Canvas shadows camera={{ position: [5,4,9], fov: 48 }} dpr={[1,1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+export default function GameCanvas({ mode, active, cameraMode, quality }: { mode: Mode; active: boolean; cameraMode: "third-person" | "first-person"; quality: "auto" | "low" | "medium" | "high" }) {
+  const dpr: [number, number] = quality === "low" ? [0.7, 1] : quality === "medium" ? [1, 1.25] : quality === "high" ? [1, 2] : [1, 1.5];
+  return <Canvas shadows={quality !== "low"} camera={{ position: [5,4,9], fov: 48 }} dpr={dpr} gl={{ antialias: quality !== "low", powerPreference: "high-performance" }}>
     <color attach="background" args={["#b9d1c3"]}/>
     <Suspense fallback={null}><World mode={mode} active={active} cameraMode={cameraMode}/></Suspense>
   </Canvas>;
