@@ -5,3 +5,10 @@ out
 !.env.example
 .vercel
 *.log
+
+# Cloudflare Workers / OpenNext
+.open-next
+.wrangler
+.dev.vars*
+!.dev.vars.example
+cloudflare-env.d.ts
