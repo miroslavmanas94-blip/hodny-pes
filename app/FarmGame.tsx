@@ -12,7 +12,7 @@ import "./farm.css";
 type Language = "cs" | "en";
 type LocationId = "centre" | "obedience" | "puller" | "scent" | "rest" | "park";
 type Panel = "missions" | "dogs" | "map" | "shop" | "settings" | "about" | null;
-type MapObject = { id: string; title: string; subtitle: string; x: number; y: number; kind: "training" | "puller" | "scent" | "care" | "explore" | "mission"; reward: number; xp: number; energy?: number };
+type MapObject = { id: string; title: string; subtitle: string; x: number; y: number; kind: "training" | "puller" | "scent" | "care" | "explore" | "mission" | "fetch" | "trick"; reward: number; xp: number; energy?: number };
 type DogProfile = { id: string; name: string; breed: string; color: string; accent: string; unlockLevel: number };
 type DogProgress = { energy: number; bond: number; xp: number };
 type SaveData = { coins: number; xp: number; dogStats: Record<string, DogProgress>; activeDog: string; unlockedDogs: string[]; completed: string[]; language: Language; muted: boolean; showHud: boolean; lastLocation: LocationId };
@@ -44,6 +44,7 @@ const LOCATIONS: { id: LocationId; title: string; subtitle: string; description:
       { id: "sit", title: "Sedni a čekej", subtitle: "Krátká lekce sebekontroly", x: 31, y: 48, kind: "training", reward: 25, xp: 30, energy: 10 },
       { id: "recall", title: "Přivolání", subtitle: "Odměň návrat k člověku", x: 62, y: 38, kind: "training", reward: 30, xp: 35, energy: 12 },
       { id: "focus", title: "Pozornost na psovoda", subtitle: "Všímej si signálů svého psa", x: 70, y: 67, kind: "mission", reward: 20, xp: 20, energy: 8 },
+      { id: "trick-spin", title: "Trik: otočka", subtitle: "Zkus nový trik bez spěchu", x: 35, y: 70, kind: "trick", reward: 20, xp: 25, energy: 8 },
     ],
   },
   {
@@ -80,6 +81,7 @@ const LOCATIONS: { id: LocationId; title: string; subtitle: string; description:
       { id: "park-explore", title: "Prozkoumat okolí", subtitle: "Vydej se za novým podnětem", x: 30, y: 41, kind: "explore", reward: 20, xp: 20, energy: 8 },
       { id: "park-recall", title: "Přivolání v parku", subtitle: "Procvič dovednost v novém místě", x: 59, y: 54, kind: "training", reward: 30, xp: 30, energy: 12 },
       { id: "park-sniff", title: "Čichací stezka", subtitle: "Prozkoumej pachy kolem cesty", x: 74, y: 37, kind: "scent", reward: 25, xp: 25, energy: 10 },
+      { id: "fetch-game", title: "Aportování", subtitle: "Přines hračku zpět k psovodovi", x: 43, y: 68, kind: "fetch", reward: 25, xp: 30, energy: 12 },
     ],
   },
 ];
@@ -97,7 +99,7 @@ const TXT = {
     moreDogs: "Další pes se odemkne po tréninkovém pokroku. Každý pes má vlastní energii a potřebuje péči.",
     language: "Jazyk", sound: "Zvukové efekty", hud: "Zobrazovat herní HUD", save: "Postup se ukládá v tomto prohlížeči.",
     real: "Skutečný Hodný pes", realText: "Hra představuje pozitivní výcvik a psí sporty. Nenahrazuje odborné vedení.",
-    website: "Navštívit hodnypes.cz", training: "Výcvik", puller: "Dog Puller", scent: "Čichání", care: "Péče", exploreKind: "Průzkum",
+    website: "Navštívit hodnypes.cz", training: "Výcvik", puller: "Dog Puller", scent: "Čichání", care: "Péče", exploreKind: "Průzkum", fetch: "Aportování", tricks: "Triky",
     newLevel: "Nová úroveň! Skvělá práce.", complete: "Hotovo", start: "Vstoupit do areálu", continue: "Pokračovat",
     firstTitle: "Každý velký tým začíná důvěrou", firstBody: "Poznej svého prvního parťáka, prozkoumej areál a vyber si první aktivitu. Trénuj krátce a dopřej psovi pauzu.",
     coin: "Hafíků", resetTitle: "Začít novou hru?", resetBody: "Tímto se smaže místní uložený postup v tomto prohlížeči.", cancel: "Zrušit", reset: "Smazat postup",
@@ -114,7 +116,7 @@ const TXT = {
     moreDogs: "Unlock more dogs as you progress. Every dog has their own energy and needs care.",
     language: "Language", sound: "Sound effects", hud: "Show game HUD", save: "Progress is saved in this browser.",
     real: "The real Hodný pes", realText: "The game introduces positive training and dog sports. It does not replace professional guidance.",
-    website: "Visit hodnypes.cz", training: "Training", puller: "Dog Puller", scent: "Scent work", care: "Care", exploreKind: "Explore",
+    website: "Visit hodnypes.cz", training: "Training", puller: "Dog Puller", scent: "Scent work", care: "Care", exploreKind: "Explore", fetch: "Fetch", tricks: "Tricks",
     newLevel: "Level up! Great work.", complete: "Done", start: "Enter the grounds", continue: "Continue",
     firstTitle: "Every great team starts with trust", firstBody: "Meet your first companion, explore the grounds and choose an activity. Keep sessions short and give your dog breaks.",
     coin: "Pawcoins", resetTitle: "Start a new game?", resetBody: "This removes the local save in this browser.", cancel: "Cancel", reset: "Delete save",
@@ -125,6 +127,8 @@ const iconFor = (kind: MapObject["kind"]) => {
   if (kind === "training") return Target;
   if (kind === "puller") return Trophy;
   if (kind === "scent") return Search;
+  if (kind === "fetch") return Bone;
+  if (kind === "trick") return Sparkles;
   if (kind === "care") return Heart;
   if (kind === "explore") return Trees;
   return Sparkles;
@@ -158,7 +162,7 @@ export default function FarmGame() {
   const unfinished = LOCATIONS.flatMap(loc => loc.objects).filter(obj => !save.completed.includes(obj.id));
   const nextObjective = unfinished[0] || currentObjects[0];
   const nextObjectiveLocation = nextObjective ? LOCATIONS.find(loc => loc.objects.some(obj => obj.id === nextObjective.id)) || location : location;
-  const tForObject = (obj: MapObject) => ({ training: t("training"), puller: t("puller"), scent: t("scent"), care: t("care"), explore: t("exploreKind"), mission: t("missions") })[obj.kind];
+  const tForObject = (obj: MapObject) => ({ training: t("training"), puller: t("puller"), scent: t("scent"), care: t("care"), explore: t("exploreKind"), mission: t("missions"), fetch: t("fetch"), trick: t("tricks") })[obj.kind];
 
   useEffect(() => {
     try {
