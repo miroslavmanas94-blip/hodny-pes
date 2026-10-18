@@ -62,11 +62,13 @@ export default function Game3D({ onExit }: Props) {
     sidePath.rotation.x = -Math.PI / 2; sidePath.position.set(5, -0.055, -17); scene.add(sidePath);
 
     // Low-poly garden, deliberately built from geometry so the first game is self-contained.
+    const worldColliders: { x: number; z: number; r: number }[] = [];
     const trunkMat = mat("#78513b"), leafMats = [mat("#3f8250"), mat("#58965b"), mat("#75a85d")];
     for (let i = 0; i < 54; i++) {
       const x = (Math.sin(i * 78.23) * 0.5 + 0.5) * 100 - 50;
       const z = (Math.cos(i * 31.7) * 0.5 + 0.5) * 100 - 62;
       if (Math.abs(x) < 9 && z > -65 && z < 16) continue;
+      worldColliders.push({ x, z, r: 0.82 });
       const tree = new THREE.Group();
       const h = 1.4 + (i % 5) * 0.18;
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, h, 6), trunkMat);
@@ -124,6 +126,7 @@ export default function Game3D({ onExit }: Props) {
       win.position.set(x, 1.65, 1.96); cabin.add(win);
     }
     cabin.position.set(0, 0, -28); scene.add(cabin);
+    worldColliders.push({ x: 0, z: -28, r: 3.0 });
     const sign = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.75, 0.18), purple);
     sign.position.set(0, 2.9, -25.9); scene.add(sign);
 
@@ -284,8 +287,14 @@ export default function Game3D({ onExit }: Props) {
           // Normalize diagonal input and rotate toward the actual travel direction.
           const angle = Math.atan2(side, fwd);
           p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 8, delta);
-          p.position.x += side * speed * delta;
-          p.position.z -= fwd * speed * delta;
+          const nextX = p.position.x + side * speed * delta;
+          const nextZ = p.position.z - fwd * speed * delta;
+          const inFenceRange = nextZ > -24 && nextZ < 10.5;
+          const hitsSideFence = inFenceRange && Math.abs(nextX) > 12.15 && Math.abs(p.position.x) <= 12.15;
+          const hitsFrontFence = nextZ > 9.2 && p.position.z <= 9.2 && Math.abs(nextX) < 13.2;
+          // Resolve each axis separately so the player slides along obstacles.
+          if (!hitsSideFence && !hitsFrontFence && !worldColliders.some(o => Math.hypot(nextX - o.x, p.position.z - o.z) < o.r + 0.35)) p.position.x = nextX;
+          if (!hitsFrontFence && !hitsSideFence && !worldColliders.some(o => Math.hypot(p.position.x - o.x, nextZ - o.z) < o.r + 0.35)) p.position.z = nextZ;
         }
         jumpVelocity -= 13 * delta;
         vertical = Math.max(0, vertical + jumpVelocity * delta);
