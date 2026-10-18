@@ -50,3 +50,10 @@
 .touch-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:9px 12px;border:1px solid #ffffff22;border-radius:10px;background:#ffffff08;color:#e9f0e3;font-size:10px;touch-action:manipulation}
 .touch-actions button:first-child{background:var(--lime);color:#1b2b1d;border-color:transparent;font-weight:700}
 @media(max-width:520px){.touch-controls{padding:12px;gap:8px}.direction-pad button{width:35px;height:32px}.touch-actions button{font-size:9px;padding:8px}.feature-panel .action-row>*{flex:1}.notice-bar{margin:-12px 0 22px}}
+
+.wallet-balance{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border:1px solid #c9e59a30;border-radius:12px;background:#c9e59a0a}
+.wallet-balance span{font-size:11px;color:#a9bba9}.wallet-balance b{font:700 17px Manrope,sans-serif;color:var(--lime)}
+.shop-list{display:grid;gap:0;margin-top:8px}
+.shop-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.shop-row b{font-size:12px}.shop-row p{font-size:10px;color:#a0b3a4;margin:5px 0;line-height:1.5}.shop-row small{font-size:10px;color:#c9dfaa}
+.shop-row .secondary-action{flex:none;min-width:80px}
