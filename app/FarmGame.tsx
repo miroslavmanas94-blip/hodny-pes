@@ -85,7 +85,7 @@ const LOCATIONS: { id: LocationId; title: string; subtitle: string; description:
 
 const TXT = {
   cs: {
-    eyebrow: "VÍTEJ VE SVÉM PSÍM SVĚTĚ", intro: "Buduj vztah. Trénuj s respektem. Objevuj společně.",
+    eyebrow: "VÍTEJ VE SVÉM PSÍM SVĚTĚ", explore: "PROZKOUMAT", intro: "Buduj vztah. Trénuj s respektem. Objevuj společně.",
     play: "Pokračovat ve hře", newGame: "Začít znovu", level: "ÚROVEŇ", xp: "ZKUŠENOSTI",
     energy: "ENERGIE PSA", bond: "DŮVĚRA", map: "Lokace", missions: "Mise a cíle", dogs: "Moji psi",
     shop: "Vybavení", settings: "Nastavení", about: "O projektu", objective: "DNEŠNÍ CÍL",
@@ -102,7 +102,7 @@ const TXT = {
     coin: "Hafíků", resetTitle: "Začít novou hru?", resetBody: "Tímto se smaže místní uložený postup v tomto prohlížeči.", cancel: "Zrušit", reset: "Smazat postup",
   },
   en: {
-    eyebrow: "WELCOME TO YOUR DOG WORLD", intro: "Build trust. Train kindly. Discover together.",
+    eyebrow: "WELCOME TO YOUR DOG WORLD", explore: "EXPLORE", intro: "Build trust. Train kindly. Discover together.",
     play: "Continue game", newGame: "Start over", level: "LEVEL", xp: "EXPERIENCE",
     energy: "DOG ENERGY", bond: "TRUST", map: "Locations", missions: "Missions & goals", dogs: "My dogs",
     shop: "Equipment", settings: "Settings", about: "About", objective: "TODAY'S GOAL",
