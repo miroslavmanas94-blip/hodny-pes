@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import * as THREE from "three";
-import { Dog, Footprints, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX } from "lucide-react";
+import { Dog, Footprints, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX, Settings, Navigation, Target, CheckCircle2 } from "lucide-react";
 
 type Mode = "dog" | "human";
 type Props = { onExit?: () => void };
@@ -18,6 +18,10 @@ export default function Game3D({ onExit }: Props) {
   const [sound, setSound] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [cameraSensitivity, setCameraSensitivity] = useState(50);
+  const cameraSensitivityRef = useRef(0.008);
   const [ownedSkins, setOwnedSkins] = useState<string[]>(["#c58b58"]);
   const [selectedSkin, setSelectedSkin] = useState("#c58b58");
   const [notice, setNotice] = useState("Vítej v akademii! Rozhlédni se a vydej se na průzkum.");
@@ -287,7 +291,7 @@ export default function Game3D({ onExit }: Props) {
       const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
       lastPointerX = event.clientX;
       lastPointerY = event.clientY;
-      cameraYaw -= dx * 0.008;
+      cameraYaw -= dx * cameraSensitivityRef.current;
       cameraPitch = THREE.MathUtils.clamp(cameraPitch + dy * 0.018, 2.8, 8.5);
     };
     const onPointerUp: EventListener = (rawEvent) => {
@@ -325,9 +329,10 @@ export default function Game3D({ onExit }: Props) {
         if (length > 0) {
           fwd /= length; side /= length;
           const speed = activeMode === "dog" ? 6.1 : 4.6;
-          // Movement is relative to the camera, just like modern third-person games.
-          const moveX = side * Math.cos(cameraYaw) - fwd * Math.sin(cameraYaw);
-          const moveZ = side * Math.sin(cameraYaw) - fwd * Math.cos(cameraYaw);
+          // Camera-relative movement: W always moves toward the camera look direction.
+          // The previous basis was inverted, so forward/backward felt reversed.
+          const moveX = fwd * Math.sin(cameraYaw) + side * Math.cos(cameraYaw);
+          const moveZ = fwd * Math.cos(cameraYaw) - side * Math.sin(cameraYaw);
           const angle = Math.atan2(moveX, -moveZ);
           p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 10, delta);
           const nextX = p.position.x + moveX * speed * delta;
@@ -415,11 +420,12 @@ export default function Game3D({ onExit }: Props) {
     gameRef.current?.setKey("w", ny < -0.24); gameRef.current?.setKey("s", ny > 0.24);
   };
   const releaseJoystick = () => { setJoystickKnob({ x: 0, y: 0 }); ["w", "a", "s", "d"].forEach(key => gameRef.current?.setKey(key, false)); };
+  const changeCameraSensitivity = (value: number) => { setCameraSensitivity(value); cameraSensitivityRef.current = value / 6250; };
   return <section className="gameShell">
     <div className="gameTop">
       <div className="gameBrand"><span className="gameBrandIcon"><Dog size={20}/></span><div><b>HODNÝ PES</b><small>3D AKADEMIE</small></div></div>
       <div className="gameTopCenter"><span className="liveDot"/> VOLNÝ VÝCVIK <span className="gameWorld">· AREÁL AKADEMIE</span></div>
-      <div className="gameTopActions"><button title="Obchod a vzhled psa" onClick={() => setShopOpen(v => !v)}><Sparkles size={17}/></button><button title="Nápověda" onClick={() => setShowHelp(v => !v)}><Keyboard size={17}/></button><button title={sound ? "Vypnout zvuk" : "Zapnout zvuk"} onClick={() => setSound(v => !v)}>{sound ? <Volume2 size={17}/> : <VolumeX size={17}/>}</button><button title="Pozastavit" onClick={() => gameRef.current?.togglePause()}>{paused ? <Play size={17}/> : <Pause size={17}/>}</button></div>
+      <div className="gameTopActions"><button title="Mapa světa" aria-label="Mapa světa" onClick={() => setMapOpen(v => !v)}><Map size={17}/></button><button title="Obchod a vzhled psa" aria-label="Obchod a vzhled psa" onClick={() => setShopOpen(v => !v)}><Sparkles size={17}/></button><button title="Nastavení" aria-label="Nastavení" onClick={() => setSettingsOpen(v => !v)}><Settings size={17}/></button><button title="Nápověda" aria-label="Nápověda" onClick={() => setShowHelp(v => !v)}><Keyboard size={17}/></button><button title={sound ? "Vypnout zvuk" : "Zapnout zvuk"} aria-label={sound ? "Vypnout zvuk" : "Zapnout zvuk"} onClick={() => setSound(v => !v)}>{sound ? <Volume2 size={17}/> : <VolumeX size={17}/>}</button><button title="Pozastavit" aria-label="Pozastavit" onClick={() => gameRef.current?.togglePause()}>{paused ? <Play size={17}/> : <Pause size={17}/>}</button></div>
     </div>
     <div className="gameViewport">
       <div className="threeMount" ref={mountRef}/>
@@ -429,6 +435,8 @@ export default function Game3D({ onExit }: Props) {
       <div className="gameCompass"><Map size={15}/><span>AREÁL</span><i>●</i></div>
       {notice && <div className="gameNotice" key={notice}>{notice}</div>}
       {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb (W dopředu, S dozadu)</p><p>Na mobilu — podrž a táhni joystickem</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p><p>Myš / prst na herní obrazovce — otáčení kamery; směr pohybu se řídí kamerou.</p></div>}
+      {mapOpen && <div className="academyOverlay"><section className="academyPanel mapPanel"><header><div><small>PRŮZKUM SVĚTA</small><h2>Mapa akademie</h2><p>Vyber si další cíl a vydej se za dobrodružstvím.</p></div><button aria-label="Zavřít mapu" onClick={() => setMapOpen(false)}>×</button></header><div className="academyMap"><div className="mapPath mapPathVertical"/><div className="mapPath mapPathHorizontal"/><span className="mapPoint mapBase"><Dog size={17}/><small>Základna</small></span><span className="mapPoint mapPuller"><Target size={17}/><small>Dog Puller</small></span><span className="mapPoint mapSlalom"><Navigation size={17}/><small>Slalom</small></span><span className="mapPoint mapGate"><CheckCircle2 size={17}/><small>Brána</small></span></div><div className="mapLocations"><div><span className="mapLocationIcon"><Dog size={16}/></span><span><b>Základna akademie</b><small>Start dobrodružství</small></span><button onClick={() => {setMapOpen(false);gameRef.current?.reset();}}>Start</button></div><div><span className="mapLocationIcon"><Target size={16}/></span><span><b>Dog Puller</b><small>Trénink a aportovací výzva</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi stanoviště Dog Puller a stiskni E.");setNotice("Výzva Dog Puller: vydej se k tréninkové zóně.");}}>Cíl</button></div><div><span className="mapLocationIcon"><Navigation size={16}/></span><span><b>Slalomová zóna</b><small>Procvič pohyb a přesnost</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi slalomovou zónu.");setNotice("Slalom: sleduj značky v areálu.");}}>Cíl</button></div></div><footer><span>Tip: pohyb je nyní vztažený ke směru kamery.</span><button onClick={() => setMapOpen(false)}>Zpět do hry</button></footer></section></div>}
+      {settingsOpen && <div className="academyOverlay"><section className="academyPanel settingsPanel"><header><div><small>PŘIZPŮSOB SI HRU</small><h2>Nastavení hry</h2><p>Uprav si citlivost kamery a ovládání pro své zařízení.</p></div><button aria-label="Zavřít nastavení" onClick={() => setSettingsOpen(false)}>×</button></header><label className="settingLabel">Citlivost kamery <b>{cameraSensitivity}%</b></label><input className="sensitivityRange" type="range" min="20" max="100" step="5" value={cameraSensitivity} onChange={e => changeCameraSensitivity(Number(e.target.value))}/><div className="settingScale"><span>Pomalá</span><span>Rychlá</span></div><div className="settingInfo"><span><Keyboard size={17}/></span><div><b>Počítač</b><p>WASD / šipky – pohyb · Mezerník – skok · V – pes / trenér · E – interakce</p></div></div><div className="settingInfo"><span><Navigation size={17}/></span><div><b>Mobil a tablet</b><p>Joystick pro pohyb, tlačítka pro skok a akci, tažením po světě otáčíš kamerou.</p></div></div><div className="settingInfo"><span><Volume2 size={17}/></span><div><b>Zvukové efekty</b><p>{sound ? "Zvukové přepnutí je zapnuté." : "Zvuk je aktuálně vypnutý."} Použij ikonu zvuku v horní liště.</p></div></div><footer><button onClick={() => changeCameraSensitivity(50)}>Obnovit výchozí</button><button onClick={() => setSettingsOpen(false)}>Hotovo</button></footer></section></div>}
       {shopOpen && <div className="shopOverlay"><section className="shopPanel"><header><div><small>AKADEMICKÝ OBCHOD</small><h2>Vzhled tvého parťáka</h2><p>Utrácej získané XP za nové barvy srsti. Odemčené vzhledy zůstávají při hraní v tomto okně.</p></div><button aria-label="Zavřít obchod" onClick={() => setShopOpen(false)}>×</button></header><div className="shopBalance"><Trophy size={16}/> Tvoje XP <b>{xp.toLocaleString("cs-CZ")}</b></div><div className="shopItems">{[{color:"#c58b58",name:"Klasický parťák",price:0,desc:"Přírodní hnědá srst"},{color:"#d6d8e0",name:"Stříbrný obláček",price:60,desc:"Světlá elegantní srst"},{color:"#252333",name:"Noční průzkumník",price:100,desc:"Tmavá srst"},{color:"#d97a45",name:"Liščí dobrodruh",price:150,desc:"Teplý měděný odstín"}].map(item => {const owned = ownedSkins.includes(item.color); const selected = selectedSkin === item.color; return <article className={"shopItem" + (selected ? " shopItemSelected" : "")} key={item.color}><div className="shopDogSwatch" style={{background:item.color}}>🐕</div><div className="shopItemInfo"><b>{item.name}</b><span>{item.desc}</span><small>{item.price === 0 ? "ZDARMA" : item.price + " XP"}</small></div><button disabled={!owned && xp < item.price} onClick={() => {if (!owned) {setXp(v => v - item.price);setOwnedSkins(v => [...v,item.color]);}setSelectedSkin(item.color);gameRef.current?.setDogStyle(item.color);}}>{selected ? "Vybráno" : owned ? "Použít" : "Odemknout"}</button></article>;})}</div><footer><span>XP získáš sbíráním pamlsků a plněním stanovišť.</span><button onClick={() => setShopOpen(false)}>Zpět do hry</button></footer></section></div>}
       {paused && <div className="pauseOverlay"><div><Pause size={28}/><h2>Hra pozastavena</h2><p>Svět na tebe počká.</p><button className="gamePrimary" onClick={() => gameRef.current?.togglePause()}><Play size={16}/> Pokračovat</button><button className="gameSecondary" onClick={() => gameRef.current?.reset()}><RotateCcw size={15}/> Začít znovu</button></div></div>}
       <div className="gameControls">
