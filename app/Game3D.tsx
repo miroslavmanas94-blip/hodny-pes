@@ -245,6 +245,49 @@ export default function Game3D({ onExit }: Props) {
     makeStation(-42, -92, "#d99b57", "Městské náměstí", "Dorazil jsi do městské části světa. Rozhlédni se po nových cestách.");
     makeStation(58, -145, "#4f9ec4", "Jezero", "Našel jsi klidné místo u jezera. Zkus se psem chvíli odpočívat.");
     makeStation(-72, -178, "#b77bd1", "Tajná vyhlídka", "Tajné místo objeveno! Pokračuj v průzkumu a hledej další skryté body.");
+
+    // Distinct landmarks make the expanded world feel like more than a larger empty lawn.
+    const townRoad = new THREE.Mesh(new THREE.PlaneGeometry(100, 7), pathMat);
+    townRoad.rotation.x = -Math.PI / 2;
+    townRoad.position.set(-42, -0.045, -92);
+    townRoad.receiveShadow = true;
+    scene.add(townRoad);
+    const houseWalls = [mat("#e8d9b8"), mat("#d7e2c7"), mat("#f0e7d5"), mat("#d8c7aa")];
+    const houseRoofs = [mat("#8c6249"), mat("#657c59"), mat("#9c7355")];
+    for (let i = 0; i < 8; i++) {
+      const house = new THREE.Group();
+      const w = 3.1 + (i % 3) * 0.45;
+      const d = 2.8 + (i % 2) * 0.5;
+      const walls = new THREE.Mesh(new THREE.BoxGeometry(w, 2.5, d), houseWalls[i % houseWalls.length]);
+      walls.position.y = 1.25;
+      walls.castShadow = true;
+      walls.receiveShadow = true;
+      house.add(walls);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.82, 1.55, 4), houseRoofs[i % houseRoofs.length]);
+      roof.position.y = 3.15;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+      house.add(roof);
+      const door = new THREE.Mesh(new THREE.BoxGeometry(0.58, 1.15, 0.08), mat("#76513c"));
+      door.position.set(0, 0.58, d / 2 + 0.045);
+      house.add(door);
+      const side = i % 2 === 0 ? -1 : 1;
+      house.position.set(-42 + side * (8 + Math.floor(i / 2) * 5), 0, -92 + (i % 4 < 2 ? -10 : 10));
+      house.rotation.y = side * 0.12;
+      scene.add(house);
+      worldColliders.push({ x: house.position.x, z: house.position.z, r: 2.1 });
+    }
+
+    const lakeShore = new THREE.Mesh(new THREE.CircleGeometry(15, 40), mat("#c6b88f"));
+    lakeShore.rotation.x = -Math.PI / 2;
+    lakeShore.position.set(58, -0.035, -145);
+    lakeShore.receiveShadow = true;
+    scene.add(lakeShore);
+    const lakeWater = new THREE.Mesh(new THREE.CircleGeometry(12.5, 40), new THREE.MeshStandardMaterial({ color: "#6caec4", roughness: 0.24, metalness: 0.08, transparent: true, opacity: 0.92 }));
+    lakeWater.rotation.x = -Math.PI / 2;
+    lakeWater.position.set(58, -0.018, -145);
+    scene.add(lakeWater);
+    worldColliders.push({ x: 58, z: -145, r: 8.5 });
     const pullerToy = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.12, 10, 22), mat("#f6efdd", 0.42));
     pullerToy.position.set(0, 0.24, -7);
     pullerToy.rotation.x = Math.PI / 2;
