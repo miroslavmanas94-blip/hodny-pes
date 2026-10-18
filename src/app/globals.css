@@ -84,3 +84,34 @@ body{background:radial-gradient(ellipse at 78% 18%,#2b1747 0%,#17131f 58%);backg
 .direction-pad button:active,.touch-actions button:active{background:#6A00F455;border-color:#FFD6A5}
 .secondary-action:hover,.text-action:hover{border-color:#FFD6A555;background:#6A00F41a}
 @media(prefers-reduced-motion:no-preference){.menu-item,.primary-cta,.scene-play,.icon-button{transition:transform .18s ease,background .18s ease,border-color .18s ease}.menu-item:hover{transform:translateX(2px)}}
+
+/* In-game HUD — compact, readable on desktop and touch screens */
+.canvas-wrap .game-hud{position:absolute;inset:14px 14px auto;z-index:3;display:grid;gap:0;pointer-events:none}
+.hud-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.hud-location,.hud-vitals,.hud-stat,.hud-objective,.hud-dog{display:flex;align-items:center}
+.hud-location{gap:10px;padding:10px 12px;border:1px solid #FFD6A536;border-radius:13px;background:linear-gradient(135deg,#17131feF,#211a2de8);box-shadow:0 8px 26px #0003;backdrop-filter:blur(14px)}
+.hud-location-icon,.hud-stat-icon,.hud-objective-mark,.hud-dog-avatar{display:grid;place-items:center;flex:none}
+.hud-location-icon{width:31px;height:31px;border-radius:9px;background:#6A00F433;color:#FFD6A5}
+.hud-location b,.hud-location small,.hud-stat small,.hud-stat b,.hud-objective small,.hud-objective b,.hud-objective span,.hud-dog small,.hud-dog b{display:block}
+.hud-location b{font:800 9px Manrope,sans-serif;letter-spacing:.1em;color:#fff8ef}
+.hud-location small{font-size:8px;letter-spacing:.08em;color:#d3bda7;margin-top:4px}
+.hud-vitals{gap:7px;padding:7px;border:1px solid #FFD6A526;border-radius:13px;background:#17131feF;box-shadow:0 8px 26px #0003;backdrop-filter:blur(14px)}
+.hud-stat{gap:7px;padding:0 5px}
+.hud-stat-icon{width:27px;height:27px;border-radius:8px;background:#6A00F433;color:#FFD6A5}
+.hud-stat-icon.hud-coin{background:#FFD6A51c;color:#FFD6A5}
+.hud-stat small{font-size:7px;letter-spacing:.1em;color:#c9bed8}
+.hud-stat b{font:800 12px Manrope,sans-serif;color:#fff9f1;margin-top:2px;font-variant-numeric:tabular-nums}
+.hud-camera{pointer-events:auto;border:1px solid #FFD6A53a;border-radius:8px;padding:8px 9px;background:#6A00F422;color:#FFD6A5;font:700 8px Manrope,sans-serif;letter-spacing:.05em;white-space:nowrap}
+.hud-camera:hover{background:#6A00F455}
+.hud-bottomline{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:clamp(155px,24vw,290px)}
+.hud-objective{gap:10px;max-width:min(72%,330px);padding:11px 13px;border:1px solid #FFD6A536;border-radius:12px;background:linear-gradient(135deg,#17131fee,#211a2de8);box-shadow:0 8px 26px #0003;backdrop-filter:blur(14px)}
+.hud-objective-mark{width:30px;height:30px;border-radius:9px;background:#6A00F433;color:#FFD6A5}
+.hud-objective small,.hud-dog small{font-size:7px;letter-spacing:.13em;color:#c9bed8}
+.hud-objective b{font:700 11px Manrope,sans-serif;color:#fff9f1;margin-top:4px}
+.hud-objective span{font-size:9px;line-height:1.4;color:#c9bed8;margin-top:4px}
+.hud-dog{gap:8px;padding:9px 11px;border:1px solid #FFD6A536;border-radius:12px;background:#17131fee;box-shadow:0 8px 26px #0003;backdrop-filter:blur(14px)}
+.hud-dog-avatar{width:29px;height:29px;border-radius:9px;background:#FFD6A51a;color:#FFD6A5}
+.hud-dog b{max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#fff9f1;margin-top:4px}
+@media(max-width:600px){.canvas-wrap .game-hud{inset:9px 8px auto;gap:0}.hud-topline{gap:6px}.hud-location{gap:6px;padding:7px 8px}.hud-location-icon{width:26px;height:26px}.hud-location b{font-size:7px}.hud-location small{font-size:6px}.hud-vitals{gap:3px;padding:5px}.hud-stat{gap:4px;padding:0 2px}.hud-stat-icon{width:22px;height:22px}.hud-stat small{font-size:6px}.hud-stat b{font-size:10px}.hud-camera{padding:7px 6px;font-size:7px}.hud-bottomline{margin-top:clamp(190px,45vw,245px);gap:6px}.hud-objective{gap:6px;padding:8px;max-width:66%}.hud-objective-mark{width:25px;height:25px}.hud-objective small,.hud-dog small{font-size:6px}.hud-objective b{font-size:9px}.hud-objective span{font-size:8px}.hud-dog{gap:5px;padding:7px}.hud-dog-avatar{width:24px;height:24px}.hud-dog b{font-size:9px;max-width:68px}}
+@media(max-width:380px){.hud-location{max-width:45%}.hud-vitals{gap:2px}.hud-stat-icon{display:none}.hud-camera{padding:7px 5px}.hud-dog{max-width:36%}.hud-dog b{max-width:54px}.hud-bottomline{margin-top:195px}}
+@media(prefers-reduced-motion:no-preference){.hud-location,.hud-vitals,.hud-objective,.hud-dog{animation:hud-enter .35s ease-out both}@keyframes hud-enter{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}}
