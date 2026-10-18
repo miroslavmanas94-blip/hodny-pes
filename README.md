@@ -1,25 +1,56 @@
-# Hodný Pes Academy
+# Hodný pes: Psí dobrodružství
 
-**Učte se spolu. Roste spolu.** Responzivní herní prototyp zaměřený na pozitivní výcvik, důvěru mezi člověkem a psem a Dog Puller.
+Responzivní herní prototyp pro prohlížeč, inspirovaný izometrickým ovládáním typu point-and-click. Hráč prozkoumává stylizovaný výcvikový areál, vybírá aktivity, trénuje se psem, stará se o jeho energii a důvěru a postupně odemyká další psí parťáky.
 
-## Aktuální obsah
-- Nové rozhraní Academy s přehledem, akademií, profilem psa, komunitou a odměnami.
-- Interaktivní ukázková lekce s lokální odměnou XP a základní úpravou profilu.
-- Přepínání čeština/angličtina.
-- Responzivní rozvržení, přístupné ovládací prvky, omezení animací a PWA manifest.
-- Herní design dokument v docs/GAME_DESIGN.md.
+## Aktuální základ
 
-## Spuštění
-Požadavky: Node.js 20+ a npm.
+- Šest samostatně tematizovaných lokací: hlavní areál, cvičiště, Dog Puller aréna, čichací zahrada, klidová zóna a psí park.
+- Klikání na aktivity přesouvá postavu a psa k cíli a spouští herní akci.
+- Mise a odměny: Hafíci, XP, úrovně, důvěra, energie a odemykání psů.
+- Každý pes má vlastní uloženou energii, důvěru a zkušenosti.
+- Opakování již splněné aktivity poskytne malou zkušenostní odměnu bez opakovaného získání mincí.
+- Čeština a angličtina, responzivní desktopové i dotykové rozhraní.
+- Místní ukládání postupu v prohlížeči; možnost začít znovu.
+- Odkazy na skutečné centrum a e-shop Hodný pes bez rušivých reklam.
 
-    npm install
-    cp .env.example .env.local
-    npm run dev
+## Co zatím není implementované
 
-Aplikace funguje bez Supabase klíčů. Přihlášení, cloud save, offline cache, push notifikace, multiplayer a platby zatím nejsou implementované.
+Přihlášení a účty, cloudová synchronizace, skutečný online multiplayer, sdílené mise, žebříčky, skutečné 3D modely/animace, zvukové soubory a serverové ukládání. Současná mapa je stylizovaná SVG/2D scéna, nikoli plnohodnotný 3D svět. Herní prototyp proto nepředstírá, že online funkce již fungují.
 
-## Barvy
-- Fialová: #6A00F4
-- Meruňková: #FFD6A5
+## Technologie
 
-Původní historie repozitáře zůstává zachována; tento commit nahrazuje obsah pracovní větve novou verzí.
+- Next.js App Router
+- React 19 + TypeScript
+- Lucide icons
+- Cloudflare Pages s OpenNext
+
+## Vývoj
+
+Vyžaduje Node.js 20+.
+
+```bash
+npm install
+npm run dev
+```
+
+Kontrola typů:
+
+```bash
+npm run typecheck
+```
+
+Cloudflare build:
+
+```bash
+npx opennextjs-cloudflare build
+```
+
+Cloudflare deployment se provádí přes nastavený projekt a jeho build/deploy workflow. Nepovažuj změny v GitHubu za potvrzené nasazení, dokud Cloudflare neoznámí úspěšný build a deployment.
+
+## Designové zásady
+
+- Pozitivní výcvik a důvěra před výkonem.
+- Žádné tresty za přestávku ani pay-to-win výhody.
+- Bezplatné assety a infrastruktura jako výchozí volba.
+- Vlastní herní identita inspirovaná přírodou a přátelským prostředím.
+- Značka Hodný pes se propaguje citlivě a obsahuje odkazy na skutečné služby.
