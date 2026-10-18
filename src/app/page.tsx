@@ -8,7 +8,7 @@ import { BREEDS, MISSIONS, scorePullerAttempt, type PullerMode } from "@/game/co
 
 const GameCanvas = dynamic(() => import("@/components/game/GameCanvas"), { ssr: false, loading: () => <div className="scene-loading">Připravujeme cvičiště…</div> });
 type Section = "world" | "school" | "puller";
-type SessionUser = { id: string; email?: string };
+type SessionUser = { id: string; email?: string };\ntype ShopItem = { id: string; name: string; description: string; category: string; price: number };
 const menu = [
   { id: "world" as const, label: "Otevřený svět", detail: "Prozkoumej cvičiště a okolní louky", icon: Map },
   { id: "school" as const, label: "Psí škola", detail: "Nauč se první povely", icon: GraduationCap },
@@ -34,7 +34,7 @@ export default function Home() {
   const [pullerMode, setPullerMode] = useState<PullerMode>("practice");
   const [pullerScore, setPullerScore] = useState(0);
   const [pullerAttempts, setPullerAttempts] = useState(0);
-  const [coins, setCoins] = useState(0);
+  const [coins, setCoins] = useState(0);\n  const [shopItems, setShopItems] = useState<ShopItem[]>([]);\n  const [ownedItems, setOwnedItems] = useState<string[]>([]);\n  const [walletCoins, setWalletCoins] = useState<number | null>(null);\n  const [shopMessage, setShopMessage] = useState("");\n  const [shopBusyItem, setShopBusyItem] = useState<string | null>(null);
   const [xp, setXp] = useState(0);
   const [notice, setNotice] = useState("");
   const [completed, setCompleted] = useState<string[]>([]);
