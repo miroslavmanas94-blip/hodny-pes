@@ -207,3 +207,6 @@
 .settingInfo>span{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:#e2ebd8;color:#426d43}
 .settingInfo b{font-size:10px}.settingInfo p{margin:5px 0 0;color:#718069;font-size:9px;line-height:1.65}
 @media(max-width:480px){.academyOverlay{padding:8px}.academyPanel{padding:15px;border-radius:18px}.academyMap{height:195px;margin:15px 0 12px}.mapPoint svg{width:30px;height:30px;padding:7px}.mapPoint small{font-size:7px}.mapLocations>div{gap:7px;padding:8px}.mapLocations b{font-size:9px}.mapLocations small{font-size:8px}.mapLocations button{padding:8px}.academyPanel>footer span{max-width:58%}.settingInfo{padding:10px}}
+
+/* Keep the map shortcut visible on narrow screens too. */
+@media(max-width:800px){.gameTopActions button:first-child{display:grid}}
