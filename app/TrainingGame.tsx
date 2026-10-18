@@ -63,7 +63,21 @@ export default function TrainingGame(){
  const accuracy=save.attempts?Math.round(save.correct/save.attempts*100):0;
  useEffect(()=>{try{const raw=localStorage.getItem("hodny-pes-training-save-v3");if(raw){const p=JSON.parse(raw) as Partial<Save>;setSave({...initialSave,...p,skills:{...initialSkills,...p.skills},unlocked:Array.isArray(p.unlocked)?p.unlocked:["Monty"]});if(p.place)setPlayer({x:50,y:88});}}catch{}setLoaded(true)},[]);
  useEffect(()=>{if(loaded){try{localStorage.setItem("hodny-pes-training-save-v3",JSON.stringify(save))}catch{}}},[save,loaded]);
- useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(game||photoMode||showStats)return;const k=e.key.toLowerCase();const d=12;if(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(k)){e.preventDefault();setPlayer(p=>({x:Math.max(7,Math.min(93,p.x+((k==="arrowleft"||k==="a")?-d:(k==="arrowright"||k==="d")?d:0)),y:Math.max(10,Math.min(91,p.y+((k==="arrowup"||k==="w")?-d:(k==="arrowdown"||k==="s")?d:0)))}));}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[game,photoMode,showStats]);
+ useEffect(() => {
+  const onKey = (e: KeyboardEvent) => {
+   if (game || photoMode || showStats) return;
+   const directions: Record<string, [number, number]> = {
+    arrowup: [0, -12], w: [0, -12], arrowdown: [0, 12], s: [0, 12],
+    arrowleft: [-12, 0], a: [-12, 0], arrowright: [12, 0], d: [12, 0]
+   };
+   const delta = directions[e.key.toLowerCase()];
+   if (!delta) return;
+   e.preventDefault();
+   setPlayer(p => ({ x: Math.max(7, Math.min(93, p.x + delta[0])), y: Math.max(10, Math.min(91, p.y + delta[1])) }));
+  };
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+ }, [game, photoMode, showStats]);
  const move=useCallback((dx:number,dy:number)=>setPlayer(p=>({x:Math.max(7,Math.min(93,p.x+dx)),y:Math.max(10,Math.min(91,p.y+dy))})),[]);
  const startGame=(id:Activity)=>{setGame(id);setRound(0);setErrors(0);setStep(0);setFeedback("");setFinished(false);setQuizIndex(Math.floor(Math.random()*quizQuestions.length));setQuizScore(0);setScentTarget(Math.floor(Math.random()*3));setPullerTarget(Math.floor(Math.random()*3));setRecallReady(false);setSequence(id==="agility"?routes[Math.floor(Math.random()*routes.length)]:id==="tricks"?trickRoutes[Math.floor(Math.random()*trickRoutes.length)]:[]);};
  const finishGame=(score:number,total:number)=>{const pct=Math.max(0,Math.round(score/total*100));const earned=Math.max(5,Math.round(pct/5));const coins=Math.max(3,Math.round(pct/10)+5);setSave(s=>({...s,xp:s.xp+earned,coins:s.coins+coins,bond:Math.min(100,s.bond+(pct>=60?3:1)),energy:Math.max(0,s.energy-8),completed:s.completed+1,attempts:s.attempts+total,correct:s.correct+score,streak:pct>=70?s.streak+1:0,dailyDone:true,skills:{...s.skills,[game!]:Math.min(100,(s.skills[game!]||0)+Math.max(2,Math.round(pct/10))}}));setFeedback("Trénink dokončen: "+pct+" % · +"+earned+" XP · +"+coins+" Hafíků");setFinished(true);};
