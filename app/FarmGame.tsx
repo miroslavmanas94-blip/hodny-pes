@@ -36,6 +36,7 @@ export default function FarmGame() {
   const [toast, setToast] = useState("");
   const [language, setLanguage] = useState<"cs" | "en">("cs");
   const [loaded, setLoaded] = useState(false);
+  const [activeLocation, setActiveLocation] = useState("training");
 
   const en = language === "en";
   const t = (cs: string, english: string) => en ? english : cs;
@@ -111,6 +112,17 @@ export default function FarmGame() {
       <a className="farmBrand" href="https://hodnypes.cz/" target="_blank" rel="noreferrer"><span className="brandPaw">🐾</span><span><b>HODNÝ PES</b><small>{t("PSÍ CENTRUM · TVŮJ PŘÍBĚH", "DOG CENTRE · YOUR STORY")}</small></span></a>
       <div className="farmTopLinks"><span className="onlinePill"><i/> {t("Tvůj areál", "Your centre")}</span><button className="iconButton" title={t("Nápověda", "Help")} onClick={() => setPanel("help")}><CircleHelp size={18}/></button><button className="iconButton" title={t("Jazyk", "Language")} onClick={() => setLanguage(v => v === "cs" ? "en" : "cs")}><Languages size={18}/><small>{language.toUpperCase()}</small></button><a className="brandCta" href="https://hodnypes.cz/" target="_blank" rel="noreferrer">{t("Navštívit Hodný pes", "Visit Hodný pes")} <ArrowUpRight size={15}/></a></div>
     </header>
+    <nav className="locationTabs" aria-label={t("Lokace centra","Centre locations")}>
+      <span className="locationTabsLabel">{t("LOKACE CENTRA","CENTRE LOCATIONS")}</span>
+      {[
+        {id:"training",label:t("Cvičiště","Training ground"),icon:<Dog size={16}/>},
+        {id:"park",label:t("Psí park","Dog park"),icon:<Trees size={16}/>},
+        {id:"puller",label:"Dog Puller",icon:<CircleHelp size={16}/>},
+        {id:"garden",label:t("Zahrada","Garden"),icon:<Leaf size={16}/>},
+        {id:"centre",label:t("Hlavní areál","Main grounds"),icon:<House size={16}/>}
+      ].map(loc=><button key={loc.id} className={"locationTab "+(activeLocation===loc.id?"locationTabActive":"")} onClick={()=>{setActiveLocation(loc.id);setPanel(null);}}>{loc.icon}<span>{loc.label}</span>{activeLocation===loc.id&&<i/>}</button>)}
+      <span className="locationTabSpacer"/><span className="locationTabStatus"><i/>{t("POSTUP ULOŽEN","PROGRESS SAVED")}</span>
+    </nav>
     <div className="farmLayout">
       <aside className="farmSidebar">
         <div className="playerCard"><div className="playerAvatar">{dog.icon}</div><div><small>{t("SPRÁVCE CENTRA", "CENTRE MANAGER")}</small><b>{t("Psí dobrodruh", "Dog adventurer")}</b><span>{t("Úroveň", "Level")} {level} · {dog.name}</span></div><Star size={17} fill="currentColor"/></div>
@@ -133,7 +145,7 @@ export default function FarmGame() {
           <div className="heroIllustration" aria-hidden="true"><div className="heroSun"/><div className="heroCloud cloudA"/><div className="heroCloud cloudB"/><div className="heroHill hillA"/><div className="heroHill hillB"/><div className="heroHouse">🏡</div><div className="heroDog">{dog.icon}</div><span className="floatHeart">♥</span><span className="floatSpark">✦</span><span className="floatPaw">🐾</span></div>
         </div>
 
-        <div className="sectionHeading"><div><span className="sectionKicker">{t("ŽIVÝ AREÁL", "YOUR LIVING CENTRE")}</span><h2>{t("Tvoje psí centrum", "Your dog centre")}</h2><p>{t("Klepni na pozemek, budovu nebo pejska a pusť se do práce.", "Tap a plot, building or dog to get started.")}</p></div><button className="softButton" onClick={() => setPanel("map")}><Map size={15}/>{t("Mapa", "Map")}</button></div>
+        <div className="sectionHeading"><div><span className="sectionKicker">{t("OTEVŘENÝ AREÁL","OPEN DOG CENTRE")}</span><h2>{activeLocation==="training"?t("Cvičiště","Training ground"):activeLocation==="park"?t("Psí park","Dog park"):activeLocation==="puller"?"Dog Puller":activeLocation==="garden"?t("Zahrada","Garden"):t("Hlavní areál","Main grounds")}</h2><p>{t("Vyber budovu, rozšiřuj centrum a objevuj svět Hodný pes.","Explore locations, activities and the world of Hodný pes.")}</p></div><button className="softButton" onClick={() => setPanel("map")}><Map size={15}/>{t("Rozšířit", "Expand")}</button></div>
         <div className="gameBoardWrap">
           <div className="boardLegend"><span><i className="legendGreen"/> {t("Tvůj pozemek", "Your land")}</span><span><i className="legendGold"/> {t("Klepnutím rozšíříš", "Tap to expand")}</span><span className="boardZoom">{t("36 pozemků · ", "36 plots · ")}{owned.length}/36</span></div>
           <svg className="isometricBoard" viewBox="0 0 700 420" role="img" aria-label={t("Izometrická mapa psího centra. Klepni na volný pozemek nebo budovu.", "Isometric dog centre map. Tap land or a building.")}>
