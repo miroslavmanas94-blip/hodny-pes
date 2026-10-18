@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import * as THREE from "three";
-import { Camera, Dog, Footprints, Gamepad2, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX } from "lucide-react";
+import { Dog, Footprints, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX } from "lucide-react";
 
 type Mode = "dog" | "human";
 type Props = { onExit?: () => void };
@@ -99,9 +99,9 @@ export default function Game3D({ onExit }: Props) {
     const purple = mat("#6A00F4"), peach = mat("#FFD6A5"), white = mat("#fff9f0"), orange = mat("#ed8d47");
     const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.09, 10, 24), purple);
     hoop.position.set(-5.3, 1.12, -12); hoop.rotation.y = Math.PI / 2; hoop.castShadow = true; scene.add(hoop);
-    for (const x of [-5.3, -5.3]) {
+    for (const z of [-0.62, 0.62]) {
       const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.55, 8), peach);
-      foot.position.set(x, 0.28, -12 + (x < 0 ? -0.62 : 0.62)); scene.add(foot);
+      foot.position.set(-5.3, 0.28, -12 + z); scene.add(foot);
     }
     for (let i = 0; i < 4; i++) {
       const cone = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.62, 8), orange);
@@ -266,6 +266,7 @@ export default function Game3D({ onExit }: Props) {
     const observer = new ResizeObserver(resize); observer.observe(host);
 
     const clock = new THREE.Clock();
+    let animationId = 0;
     const animate = () => {
       const delta = Math.min(clock.getDelta(), 0.04);
       frame += delta;
@@ -324,9 +325,9 @@ export default function Game3D({ onExit }: Props) {
         if (noticeCooldown > 6 && length > 0) { noticeCooldown = 0; }
       }
       renderer.render(scene, camera);
-      requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
     };
-    const animationId = requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(animationId);
@@ -339,7 +340,7 @@ export default function Game3D({ onExit }: Props) {
     };
   }, []);
 
-  const hold = (key: string) => ({ onPointerDown: (e: React.PointerEvent) => { e.preventDefault(); gameRef.current?.setKey(key, true); }, onPointerUp: () => gameRef.current?.setKey(key, false), onPointerLeave: () => gameRef.current?.setKey(key, false), onPointerCancel: () => gameRef.current?.setKey(key, false) });
+  const hold = (key: string) => ({ onPointerDown: (e: PointerEvent<HTMLButtonElement>) => { e.preventDefault(); gameRef.current?.setKey(key, true); }, onPointerUp: () => gameRef.current?.setKey(key, false), onPointerLeave: () => gameRef.current?.setKey(key, false), onPointerCancel: () => gameRef.current?.setKey(key, false) });
   return <section className="gameShell">
     <div className="gameTop">
       <div className="gameBrand"><span className="gameBrandIcon"><Dog size={20}/></span><div><b>HODNÝ PES</b><small>3D AKADEMIE</small></div></div>
