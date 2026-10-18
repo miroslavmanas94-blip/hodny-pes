@@ -213,6 +213,12 @@ export default function Game3D({ onExit }: Props) {
     makeStation(-5.3, -12, "#6A00F4", "Průzkumník", "Prošel jsi tréninkovou bránou. Zkus se teď projít mezi kužely.");
     makeStation(5.5, -12, "#ed8d47", "Slalom", "Našel jsi slalomovou zónu. Každá překážka je nový zážitek.");
     makeStation(0, -26, "#33a879", "Základna akademie", "Dobrá práce! Tady začíná tvoje cesta pozitivním výcvikem.");
+    makeStation(0, -7, "#3f8153", "Dog Puller", "Najdi Puller, přibliž se ke stanovišti a stiskni E pro dokončení výzvy.");
+    const pullerToy = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.12, 10, 22), mat("#f6efdd", 0.42));
+    pullerToy.position.set(0, 0.24, -7);
+    pullerToy.rotation.x = Math.PI / 2;
+    pullerToy.castShadow = true;
+    scene.add(pullerToy);
     const markerMat = new THREE.MeshBasicMaterial({ color: "#ffffff" });
     const marker = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), markerMat); marker.position.y = 2.1; scene.add(marker);
 
