@@ -19,7 +19,7 @@ const DOGS = [
   { name: "Bety", breed: "Corgi", icon: "B", trait: "Veselá parťačka" },
   { name: "Rex", breed: "Border kolie", icon: "R", trait: "Chytrý šikula" },
   { name: "Luna", breed: "Zlatý retrívr", icon: "L", trait: "Milovnice aportu" },
-  { name: "Flek", breed: "Dalmatin", icon: "", trait: "Malý dobrodruh" },
+  { name: "Flek", breed: "Dalmatin", icon: "F", trait: "Malý dobrodruh" },
 ];
 const tileCenter = (r: number, c: number) => ({ x: 350 + (c - r) * 53, y: 72 + (c + r) * 27 });
 
