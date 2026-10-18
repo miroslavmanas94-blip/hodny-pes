@@ -46,6 +46,7 @@ export default function FarmGame() {
   const [loaded, setLoaded] = useState(false);
   const [activeLocation, setActiveLocation] = useState("centre");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mapZoom, setMapZoom] = useState(1);
 
   const en = language === "en";
   const t = (cs: string, english: string) => en ? english : cs;
@@ -150,7 +151,7 @@ export default function FarmGame() {
         <div className="mapViewport">
           <div className="mapAtmosphere"><span className="mapSun"/><span className="mapCloud cloudOne"/><span className="mapCloud cloudTwo"/></div>
           <div className="mapTopLabel"><span className="mapLiveDot"/><span>{t("HLAVNÍ AREÁL HODNÝ PES", "HODNÝ PES MAIN GROUNDS")}</span><small>{t("INTERAKTIVNÍ MAPA", "INTERACTIVE MAP")}</small></div>
-          <svg className="isometricBoard" viewBox="0 0 700 420" role="img" aria-label={t("Izometrická mapa hlavního areálu. Vyber pozemek nebo lokaci.", "Isometric map of the main grounds. Choose a plot or location.")}>
+          <svg className="isometricBoard" style={{transform:`translate(-50%,-48%) scale(${mapZoom})`}} viewBox="0 0 700 420" role="img" aria-label={t("Izometrická mapa hlavního areálu. Vyber pozemek nebo lokaci.", "Isometric map of the main grounds. Choose a plot or location.")}>
             <defs><linearGradient id="groundWash" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b8d29a"/><stop offset="100%" stopColor="#8eaf79"/></linearGradient><filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#34472d" floodOpacity=".16"/></filter></defs>
             <ellipse cx="350" cy="245" rx="294" ry="145" fill="#4f7046" opacity=".12"/>
             <path d="M350 42 L640 190 L350 365 L60 190 Z" fill="url(#groundWash)" stroke="#77996a" strokeWidth="2"/>
@@ -174,7 +175,7 @@ export default function FarmGame() {
           {selectedBuild && <div className="placementHint"><span className="placementDot"/><span>{t("Vyber volný pozemek pro", "Choose an empty plot for")} <b>{BUILDINGS.find(b=>b.type===selectedBuild)?.name}</b></span><button onClick={() => setSelectedBuild(null)} aria-label={t("Zrušit výběr","Cancel selection")}><X size={15}/></button></div>}
           <div className="mapLegend"><span><i className="legendYourLand"/> {t("Tvůj pozemek","Your land")}</span><span><i className="legendLockedLand"/> {t("K rozšíření","Available to unlock")}</span><span className="legendCount">{owned.length}/36 {t("pozemků","plots")}</span></div>
           <div className="mapCompass" aria-hidden="true"><span>N</span><div/></div>
-          <div className="mapZoomControls"><button onClick={() => notify(t("Mapa je zobrazena v přehledném měřítku.", "Map is shown at overview scale."))} aria-label={t("Přiblížit mapu","Zoom map")}><Plus size={17}/></button><button onClick={() => {setActiveLocation("centre");setSelectedBuild(null);}} aria-label={t("Zobrazit celý areál","Show full grounds")}><Search size={16}/></button></div>
+          <div className="mapZoomControls"><button onClick={() => setMapZoom(v => Math.min(1.35, Number((v + 0.1).toFixed(2))))} aria-label={t("Přiblížit mapu","Zoom map")}><Plus size={17}/></button><button onClick={() => {setActiveLocation("centre");setSelectedBuild(null);setMapZoom(1);}} aria-label={t("Zobrazit celý areál","Show full grounds")}><Search size={16}/></button></div>
         </div>
         <div className="worldBottomBar"><div className="activeCompanion"><span className="companionBadge" style={{"--dog-color":dog.color} as CSSProperties}><Dog size={21}/></span><span><small>{t("AKTIVNÍ PARŤÁK", "ACTIVE COMPANION")}</small><b>{dog.name} <em>{dog.breed}</em></b></span><button onClick={() => setPanel("dogs")}>{t("Změnit", "Change")}</button></div><div className="quickActions"><button onClick={() => {setPanel("quests");setSidebarOpen(false);}}><Target size={17}/><span>{t("Mise", "Missions")}</span><i>{quests.filter(q=>!completed.includes(q.id)).length}</i></button><button onClick={() => {setPanel("build");setSidebarOpen(false);}}><House size={17}/><span>{t("Stavět", "Build")}</span></button><button onClick={() => {setPanel("shop");setSidebarOpen(false);}}><ShoppingBag size={17}/><span>{t("Obchod", "Shop")}</span></button><button onClick={() => claimQuest("welcome",quests[0].title,30,10)} disabled={completed.includes("welcome")}><Sparkles size={17}/><span>{completed.includes("welcome")?t("Splněno","Complete"):t("Denní úkol","Daily task")}</span></button></div></div>
         <footer className="worldFooter"><span>HODNÝ PES <i>·</i> {t("hra o důvěře a společných zážitcích", "a game about trust and shared moments")}</span><a href="https://hodnypes.cz/" target="_blank" rel="noreferrer">{t("Skutečné kurzy a výcvik", "Real training & courses")} <ArrowUpRight size={13}/></a></footer>
