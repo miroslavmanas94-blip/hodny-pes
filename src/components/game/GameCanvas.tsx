@@ -27,7 +27,9 @@ function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; camera
       if (e.code === "Space" && mode === "puller" && !e.repeat) window.dispatchEvent(new CustomEvent("puller:throw"));
     };
     const up = (e: KeyboardEvent) => { keys.current[e.key.toLowerCase()] = false; };
-    const moveControl = (event: Event) => { const detail = (event as CustomEvent<{key:string;pressed:boolean}>).detail; keys.current[detail.key] = detail.pressed; };\n    const rotateCamera = (event: PointerEvent) => { if (event.buttons === 1 && event.target instanceof HTMLCanvasElement && root.current) root.current.rotation.y -= event.movementX * 0.004; };\n    const throwRing = () => {
+    const moveControl = (event: Event) => { const detail = (event as CustomEvent<{key:string;pressed:boolean}>).detail; keys.current[detail.key] = detail.pressed; };
+    const rotateCamera = (event: PointerEvent) => { if (event.buttons === 1 && event.target instanceof HTMLCanvasElement && root.current) root.current.rotation.y -= event.movementX * 0.004; };
+    const throwRing = () => {
       if (!root.current || !ring.current || ringState.current !== "ready") return;
       ringState.current = "flying"; ringAge.current = 0;
       const yaw = root.current.rotation.y;
@@ -39,11 +41,15 @@ function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; camera
     };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
-    window.addEventListener("puller:throw", throwRing);\n    window.addEventListener("game:control", moveControl);\n    window.addEventListener("pointermove", rotateCamera);
+    window.addEventListener("puller:throw", throwRing);
+    window.addEventListener("game:control", moveControl);
+    window.addEventListener("pointermove", rotateCamera);
     if (ring.current) ring.current.visible = false;
     return () => {
       window.removeEventListener("keydown", down); window.removeEventListener("keyup", up);
-      window.removeEventListener("puller:throw", throwRing);\n      window.removeEventListener("game:control", moveControl);\n      window.removeEventListener("pointermove", rotateCamera);
+      window.removeEventListener("puller:throw", throwRing);
+      window.removeEventListener("game:control", moveControl);
+      window.removeEventListener("pointermove", rotateCamera);
     };
   }, [mode]);
   useFrame((state, dt) => {
