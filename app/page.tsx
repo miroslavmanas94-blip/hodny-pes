@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import dynamic from "next/dynamic";
 import { ArrowRight, BookOpen, CheckCircle2, Dog, Eye, EyeOff, Gamepad2, Heart, LockKeyhole, Mail, PawPrint, Sparkles, UserRound, X } from "lucide-react";
 
@@ -37,7 +37,7 @@ export default function Home() {
     setProfile(guest);
   };
 
-  const submitAuth = async (event: React.FormEvent<HTMLFormElement>) => {
+  const submitAuth = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
     if (!email.trim() || !password) { setError("Vyplň e-mail a heslo."); return; }
