@@ -337,8 +337,8 @@ export default function Game3D({ onExit }: Props) {
           const speed = activeMode === "dog" ? 6.1 : 4.6;
           // Camera-relative movement: W always moves toward the camera look direction.
           // The previous basis was inverted, so forward/backward felt reversed.
-          const moveX = fwd * Math.sin(cameraYaw) + side * Math.cos(cameraYaw);
-          const moveZ = fwd * Math.cos(cameraYaw) - side * Math.sin(cameraYaw);
+          const moveX = fwd * Math.sin(cameraYaw) - side * Math.cos(cameraYaw);
+          const moveZ = fwd * Math.cos(cameraYaw) + side * Math.sin(cameraYaw);
           const angle = Math.atan2(moveX, -moveZ);
           p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 10, delta);
           const nextX = p.position.x + moveX * speed * delta;
