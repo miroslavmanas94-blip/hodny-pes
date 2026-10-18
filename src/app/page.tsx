@@ -31,16 +31,10 @@ export default function Home() {
   const [dogName, setDogName] = useState("Monty");
   const [breedId, setBreedId] = useState<string>("sheltie");
   const [dogSaved, setDogSaved] = useState(false);
-  const [showDogCreator, setShowDogCreator] = useState(false);
   const [pullerMode, setPullerMode] = useState<PullerMode>("practice");
   const [pullerScore, setPullerScore] = useState(0);
   const [pullerAttempts, setPullerAttempts] = useState(0);
   const [coins, setCoins] = useState(0);
-  const [shopItems, setShopItems] = useState<ShopItem[]>([]);
-  const [ownedItems, setOwnedItems] = useState<string[]>([]);
-  const [walletCoins, setWalletCoins] = useState<number | null>(null);
-  const [shopMessage, setShopMessage] = useState("");
-  const [shopBusyItem, setShopBusyItem] = useState<string | null>(null);
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const [ownedItems, setOwnedItems] = useState<string[]>([]);
   const [walletCoins, setWalletCoins] = useState<number | null>(null);
@@ -218,7 +212,7 @@ export default function Home() {
         {!started ? <button className="primary-cta" onClick={() => setStarted(true)}><Play size={18} fill="currentColor"/> Vyrazit do hry <ChevronRight size={18}/></button> : <div className="active-pill"><span/> Hra spuštěna · Ovládání je aktivní</div>}
         <div className="quick-stats"><div><span className="stat-icon"><PawPrint size={18}/></span><span><b>{activeBreed.name}</b><small>{dogSaved ? dogName : "Vyber si svého parťáka"}</small></span></div><div><span className="stat-icon"><Trophy size={18}/></span><span><b>{pullerScore} bodů</b><small>Dog Puller · {pullerAttempts} pokusů</small></span></div></div>
         <div className="menu-list" aria-label="Výběr aktivity">{menu.map(item => { const Icon = item.icon; return <button key={item.id} className={section === item.id ? "menu-item selected" : "menu-item"} onClick={() => { setSection(item.id); if(item.id !== "world") setStarted(true); }}><span className="menu-icon"><Icon size={20}/></span><span className="menu-text"><b>{item.label}</b><small>{item.detail}</small></span><ChevronRight className="menu-chevron" size={18}/></button> })}</div>
-        {showSettings && <div className="settings-panel"><b>Nastavení hry</b><label className="field-label">Grafika</label><select value={quality} onChange={e => setQuality(e.target.value as typeof quality)}><option value="auto">Automatická</option><option value="low">Nízká</option><option value="medium">Střední</option><option value="high">Vysoká</option></select><label className="field-label">Kamera</label><select value={camera} onChange={e => {setCamera(e.target.value as typeof camera); setNotice("Nastavení kamery se uloží až po implementaci kamery první osoby.");}}><option value="third-person">Třetí osoba (aktivní)</option><option value="first-person">První osoba (zatím nedostupná)</option></select><p>Zvuk: {muted ? "vypnutý" : "zapnutý"} · Zvukové soubory nejsou připojené.</p><button onClick={() => setShowSettings(false)}>Zavřít</button></div>}
+        {showSettings && <div className="settings-panel"><b>Nastavení hry</b><label className="field-label">Grafika</label><select value={quality} onChange={e => setQuality(e.target.value as typeof quality)}><option value="auto">Automatická</option><option value="low">Nízká</option><option value="medium">Střední</option><option value="high">Vysoká</option></select><label className="field-label">Kamera</label><select value={camera} onChange={e => {setCamera(e.target.value as typeof camera); setNotice("Pohled kamery byl změněn.");}}><option value="third-person">Třetí osoba (aktivní)</option><option value="first-person">První osoba (experimentální)</option></select><p>Zvuk: {muted ? "vypnutý" : "zapnutý"} · Zvukové soubory nejsou připojené.</p><button onClick={() => setShowSettings(false)}>Zavřít</button></div>}
         <p className="disclaimer"><CircleHelp size={14}/> Vývojová verze · XP, mince a mise se zatím neukládají do cloudu.</p>
       </div>
       <div className="game-frame">
@@ -241,7 +235,6 @@ export default function Home() {
       {!supabase && <p className="status-warning">Chybí proměnné Supabase. Přihlášení není aktivní.</p>}
       {authMessage && <p className="feature-copy" role="status">{authMessage}</p>}
     </section>}
-    {showDogCreator && <></>}
     <section className="feature-grid">
       <article className="feature-panel">
         <div className="panel-heading"><DogIcon/><div><h2>Tvůj psí parťák</h2><p>15 plemen · výběr se uloží v této relaci</p></div></div>
