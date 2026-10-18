@@ -12,18 +12,38 @@
 4. Vyplň `NEXT_PUBLIC_SUPABASE_URL` a `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` z projektu Supabase.
 5. Spusť `npm run dev` a otevři http://localhost:3000.
 
-Bez Supabase proměnných se zobrazí pouze klientská 3D scéna. Cloudové ukládání ani autentizace nejsou v tomto stavu aktivní.
+Bez proměnných Supabase se zobrazí 3D scéna a místní tréninkové obrazovky, ale přihlášení, cloudový katalog a cloudové ukládání nejsou dostupné. Místní XP, mince a mise se záměrně nesmějí vydávat za cloudový postup.
 
 ## Supabase
-SQL migrace je v `supabase/migrations/202610170001_game_core.sql`. Před nasazením ji zkontroluj a spusť na určeném projektu přes Supabase SQL editor nebo migrace CLI. Ověř RLS a doporučení Security Advisor. Nikdy nedávej service-role/secret klíč do prohlížeče.
+Použij existující projekt hodny-pes v regionu eu-west-2. SQL migrace v `supabase/migrations` jsou uloženy ve stejném repozitáři. Základní schéma, inicializace hráče, katalog a funkce nákupu byly aplikovány do připojeného projektu.
 
-Schéma připravuje tabulky pro profily, psy, postup, mise, inventář, měnu, výsledky a lobby. Serverové transakce pro nákupy, udělování odměn a validaci soutěžních výsledků ještě musí být implementovány před produkční ekonomikou.
+Proměnné pro Vercel nastav v Project Settings → Environment Variables pro Production a Preview. Používej pouze publishable klíč v klientovi. Nikdy nevkládej service_role/secret klíč do `NEXT_PUBLIC_*` proměnné.
+
+V Supabase → Authentication → URL Configuration nastav:
+- Site URL na produkční adresu aplikace.
+- Redirect URLs pro produkční doménu a lokální vývoj.
+- Obnovu hesla na cestu `/account/reset`.
+
+### Co dělá databáze
+- Při registraci vytvoří profil, peněženku se startovními 100 mincemi, postup a herní nastavení.
+- Katalog kosmetických předmětů a misí je seedovaný daty.
+- `buy_cosmetic` ověřuje přihlášení, aktuální cenu, vlastnictví a zůstatek a zapisuje peněženku, inventář a transakci v jedné databázové transakci.
+- Klient nemá přímé oprávnění upravovat peněženku ani katalog.
+- Místní odměny z tréninkových tlačítek nejsou zatím propojené se serverovým udělováním mincí nebo XP.
 
 ## Vercel
-Propoj repozitář `miroslavmanas94-blip/hodny-pes` s projektem Vercel `hodny-pes`, root directory ponech prázdný. Nastav obě proměnné prostředí pro Preview i Production a proveď deploy. Po nasazení otestuj autentizační redirect URL v Supabase.
+Repozitář: https://github.com/miroslavmanas94-blip/hodny-pes
+
+Projekt Vercel: hodny-pes. Framework musí být Next.js, Root Directory prázdný a Output Directory automatický — nepřepisovat na `public`. Po každém commitu ověř poslední deployment a build logy. Nástroj v této relaci dokáže vypsat stav deploymentu, ale detailní logy aktuálně blokuje oprávnění Vercel team scope.
+
+## Testy
+`npm test` spouští Vitest. `npm run typecheck` provádí kontrolu TypeScriptu a `npm run build` produkční build. GitHub Actions workflow je připraven, ale stav jeho běhu je nutné ověřit v GitHub Actions; žádný test se nesmí označit za úspěšný, pokud se skutečně nespustil.
 
 ## Stav funkcí
-- 3D scéna s procedurálním dočasným modelem psa a pohybem: základní prototyp.
-- Ovládání: WASD/šipky, Shift běh; zatím bez mobilního joysticku a plnohodnotné kamery první osoby.
-- Plemena, příběhové mise, Dog Puller soutěžní pravidla, účty a online multiplayer: nedokončeno.
-- Modely a animace: procedurální zástupný obsah, nikoli realistické licencované modely.
+- 3D cvičiště s procedurálním modelem, pohybem, první/třetí osobou, myší a dotykovými tlačítky: implementováno, vyžaduje ověření v prohlížeči.
+- Registrace/přihlášení/obnova hesla: UI a Supabase volání implementováno, end-to-end ověření chybí.
+- Vytvoření a obnova profilu psa: cloudový zápis/čtení implementován, vyžaduje ověření s reálným účtem.
+- Kosmetický obchod: databázový katalog a bezpečná nákupní funkce implementovány; UI propojeno, vyžaduje ověření s přihlášeným testovacím účtem.
+- Psí škola a místní mise: základní UI; odměny jsou pouze v relaci.
+- Puller: základní fyzika kruhu, nikoli oficiální soutěžní systém.
+- Online multiplayer, plynulá synchronizace, kompletní příběh, realistické rigované modely, zvuky, dynamické počasí/den-noc: nedokončeno.
