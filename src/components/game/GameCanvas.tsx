@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 type Mode = "world" | "school" | "puller";
 function Grass() {
-  const blades = useMemo(() => Array.from({ length: 550 }, (_, i) => ({ x: (Math.random() - .5) * 26, z: (Math.random() - .5) * 25, h: .12 + Math.random() * .28, r: Math.random() * Math.PI })), []);
+  const blades = useMemo(() => Array.from({ length: 550 }, () => ({ x: (Math.random() - .5) * 26, z: (Math.random() - .5) * 25, h: .12 + Math.random() * .28, r: Math.random() * Math.PI })), []);
   return <group>{blades.map((b, i) => <mesh key={i} position={[b.x, b.h / 2, b.z]} rotation={[0, b.r, .12]}><coneGeometry args={[.035, b.h, 3]}/><meshStandardMaterial color={i % 4 === 0 ? "#73945a" : "#526f43"} roughness={1}/></mesh>)}</group>;
 }
 function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; cameraMode: "third-person" | "first-person" }) {
@@ -68,8 +68,14 @@ function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; camera
     }
     root.current.position.y = .03 + Math.abs(velocity.current.z) * .008 * Math.sin(state.clock.elapsedTime * 12);
     if (tail.current) tail.current.rotation.x = Math.sin(state.clock.elapsedTime * 5) * .28;
-    state.camera.position.lerp(new THREE.Vector3(root.current.position.x + 5.8 * Math.sin(root.current.rotation.y + .5), 4.1, root.current.position.z + 7.5 * Math.cos(root.current.rotation.y + .5)), 1 - Math.exp(-dt * 2.5));
-    state.camera.lookAt(root.current.position.x, 1, root.current.position.z);
+    const yaw = root.current.rotation.y;
+    if (cameraMode === "first-person") {
+      state.camera.position.lerp(new THREE.Vector3(root.current.position.x + Math.sin(yaw) * .12, root.current.position.y + 1.25, root.current.position.z + Math.cos(yaw) * .12), 1 - Math.exp(-dt * 5));
+      state.camera.lookAt(root.current.position.x - Math.sin(yaw) * 4, root.current.position.y + .95, root.current.position.z - Math.cos(yaw) * 4);
+    } else {
+      state.camera.position.lerp(new THREE.Vector3(root.current.position.x + 5.8 * Math.sin(yaw + .5), 4.1, root.current.position.z + 7.5 * Math.cos(yaw + .5)), 1 - Math.exp(-dt * 2.5));
+      state.camera.lookAt(root.current.position.x, 1, root.current.position.z);
+    }
     if (ring.current && ringState.current !== "ready") {
       ringAge.current += dt;
       if (ringState.current === "flying") {
