@@ -124,3 +124,86 @@
 .shopPanel>footer span{font-size:9px;line-height:1.5;color:#aa9bb9}
 .shopPanel>footer>button{background:#ffffff0b;color:#e9ddf6}
 @media(max-width:480px){.shopOverlay{padding:9px}.shopPanel{padding:15px;border-radius:18px;max-height:calc(100% - 8px)}.shopItem{gap:9px;padding:8px}.shopDogSwatch{flex-basis:40px;width:40px;height:40px;font-size:23px;border-radius:11px}.shopItemInfo b{font-size:10px}.shopItemInfo span{font-size:8px}.shopItem>button{padding:8px;font-size:8px}.shopPanel>footer span{max-width:56%}}
+
+
+/* NATURAL ACADEMY UI — forest green, cream, warm sand */
+.gamePage,.gameShell{background:#f4f0e4;color:#253c2c}
+.gameTop{background:linear-gradient(100deg,#243f2d 0%,#31563b 58%,#263f2d 100%);border-bottom:1px solid #ffffff24;box-shadow:0 8px 24px #172b1c24}
+.gameBrandIcon{background:linear-gradient(145deg,#e8d9b8,#f6efdd);color:#315b3b;box-shadow:0 5px 18px #142a1d35;border:1px solid #fff8e9}
+.gameBrand b{color:#fff9e9}.gameBrand small{color:#d8e6c8}
+.gameTopCenter{color:#f5f0e2}.gameWorld{color:#c8d7bf}
+.liveDot{background:#b9e28e;box-shadow:0 0 0 4px #b9e28e1b,0 0 12px #b9e28e}
+.gameTopActions button{border-color:#ffffff28;background:#ffffff0b;color:#f6f0df}
+.gameTopActions button:hover{background:#e9d9b8;color:#294832;border-color:#e9d9b8}
+.gameViewport{background:#cfe0b8}
+.gameVignette{background:linear-gradient(180deg,#233c281b 0%,transparent 24%,transparent 66%,#233c2829 100%),linear-gradient(90deg,#233c2810,transparent 23%,transparent 77%,#233c2810)}
+.gameObjective{background:linear-gradient(120deg,#f8f2e4f2,#eee7d5e8);border-color:#fff9e7;color:#2c4432;box-shadow:0 12px 34px #20392524}
+.objectiveIcon{background:#315b3b;color:#f7f0df;box-shadow:0 4px 15px #315b3b35}
+.gameObjective small{color:#587b50}.gameObjective b{color:#263d2c}.gameObjective span{color:#6e8068}
+.gameStats>div{border-color:#fff8e6;background:#f7f1e3e8;box-shadow:0 10px 28px #20392522}
+.purpleBubble{background:#dbe7cf;color:#315b3b}.peachBubble{background:#eee0c2;color:#765a2d}
+.gameStats small{color:#72816b}.gameStats b{color:#263d2c}
+.gameCompass{background:#f7f1e4e8;border-color:#fff8e6;color:#31513a;box-shadow:0 6px 18px #2039251a}
+.gameCompass i{color:#54854c}
+.gameNotice{background:#2c4935ed;border-color:#ffffff62;color:#fff8e8;box-shadow:0 9px 30px #20392528}
+.gameHelp{background:#f7f1e4f7;border-color:#d8dfcb;color:#2a4431;box-shadow:0 18px 60px #20392535}
+.gameHelp>button{border-color:#d9dfcf;background:#fffaf0;color:#315b3b}
+.gameHelp p{color:#61715b}.gameHelp kbd{border-color:#d7dfcd;background:#e7eadb;color:#2e4b34}
+.gameControls .joystickBase{border-color:#fff9e6;background:radial-gradient(circle at 45% 35%,#fff9e655,#294a35c9 70%);box-shadow:inset 0 0 0 9px #ffffff12,0 12px 30px #20392535}
+.joystickBase:before{border-color:#ffffff55}.joystickKnob{background:linear-gradient(145deg,#e9dfc3,#b9d29e);border-color:#fff9e6;box-shadow:0 5px 17px #172d1c55,inset 0 1px 1px #ffffff9c}
+.joystickDirection{color:#fff9e6}.mobileJoystick>small{color:#fff9e6;text-shadow:0 2px 7px #203925}
+.actionControl{border-color:#fff8e6;background:linear-gradient(145deg,#3f6947ed,#294731ed);color:#fff8e6;box-shadow:0 10px 24px #20392538}
+.actionControl span{color:#f1dfb9}.actionControl small{color:#e4e9d8}
+.gameBottom{border-top:1px solid #d9dfce;background:#f7f2e5;color:#344c37}
+.modeSwitch{border-color:#dce2d2;background:#e9eadb}
+.modeSwitch button{color:#6e7d67}.modeSwitch button:hover{background:#dfe6d6;color:#2d4b34}
+.modeSwitch button.modeActive{background:#315b3b;color:#fff8e7;border-color:#557b53;box-shadow:0 4px 14px #315b3b32}
+.gameHint{color:#6e7c66}.gameHint svg{color:#4e7a4d}
+.resetGame{border-color:#d7dfcf;background:#fffaf0;color:#50694c}
+.resetGame:hover{background:#e1ead7;border-color:#71966b;color:#27452f}
+.pauseOverlay{background:#203b29a8}
+.pauseOverlay>div{border-color:#e4eadb;background:linear-gradient(145deg,#f8f2e4,#e9e8d7);color:#294531;box-shadow:0 25px 80px #15271bb3}
+.pauseOverlay>div>svg{color:#4c7a4b}.pauseOverlay p{color:#6c7b64}
+.gamePrimary{background:#315b3b;color:#fff8e7}.gameSecondary{border-color:#d4ddca;background:#fffaf0;color:#476347}
+.gameLoading{background:#f5f0e3;color:#294531}.gameLoading>span{color:#6e7e67}.loadingBar{background:#dce2d1}.loadingBar i{background:#5e8750}
+.shopOverlay{background:#1d3324a8}
+.shopPanel{border-color:#e4e8d9;background:linear-gradient(150deg,#fbf6e8,#e8ebdc 76%);color:#294531;box-shadow:0 30px 100px #172a1db8}
+.shopPanel>header small{color:#648354}.shopPanel>header p{color:#697a63}
+.shopPanel>header>button{border-color:#d8dfcf;background:#fffaf0;color:#315b3b}
+.shopBalance{border-color:#dfe5d5;background:#eef0e3;color:#52684d}.shopBalance svg{color:#7b9258}.shopBalance b{color:#294531}
+.shopItem{border-color:#dfe4d6;background:#fffaf0}.shopItemSelected{border-color:#6b925d;background:#e4eddc}
+.shopItemInfo span{color:#6c7b65}.shopItemInfo small{color:#527a45}
+.shopItem>button,.shopPanel>footer>button{border-color:#315b3b;background:#315b3b;color:#fff8e7}
+.shopItem>button:disabled{background:#e5e7dc;color:#909a88;border-color:#e5e7dc}
+.shopPanel>footer span{color:#6b7b63}.shopPanel>footer>button{background:#e4eadb;color:#315b3b}
+.academyOverlay{position:absolute;z-index:38;inset:0;display:grid;place-items:center;padding:16px;background:#203b29a8;backdrop-filter:blur(10px)}
+.academyPanel{width:min(620px,100%);max-height:calc(100% - 8px);overflow:auto;padding:clamp(17px,3vw,27px);border:1px solid #dce4d2;border-radius:23px;background:linear-gradient(150deg,#fbf7ea,#e9eddf);color:#294531;box-shadow:0 30px 90px #182b1bb3}
+.academyPanel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.academyPanel>header small{font-size:9px;font-weight:900;letter-spacing:2px;color:#658554}
+.academyPanel>header h2{margin:7px 0;font-size:clamp(21px,4vw,28px);letter-spacing:-.8px}
+.academyPanel>header p{margin:0;color:#6e7c65;font-size:11px;line-height:1.6}
+.academyPanel>header>button{flex:0 0 34px;width:34px;height:34px;border:1px solid #d7dfcc;border-radius:11px;background:#fffaf0;color:#315b3b;font-size:23px;line-height:1}
+.academyMap{position:relative;height:240px;margin:20px 0 15px;overflow:hidden;border:1px solid #cfdcc3;border-radius:17px;background:radial-gradient(ellipse at 20% 25%,#dce8c8 0 12%,transparent 13%),radial-gradient(ellipse at 78% 70%,#d4e4c1 0 18%,transparent 19%),linear-gradient(135deg,#e8edda,#d7e5c8)}
+.academyMap:before,.academyMap:after{content:"";position:absolute;border:1px solid #b5cda7;border-radius:50%;width:220px;height:140px;transform:rotate(-28deg);left:-25px;top:70px}
+.academyMap:after{left:auto;right:-30px;top:-25px;transform:rotate(25deg);width:240px;height:180px}
+.mapPath{position:absolute;z-index:1;background:#f7f0df;border:1px solid #d5c6a2;border-radius:99px}
+.mapPathVertical{width:24px;height:320px;left:48%;top:-30px;transform:rotate(30deg)}
+.mapPathHorizontal{width:120%;height:20px;left:-10%;top:56%;transform:rotate(-10deg)}
+.mapPoint{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;gap:4px;color:#315b3b}
+.mapPoint svg{display:block;width:35px;height:35px;padding:8px;border:2px solid #fffaf0;border-radius:12px;background:#315b3b;color:#fff8e7;box-shadow:0 4px 12px #28472f35}
+.mapPoint small{padding:4px 6px;border:1px solid #d7dfcc;border-radius:6px;background:#fffaf0;color:#3f5e40;font-size:8px;font-weight:900;white-space:nowrap}
+.mapBase{left:12%;bottom:17%}.mapPuller{left:45%;top:17%}.mapSlalom{right:12%;bottom:16%}.mapGate{right:24%;top:13%}
+.mapLocations{display:grid;gap:8px}
+.mapLocations>div{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #dfe5d6;border-radius:13px;background:#fffaf0}
+.mapLocationIcon{display:grid;place-items:center;width:37px;height:37px;flex-shrink:0;border-radius:11px;background:#e3ecd9;color:#426d43}
+.mapLocations>div>span:nth-child(2){display:grid;gap:4px;flex:1;min-width:0}.mapLocations b{font-size:10px}.mapLocations small{font-size:9px;color:#78856e}
+.mapLocations button,.academyPanel>footer button{border:1px solid #315b3b;border-radius:9px;padding:8px 11px;background:#315b3b;color:#fff8e7;font-size:9px;font-weight:900;white-space:nowrap}
+.academyPanel>footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px}
+.academyPanel>footer span{font-size:9px;color:#6e7c65;line-height:1.5}
+.academyPanel>footer button:first-child{background:#fffaf0;color:#315b3b;border-color:#d7dfcc}
+.settingLabel{display:flex;justify-content:space-between;gap:10px;margin:24px 0 10px;font-size:11px;font-weight:800}.settingLabel b{color:#426d43}
+.sensitivityRange{width:100%;accent-color:#4f7b47;cursor:pointer}.settingScale{display:flex;justify-content:space-between;color:#819078;font-size:9px;margin-top:5px}
+.settingInfo{display:flex;align-items:flex-start;gap:11px;margin-top:14px;padding:12px;border:1px solid #dfe5d6;border-radius:13px;background:#fffaf0}
+.settingInfo>span{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:#e2ebd8;color:#426d43}
+.settingInfo b{font-size:10px}.settingInfo p{margin:5px 0 0;color:#718069;font-size:9px;line-height:1.65}
+@media(max-width:480px){.academyOverlay{padding:8px}.academyPanel{padding:15px;border-radius:18px}.academyMap{height:195px;margin:15px 0 12px}.mapPoint svg{width:30px;height:30px;padding:7px}.mapPoint small{font-size:7px}.mapLocations>div{gap:7px;padding:8px}.mapLocations b{font-size:9px}.mapLocations small{font-size:8px}.mapLocations button{padding:8px}.academyPanel>footer span{max-width:58%}.settingInfo{padding:10px}}
