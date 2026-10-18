@@ -262,7 +262,7 @@ export default function Home() {
 
   return <main className="app-shell">
     <header className="topbar">
-      <a className="brand" href="#" aria-label="Hodný pes – domů"><span className="brand-mark"><PawPrint size={22}/></span><span><b>HODNÝ PES</b><small>PSÍ DOBRODRUŽSTVÍ</small></span></a>
+      <a className="brand" href="#" aria-label="Hodný pes – domů"><span className="brand-mark"><PawPrint size={22}/></span><span><b>HODNÝ PES</b><small>PSÍ SVĚT</small></span></a>
       <div className="top-actions"><span className="build-tag"><i/> VÝPRAVA ZAČÍNÁ</span><button className="icon-button" aria-label={muted ? "Zapnout zvuk" : "Vypnout zvuk"} onClick={() => {setMuted(!muted); setNotice(!muted ? "Zvuk je zapnutý, ale zvukové soubory zatím nejsou připojené." : "Zvuk vypnut.");}}>{muted ? <VolumeX/> : <Volume2/>}</button><button className="icon-button" aria-label="Nastavení" onClick={() => setShowSettings(!showSettings)}><Settings/></button><button className="icon-button" aria-label="Účet" onClick={() => setShowAccount(!showAccount)}><UserRound/></button></div>
     </header>
     <section className="hero-layout">
@@ -298,7 +298,7 @@ export default function Home() {
     </section>}
     <section className="feature-grid">
       <article className="feature-panel">
-        <div className="panel-heading"><DogIcon/><div><h2>Tvůj psí parťák</h2><p>15 plemen · výběr se uloží v této relaci</p></div></div>
+        <div className="panel-heading"><DogIcon/><div><h2>Tvůj psí parťák</h2><p>15 plemen v základu · katalog se bude rozšiřovat</p></div></div>
         <label className="field-label">Jméno psa</label><input value={dogName} onChange={e => setDogName(e.target.value)} maxLength={24} placeholder="Jméno psa"/>
         <label className="field-label">Plemeno</label><select value={breedId} onChange={e => {setBreedId(e.target.value);setDogSaved(false);}}>{BREEDS.map(breed => <option key={breed.id} value={breed.id}>{breed.name}</option>)}</select>
         <p className="feature-copy">Barvy dostupné v katalogu: {activeBreed.coat.join(", ")}. V této verzi se mění herní profil; model psa zatím není anatomicky odlišný podle plemene.</p>
@@ -328,6 +328,6 @@ export default function Home() {
         <div className="mission-list">{MISSIONS.map(mission => {const done = completed.includes(mission.id);return <div className="mission-row" key={mission.id}><div><b>{mission.title}</b><p>{mission.description}</p><small>Odměna: {mission.reward} mincí a XP</small></div><button className="secondary-action" disabled={done} onClick={() => claimMission(mission.id, mission.reward)}>{done ? "Splněno" : "Vyzvednout"}</button></div>;})}</div>
       </article>
     </section>
-    <footer><span>© Hodný pes: Psí dobrodružství</span><span>Hra je ve vývoji. Online režim zatím není dostupný.</span></footer>
+    <footer><span>© Hodný pes: Psí svět</span><span>Hra je ve vývoji. Online režim zatím není dostupný.</span></footer>
   </main>;
 }
