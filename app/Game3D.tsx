@@ -281,7 +281,8 @@ export default function Game3D({ onExit }: Props) {
         if (length > 0) {
           fwd /= length; side /= length;
           const speed = activeMode === "dog" ? 6.1 : 4.6;
-          const angle = Math.atan2(side, -fwd);
+          // Normalize diagonal input and rotate toward the actual travel direction.
+          const angle = Math.atan2(side, fwd);
           p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 8, delta);
           p.position.x += side * speed * delta;
           p.position.z -= fwd * speed * delta;
@@ -290,6 +291,9 @@ export default function Game3D({ onExit }: Props) {
         vertical = Math.max(0, vertical + jumpVelocity * delta);
         if (vertical <= 0) { vertical = 0; jumpVelocity = 0; }
         p.position.y = vertical;
+        // Keep both avatars at one shared position so switching never teleports the player.
+        if (activeMode === "dog") human.position.copy(dog.position);
+        else dog.position.copy(human.position);
         if (activeMode === "dog") {
           legs.forEach((leg, i) => { leg.rotation.x = length > 0 ? Math.sin(frame * 12 + i * Math.PI) * 0.48 : 0; });
           tail.rotation.x = -0.9 + Math.sin(frame * 6) * 0.24;
@@ -299,8 +303,10 @@ export default function Game3D({ onExit }: Props) {
         }
         p.position.x = THREE.MathUtils.clamp(p.position.x, -55, 55);
         p.position.z = THREE.MathUtils.clamp(p.position.z, -62, 24);
+        if (activeMode === "dog") human.position.copy(dog.position);
+        else dog.position.copy(human.position);
         const target = new THREE.Vector3(p.position.x, p.position.y + 1.0, p.position.z);
-        const desiredCamera = new THREE.Vector3(p.position.x + Math.sin(p.rotation.y) * 7.2, p.position.y + 5.2, p.position.z + Math.cos(p.rotation.y) * 7.2);
+        const desiredCamera = new THREE.Vector3(p.position.x - Math.sin(p.rotation.y) * 7.2, p.position.y + 5.2, p.position.z + Math.cos(p.rotation.y) * 7.2);
         camera.position.lerp(desiredCamera, 1 - Math.exp(-4.2 * delta));
         camera.lookAt(target);
 
