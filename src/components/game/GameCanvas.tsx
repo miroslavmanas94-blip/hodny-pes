@@ -128,7 +128,11 @@ function World({ mode, active, cameraMode }: { mode: Mode; active: boolean; came
   </>;
 }
 export default function GameCanvas({ mode, active, cameraMode, quality }: { mode: Mode; active: boolean; cameraMode: "third-person" | "first-person"; quality: "auto" | "low" | "medium" | "high" }) {
-  const dpr: [number, number] = quality === "low" ? [0.7, 1] : quality === "medium" ? [1, 1.25] : quality === "high" ? [1, 2] : [1, 1.5];
+  const lowPowerDevice = typeof navigator !== "undefined" && (
+    (typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4) ||
+    (typeof window !== "undefined" && window.matchMedia("(max-width: 700px)").matches)
+  );
+  const dpr: [number, number] = quality === "low" ? [0.7, 1] : quality === "medium" ? [1, 1.25] : quality === "high" ? [1, 2] : lowPowerDevice ? [0.7, 1] : [1, 1.5];
   return <Canvas shadows={quality !== "low"} camera={{ position: [5,4,9], fov: 48 }} dpr={dpr} gl={{ antialias: quality !== "low", powerPreference: "high-performance" }}>
     <color attach="background" args={["#b9d1c3"]}/>
     <Suspense fallback={null}><World mode={mode} active={active} cameraMode={cameraMode}/></Suspense>
