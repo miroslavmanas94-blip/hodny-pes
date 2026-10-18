@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import "./farm.css";
-import { ArrowUpRight, CalendarDays, Check, ChevronRight, CircleHelp, Coins, Dog, Heart, House, Languages, Leaf, Map, Plus, ShoppingBag, Sparkles, Star, X, Trees, Menu } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Check, ChevronRight, CircleHelp, Coins, Dog, Heart, House, Languages, Leaf, Map, Plus, ShoppingBag, Sparkles, Star, X, Menu } from "lucide-react";
 
 type Building = { type: string; name: string; icon: string; cost: number; color: string };
 type Plot = { id: number; r: number; c: number; owned: boolean };
