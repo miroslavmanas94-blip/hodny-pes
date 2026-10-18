@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import "./farm.css";
-import { ArrowUpRight, Award, Bone, Check, ChevronRight, CircleHelp, Coins, Dog, Footprints, House, Languages, Leaf, Map, Menu, Plus, Search, Settings2, ShoppingBag, Sparkles, Star, Target, X } from "lucide-react";
+import { ArrowUpRight, Award, Bone, Check, ChevronRight, CircleHelp, Coins, Dog, Footprints, House, Languages, Leaf, Map, Menu, Plus, Search, ShoppingBag, Sparkles, Target, X } from "lucide-react";
 
 type Panel = "dogs" | "build" | "quests" | "map" | "shop" | "help" | null;
 type Building = { type: string; name: string; cost: number; color: string; short: string };
@@ -130,7 +130,7 @@ export default function FarmGame() {
     <div className="gameShell">
       <aside className={"gameSidebar "+(sidebarOpen?"gameSidebarOpen":"")}>
         <div className="sidebarEyebrow">{t("TVÉ CENTRUM", "YOUR CENTRE")}</div>
-        <button className="profileButton" onClick={() => setPanel("dogs")}><span className="profileDog" style={{"--dog-color":dog.color} as React.CSSProperties}><Dog size={26}/></span><span className="profileInfo"><b>{dog.name}</b><small>{dog.breed} · {t("tvůj parťák", "your companion")}</small></span><ChevronRight size={16}/></button>
+        <button className="profileButton" onClick={() => setPanel("dogs")}><span className="profileDog" style={{"--dog-color":dog.color} as CSSProperties}><Dog size={26}/></span><span className="profileInfo"><b>{dog.name}</b><small>{dog.breed} · {t("tvůj parťák", "your companion")}</small></span><ChevronRight size={16}/></button>
         <div className="levelPanel"><div className="levelLabel"><span>{t("ÚROVEŇ CENTRA", "CENTRE LEVEL")}</span><b>{level}</b></div><div className="levelTrack"><span style={{width:(xp%100)+"%"}}/></div><div className="levelCaption"><span>{xp%100}/100 XP</span><span>{t("Další úroveň", "Next level")}</span></div></div>
         <div className="navLabel">{t("PROZKOUMAT", "EXPLORE")}</div>
         <button className="navItem navActive" onClick={() => {setActiveLocation("centre");setPanel(null);}}><House size={18}/><span>{t("Hlavní areál", "Main grounds")}</span><i/></button>
