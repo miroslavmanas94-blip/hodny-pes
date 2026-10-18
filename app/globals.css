@@ -98,3 +98,29 @@
 @media(max-width:360px){.gameBrand small{display:none}.gameBrandIcon{width:28px;height:28px}.gameTopActions button{width:27px;height:27px}.joystickBase{width:98px;height:98px}.joystickKnob{width:40px;height:40px}.actionControl{width:43px;height:46px}.gameBottom .resetGame{font-size:0;gap:0}.gameBottom .resetGame svg{width:15px;height:15px}}
 @media(max-height:540px) and (orientation:landscape){.gameTop{height:42px;min-height:42px}.gameBrandIcon{width:29px;height:29px}.gameBottom{min-height:40px;padding:4px 9px}.gameControls{bottom:6px}.joystickBase{width:88px;height:88px}.joystickKnob{width:36px;height:36px}.mobileJoystick>small{display:none}.actionControl{height:40px;width:42px;border-radius:12px}.gameNotice{bottom:58px}.gameStats{top:8px;bottom:auto}.gameObjective{top:8px}.gameCompass{top:68px}}
 @media(prefers-reduced-motion:reduce){.gameTopActions button,.modeSwitch button,.resetGame,.actionControl{transition:none}}
+
+
+/* Camera orbit + cosmetic shop */
+.threeMount canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.threeMount canvas:active{cursor:grabbing}
+.shopOverlay{position:absolute;z-index:40;inset:0;display:grid;place-items:center;padding:18px;background:#10091fc4;backdrop-filter:blur(12px)}
+.shopPanel{width:min(590px,100%);max-height:min(760px,calc(100% - 8px));overflow:auto;padding:clamp(17px,3vw,27px);border:1px solid #ffffff25;border-radius:24px;background:linear-gradient(150deg,#28183a,#171020 76%);color:#fff;box-shadow:0 30px 100px #08040db8}
+.shopPanel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.shopPanel>header small{font-size:9px;font-weight:900;letter-spacing:2px;color:#d2b7ff}
+.shopPanel>header h2{margin:7px 0;font-size:clamp(20px,4vw,27px);letter-spacing:-.8px}
+.shopPanel>header p{max-width:420px;margin:0;color:#b9a9c9;font-size:11px;line-height:1.6}
+.shopPanel>header>button{flex:0 0 34px;width:34px;height:34px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0a;color:#fff;font-size:23px;line-height:1}
+.shopBalance{display:flex;align-items:center;gap:9px;margin:20px 0 13px;padding:12px 14px;border:1px solid #ffffff15;border-radius:12px;background:#ffffff08;color:#d9c8ee;font-size:11px}
+.shopBalance svg{color:#FFD6A5}.shopBalance b{margin-left:auto;color:#fff;font-size:15px}
+.shopItems{display:grid;gap:9px}
+.shopItem{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid #ffffff13;border-radius:15px;background:#ffffff05;transition:border-color .15s,background .15s}
+.shopItemSelected{border-color:#a66bff;background:#6a00f423}
+.shopDogSwatch{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:13px;font-size:27px;box-shadow:inset 0 0 0 1px #ffffff38}
+.shopItemInfo{display:grid;gap:4px;min-width:0;flex:1}
+.shopItemInfo b{font-size:11px}.shopItemInfo span{font-size:9px;color:#b7a8c7}.shopItemInfo small{font-size:8px;font-weight:900;letter-spacing:1px;color:#FFD6A5}
+.shopItem>button,.shopPanel>footer>button{border:1px solid #ffffff20;border-radius:10px;padding:9px 11px;background:#6a00f4;color:white;font-size:9px;font-weight:900;white-space:nowrap}
+.shopItem>button:disabled{cursor:not-allowed;background:#ffffff0b;color:#82758f;border-color:#ffffff0b}
+.shopPanel>footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.shopPanel>footer span{font-size:9px;line-height:1.5;color:#aa9bb9}
+.shopPanel>footer>button{background:#ffffff0b;color:#e9ddf6}
+@media(max-width:480px){.shopOverlay{padding:9px}.shopPanel{padding:15px;border-radius:18px;max-height:calc(100% - 8px)}.shopItem{gap:9px;padding:8px}.shopDogSwatch{flex-basis:40px;width:40px;height:40px;font-size:23px;border-radius:11px}.shopItemInfo b{font-size:10px}.shopItemInfo span{font-size:8px}.shopItem>button{padding:8px;font-size:8px}.shopPanel>footer span{max-width:56%}}
