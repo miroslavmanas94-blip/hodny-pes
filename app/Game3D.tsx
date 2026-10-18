@@ -9,7 +9,7 @@ type Props = { onExit?: () => void };
 
 export default function Game3D({ onExit }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const gameRef = useRef<{ setMode: (mode: Mode) => void; reset: () => void; togglePause: () => void; setKey: (key: string, down: boolean) => void } | null>(null);
+  const gameRef = useRef<{ setMode: (mode: Mode) => void; reset: () => void; togglePause: () => void; setKey: (key: string, down: boolean) => void; setDogStyle: (color: string) => void } | null>(null);
   const [mode, setModeState] = useState<Mode>("dog");
   const [collected, setCollected] = useState(0);
   const [xp, setXp] = useState(0);
@@ -17,6 +17,9 @@ export default function Game3D({ onExit }: Props) {
   const [paused, setPaused] = useState(false);
   const [sound, setSound] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
+  const [ownedSkins, setOwnedSkins] = useState<string[]>(["#c58b58"]);
+  const [selectedSkin, setSelectedSkin] = useState("#c58b58");
   const [notice, setNotice] = useState("Vítej v akademii! Rozhlédni se a vydej se na průzkum.");
   const joystickRef = useRef<HTMLDivElement>(null);
   const [joystickKnob, setJoystickKnob] = useState({ x: 0, y: 0 });
@@ -210,6 +213,11 @@ export default function Game3D({ onExit }: Props) {
     const marker = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), markerMat); marker.position.y = 2.1; scene.add(marker);
 
     const keys: Record<string, boolean> = {};
+    let cameraYaw = Math.PI;
+    let cameraPitch = 5.2;
+    let dragPointer: number | null = null;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
     let activeMode: Mode = "dog";
     let isPaused = false;
     let frame = 0;
@@ -236,7 +244,8 @@ export default function Game3D({ onExit }: Props) {
     };
     const togglePause = () => { isPaused = !isPaused; setPaused(isPaused); };
     const setKey = (key: string, down: boolean) => { keys[key.toLowerCase()] = down; };
-    gameRef.current = { setMode, reset, togglePause, setKey };
+    const setDogStyle = (color: string) => { dogBodyMat.color.set(color); dogBodyMat.needsUpdate = true; };
+    gameRef.current = { setMode, reset, togglePause, setKey, setDogStyle };
 
     const onKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
@@ -262,6 +271,23 @@ export default function Game3D({ onExit }: Props) {
     window.addEventListener("keyup", onKeyUp);
     const onBlur = () => { Object.keys(keys).forEach(k => keys[k] = false); };
     window.addEventListener("blur", onBlur);
+    const canvas = renderer.domElement;
+    const onPointerDown = (event: PointerEvent) => { dragPointer = event.pointerId; lastPointerX = event.clientX; lastPointerY = event.clientY; canvas.setPointerCapture(event.pointerId); };
+    const onPointerMove = (event: PointerEvent) => {
+      if (dragPointer !== event.pointerId) return;
+      const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
+      lastPointerX = event.clientX; lastPointerY = event.clientY;
+      cameraYaw -= dx * 0.008;
+      cameraPitch = THREE.MathUtils.clamp(cameraPitch + dy * 0.018, 2.8, 8.5);
+    };
+    const onPointerUp = (event: PointerEvent) => { if (dragPointer === event.pointerId) dragPointer = null; };
+    canvas.style.touchAction = "pan-y";
+    canvas.style.cursor = "grab";
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("lostpointercapture", onPointerUp);
 
     const resize = () => {
       if (!host) return;
@@ -286,11 +312,13 @@ export default function Game3D({ onExit }: Props) {
         if (length > 0) {
           fwd /= length; side /= length;
           const speed = activeMode === "dog" ? 6.1 : 4.6;
-          // Normalize diagonal input and rotate toward the actual travel direction.
-          const angle = Math.atan2(side, -fwd);
-          p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 8, delta);
-          const nextX = p.position.x + side * speed * delta;
-          const nextZ = p.position.z - fwd * speed * delta;
+          // Movement is relative to the camera, just like modern third-person games.
+          const moveX = side * Math.cos(cameraYaw) - fwd * Math.sin(cameraYaw);
+          const moveZ = side * Math.sin(cameraYaw) - fwd * Math.cos(cameraYaw);
+          const angle = Math.atan2(moveX, -moveZ);
+          p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 10, delta);
+          const nextX = p.position.x + moveX * speed * delta;
+          const nextZ = p.position.z + moveZ * speed * delta;
           const inFenceRange = nextZ > -24 && nextZ < 10.5;
           const hitsSideFence = inFenceRange && Math.abs(nextX) > 12.15 && Math.abs(p.position.x) <= 12.15;
           const hitsFrontFence = nextZ > 9.2 && p.position.z <= 9.2 && Math.abs(nextX) < 13.2;
@@ -317,7 +345,7 @@ export default function Game3D({ onExit }: Props) {
         if (activeMode === "dog") human.position.copy(dog.position);
         else dog.position.copy(human.position);
         const target = new THREE.Vector3(p.position.x, p.position.y + 1.0, p.position.z);
-        const desiredCamera = new THREE.Vector3(p.position.x - Math.sin(p.rotation.y) * 7.2, p.position.y + 5.2, p.position.z - Math.cos(p.rotation.y) * 7.2);
+        const desiredCamera = new THREE.Vector3(p.position.x - Math.sin(cameraYaw) * 7.2, p.position.y + cameraPitch, p.position.z - Math.cos(cameraYaw) * 7.2);
         camera.position.lerp(desiredCamera, 1 - Math.exp(-4.2 * delta));
         camera.lookAt(target);
 
@@ -350,6 +378,7 @@ export default function Game3D({ onExit }: Props) {
       cancelAnimationFrame(animationId);
       observer.disconnect();
       window.removeEventListener("keydown", onKeyDown); window.removeEventListener("keyup", onKeyUp); window.removeEventListener("blur", onBlur);
+      canvas.removeEventListener("pointerdown", onPointerDown); canvas.removeEventListener("pointermove", onPointerMove); canvas.removeEventListener("pointerup", onPointerUp); canvas.removeEventListener("pointercancel", onPointerUp); canvas.removeEventListener("lostpointercapture", onPointerUp);
       renderer.dispose();
       scene.traverse(o => { const mesh = o as THREE.Mesh; if (mesh.geometry) mesh.geometry.dispose(); if (mesh.material) { const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]; materials.forEach(m => m.dispose()); } });
       if (renderer.domElement.parentElement === host) host.removeChild(renderer.domElement);
@@ -377,7 +406,7 @@ export default function Game3D({ onExit }: Props) {
     <div className="gameTop">
       <div className="gameBrand"><span className="gameBrandIcon"><Dog size={20}/></span><div><b>HODNÝ PES</b><small>3D AKADEMIE</small></div></div>
       <div className="gameTopCenter"><span className="liveDot"/> VOLNÝ VÝCVIK <span className="gameWorld">· AREÁL AKADEMIE</span></div>
-      <div className="gameTopActions"><button title="Nápověda" onClick={() => setShowHelp(v => !v)}><Keyboard size={17}/></button><button title={sound ? "Vypnout zvuk" : "Zapnout zvuk"} onClick={() => setSound(v => !v)}>{sound ? <Volume2 size={17}/> : <VolumeX size={17}/>}</button><button title="Pozastavit" onClick={() => gameRef.current?.togglePause()}>{paused ? <Play size={17}/> : <Pause size={17}/>}</button></div>
+      <div className="gameTopActions"><button title="Obchod a vzhled psa" onClick={() => setShopOpen(v => !v)}><Sparkles size={17}/></button><button title="Nápověda" onClick={() => setShowHelp(v => !v)}><Keyboard size={17}/></button><button title={sound ? "Vypnout zvuk" : "Zapnout zvuk"} onClick={() => setSound(v => !v)}>{sound ? <Volume2 size={17}/> : <VolumeX size={17}/>}</button><button title="Pozastavit" onClick={() => gameRef.current?.togglePause()}>{paused ? <Play size={17}/> : <Pause size={17}/>}</button></div>
     </div>
     <div className="gameViewport">
       <div className="threeMount" ref={mountRef}/>
@@ -386,7 +415,8 @@ export default function Game3D({ onExit }: Props) {
       <div className="gameStats"><div><span className="statBubble purpleBubble"><Trophy size={16}/></span><div><small>ZÍSKANÉ XP</small><b>{xp.toLocaleString("cs-CZ")}</b></div></div><div><span className="statBubble peachBubble"><Heart size={16}/></span><div><small>PAMLSEK</small><b>{collected} / 8</b></div></div></div>
       <div className="gameCompass"><Map size={15}/><span>AREÁL</span><i>●</i></div>
       {notice && <div className="gameNotice" key={notice}>{notice}</div>}
-      {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb (W dopředu, S dozadu)</p><p>Na mobilu — podrž a táhni joystickem</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p></div>}
+      {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb (W dopředu, S dozadu)</p><p>Na mobilu — podrž a táhni joystickem</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p><p>Myš / prst na herní obrazovce — otáčení kamery; směr pohybu se řídí kamerou.</p></div>}
+      {shopOpen && <div className="shopOverlay"><section className="shopPanel"><header><div><small>AKADEMICKÝ OBCHOD</small><h2>Vzhled tvého parťáka</h2><p>Utrácej získané XP za nové barvy srsti. Odemčené vzhledy zůstávají při hraní v tomto okně.</p></div><button aria-label="Zavřít obchod" onClick={() => setShopOpen(false)}>×</button></header><div className="shopBalance"><Trophy size={16}/> Tvoje XP <b>{xp.toLocaleString("cs-CZ")}</b></div><div className="shopItems">{[{color:"#c58b58",name:"Klasický parťák",price:0,desc:"Přírodní hnědá srst"},{color:"#d6d8e0",name:"Stříbrný obláček",price:60,desc:"Světlá elegantní srst"},{color:"#252333",name:"Noční průzkumník",price:100,desc:"Tmavá srst"},{color:"#d97a45",name:"Liščí dobrodruh",price:150,desc:"Teplý měděný odstín"}].map(item => {const owned = ownedSkins.includes(item.color); const selected = selectedSkin === item.color; return <article className={"shopItem" + (selected ? " shopItemSelected" : "")} key={item.color}><div className="shopDogSwatch" style={{background:item.color}}>🐕</div><div className="shopItemInfo"><b>{item.name}</b><span>{item.desc}</span><small>{item.price === 0 ? "ZDARMA" : item.price + " XP"}</small></div><button disabled={!owned && xp < item.price} onClick={() => {if (!owned) {setXp(v => v - item.price);setOwnedSkins(v => [...v,item.color]);}setSelectedSkin(item.color);gameRef.current?.setDogStyle(item.color);}}>{selected ? "Vybráno" : owned ? "Použít" : "Odemknout"}</button></article>;})}</div><footer><span>XP získáš sbíráním pamlsků a plněním stanovišť.</span><button onClick={() => setShopOpen(false)}>Zpět do hry</button></footer></section></div>}
       {paused && <div className="pauseOverlay"><div><Pause size={28}/><h2>Hra pozastavena</h2><p>Svět na tebe počká.</p><button className="gamePrimary" onClick={() => gameRef.current?.togglePause()}><Play size={16}/> Pokračovat</button><button className="gameSecondary" onClick={() => gameRef.current?.reset()}><RotateCcw size={15}/> Začít znovu</button></div></div>}
       <div className="gameControls">
         <div className="mobileJoystick" aria-label="Joystick pro pohyb">
