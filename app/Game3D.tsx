@@ -146,7 +146,7 @@ export default function Game3D({ onExit }: Props) {
       const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 9), color);
       mesh.scale.set(...scale); mesh.position.set(...pos); mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh;
     };
-    ellipsoid(dog, dogBodyMat, [0.58, 0.42, 0.92], [0, 0.76, 0]);
+    const dogBody = ellipsoid(dog, dogBodyMat, [0.58, 0.42, 0.92], [0, 0.76, 0]);
     ellipsoid(dog, dogCream, [0.4, 0.3, 0.65], [0, 0.58, 0.22]);
     const head = new THREE.Group(); head.position.set(0, 1.12, -0.66); dog.add(head);
     ellipsoid(head, dogBodyMat, [0.43, 0.43, 0.43], [0, 0.12, -0.05]);
@@ -360,7 +360,9 @@ export default function Game3D({ onExit }: Props) {
         if (activeMode === "dog") {
           legs.forEach((leg, i) => { leg.rotation.x = length > 0 ? Math.sin(frame * 12 + i * Math.PI) * 0.48 : 0; });
           tail.rotation.x = -0.9 + Math.sin(frame * 6) * 0.24;
-          head.rotation.x = Math.sin(frame * 2.4) * 0.035;
+          tail.rotation.z = Math.sin(frame * 8) * (length > 0 ? 0.28 : 0.16);
+          dogBody.position.y = 0.76 + (length > 0 ? Math.abs(Math.sin(frame * 12)) * 0.045 : Math.sin(frame * 2) * 0.012);
+          head.rotation.x = Math.sin(frame * 2.4) * 0.035 + (length > 0 ? Math.sin(frame * 12) * 0.025 : 0);
         } else {
           humanLegs.forEach((leg, i) => { leg.rotation.x = length > 0 ? Math.sin(frame * 10 + i * Math.PI) * 0.45 : 0; });
         }
