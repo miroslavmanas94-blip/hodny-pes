@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
   }
 
   return <main className="app-shell" style={{maxWidth:560,paddingTop:70}}>
-    <a className="brand" href="/"><span className="brand-mark"><PawPrint size={22}/></span><span><b>HODNÝ PES</b><small>OBNOVA ÚČTU</small></span></a>
+    <Link className="brand" href="/"><span className="brand-mark"><PawPrint size={22}/></span><span><b>HODNÝ PES</b><small>OBNOVA ÚČTU</small></span></Link>
     <section className="feature-panel" style={{marginTop:34}}>
       <h1>Nové heslo</h1>
       <p className="feature-copy">Otevři tuto stránku přes odkaz z e-mailu pro obnovu hesla.</p>
