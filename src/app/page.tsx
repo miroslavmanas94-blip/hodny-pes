@@ -8,7 +8,8 @@ import { BREEDS, MISSIONS, scorePullerAttempt, type PullerMode } from "@/game/co
 
 const GameCanvas = dynamic(() => import("@/components/game/GameCanvas"), { ssr: false, loading: () => <div className="scene-loading">Připravujeme cvičiště…</div> });
 type Section = "world" | "school" | "puller";
-type SessionUser = { id: string; email?: string };\ntype ShopItem = { id: string; name: string; description: string; category: string; price: number };
+type SessionUser = { id: string; email?: string };
+type ShopItem = { id: string; name: string; description: string; category: string; price: number };
 const menu = [
   { id: "world" as const, label: "Otevřený svět", detail: "Prozkoumej cvičiště a okolní louky", icon: Map },
   { id: "school" as const, label: "Psí škola", detail: "Nauč se první povely", icon: GraduationCap },
@@ -34,7 +35,17 @@ export default function Home() {
   const [pullerMode, setPullerMode] = useState<PullerMode>("practice");
   const [pullerScore, setPullerScore] = useState(0);
   const [pullerAttempts, setPullerAttempts] = useState(0);
-  const [coins, setCoins] = useState(0);\n  const [shopItems, setShopItems] = useState<ShopItem[]>([]);\n  const [ownedItems, setOwnedItems] = useState<string[]>([]);\n  const [walletCoins, setWalletCoins] = useState<number | null>(null);\n  const [shopMessage, setShopMessage] = useState("");\n  const [shopBusyItem, setShopBusyItem] = useState<string | null>(null);
+  const [coins, setCoins] = useState(0);
+  const [shopItems, setShopItems] = useState<ShopItem[]>([]);
+  const [ownedItems, setOwnedItems] = useState<string[]>([]);
+  const [walletCoins, setWalletCoins] = useState<number | null>(null);
+  const [shopMessage, setShopMessage] = useState("");
+  const [shopBusyItem, setShopBusyItem] = useState<string | null>(null);
+  const [shopItems, setShopItems] = useState<ShopItem[]>([]);
+  const [ownedItems, setOwnedItems] = useState<string[]>([]);
+  const [walletCoins, setWalletCoins] = useState<number | null>(null);
+  const [shopMessage, setShopMessage] = useState("");
+  const [shopBusyItem, setShopBusyItem] = useState<string | null>(null);
   const [xp, setXp] = useState(0);
   const [notice, setNotice] = useState("");
   const [completed, setCompleted] = useState<string[]>([]);
@@ -53,6 +64,51 @@ export default function Home() {
     });
     return () => data.subscription.unsubscribe();
   }, [supabase]);
+
+  useEffect(() => {
+    if (!supabase || !user) return;
+    let cancelled = false;
+    supabase.from("dogs").select("name,breed_id").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle().then(({ data, error }) => {
+      if (cancelled) return;
+      if (error) { setNotice("Nepodařilo se obnovit uloženého psa: " + error.message); return; }
+      if (data) { setDogName(data.name); setBreedId(data.breed_id); setDogSaved(true); }
+    });
+    return () => { cancelled = true; };
+  }, [supabase, user?.id]);
+
+  async function refreshShop() {
+    if (!supabase || !user) { setShopItems([]); setOwnedItems([]); setWalletCoins(null); return; }
+    const [catalog, wallet, inventory] = await Promise.all([
+      supabase.from("inventory_items").select("id,name,description,category,price").eq("active", true).order("price"),
+      supabase.from("wallets").select("coins").eq("user_id", user.id).maybeSingle(),
+      supabase.from("player_inventory").select("item_id").eq("user_id", user.id)
+    ]);
+    if (catalog.error) { setShopMessage("Katalog se nepodařilo načíst: " + catalog.error.message); return; }
+    setShopItems((catalog.data ?? []) as ShopItem[]);
+    setWalletCoins(wallet.data ? Number(wallet.data.coins) : 0);
+    setOwnedItems((inventory.data ?? []).map(row => row.item_id));
+    if (wallet.error) setShopMessage("Peněženku se nepodařilo načíst: " + wallet.error.message);
+  }
+
+  async function buyItem(item: ShopItem) {
+    if (!supabase || !user) { setShopMessage("Pro nákup se přihlas."); return; }
+    setShopBusyItem(item.id); setShopMessage("");
+    try {
+      const { data, error } = await supabase.rpc("buy_cosmetic", { p_item_id: item.id, p_idempotency_key: crypto.randomUUID() });
+      if (error) throw error;
+      const result = data as { status?: string; ok?: boolean; coins?: number; price?: number };
+      if (result.status === "purchased") setShopMessage("Zakoupeno: " + item.name + ". Zůstatek: " + result.coins + " mincí.");
+      else if (result.status === "already_owned") setShopMessage("Tento předmět už vlastníš.");
+      else if (result.status === "insufficient_funds") setShopMessage("Nemáš dost mincí. Cena: " + item.price + ", zůstatek: " + result.coins + ".");
+      else if (result.status === "already_processed") setShopMessage("Tento nákupní požadavek už byl zpracován.");
+      else setShopMessage("Server vrátil neočekávaný výsledek nákupu.");
+      await refreshShop();
+    } catch (error) {
+      setShopMessage(error instanceof Error ? error.message : "Nákup se nepodařil.");
+    } finally { setShopBusyItem(null); }
+  }
+
+  useEffect(() => { void refreshShop(); }, [supabase, user?.id]);
 
   useEffect(() => {
     const caught = (event: Event) => {
@@ -91,7 +147,14 @@ export default function Home() {
     } finally { setAuthBusy(false); }
   }
 
-  async function signUp() {\n    if (!supabase) { setAuthMessage("Supabase není nakonfigurované. Cloudové účty nejsou dostupné."); return; }\n    if (!email.trim() || password.length < 8) { setAuthMessage("Zadej e-mail a heslo dlouhé alespoň 8 znaků."); return; }\n    setAuthBusy(true); setAuthMessage("");\n    try { const { data, error } = await supabase.auth.signUp({ email: email.trim(), password }); if (error) throw error; setAuthMessage(data.session ? "Účet vytvořen a přihlášen." : "Účet vytvořen. Zkontroluj e-mail a potvrď registraci."); } catch (error) { setAuthMessage(error instanceof Error ? error.message : "Registrace selhala."); } finally { setAuthBusy(false); }\n  }\n\n  async function signOut() {
+  async function signUp() {
+    if (!supabase) { setAuthMessage("Supabase není nakonfigurované. Cloudové účty nejsou dostupné."); return; }
+    if (!email.trim() || password.length < 8) { setAuthMessage("Zadej e-mail a heslo dlouhé alespoň 8 znaků."); return; }
+    setAuthBusy(true); setAuthMessage("");
+    try { const { data, error } = await supabase.auth.signUp({ email: email.trim(), password }); if (error) throw error; setAuthMessage(data.session ? "Účet vytvořen a přihlášen." : "Účet vytvořen. Zkontroluj e-mail a potvrď registraci."); } catch (error) { setAuthMessage(error instanceof Error ? error.message : "Registrace selhala."); } finally { setAuthBusy(false); }
+  }
+
+  async function signOut() {
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
     setAuthMessage(error ? "Odhlášení se nepodařilo." : "Byl jsi odhlášen.");
@@ -198,6 +261,13 @@ export default function Home() {
         <div className="puller-stats"><div><b>{pullerScore}</b><small>body</small></div><div><b>{pullerAttempts}</b><small>chycení</small></div><div><b>{xp}</b><small>XP relace</small></div></div>
         <div className="action-row"><button className="primary-cta" onClick={throwRing}><Play size={16} fill="currentColor"/> Hodit kruh</button><button className="secondary-action" onClick={() => {setPullerScore(0);setPullerAttempts(0);setNotice("Místní statistiky Pulleru byly resetovány.");}}><RotateCcw size={16}/> Reset statistik</button></div>
         <p className="feature-copy">Jde o tréninkové body, nikoli oficiální soutěžní skóre. Pes musí skutečně dojít ke kruhu, aby se pokus započítal.</p>
+      </article>
+      <article className="feature-panel">
+        <div className="panel-heading"><CircleDollarSign/><div><h2>Kosmetický obchod</h2><p>Skutečné ceny a vlastnictví načítané z databáze</p></div></div>
+        {user ? <><div className="wallet-balance"><span>Cloudová peněženka</span><b>{walletCoins === null ? "…" : walletCoins + " mincí"}</b></div>
+          <div className="shop-list">{shopItems.map(item => { const owned = ownedItems.includes(item.id); return <div className="shop-row" key={item.id}><div><b>{item.name}</b><p>{item.description}</p><small>{item.price} mincí · {item.category}</small></div><button className="secondary-action" disabled={owned || shopBusyItem !== null || walletCoins === null} onClick={() => void buyItem(item)}>{owned ? "Vlastníš" : shopBusyItem === item.id ? "Nakupuji…" : "Koupit"}</button></div>;})}</div>
+          {shopMessage && <p className="feature-copy" role="status">{shopMessage}</p>}
+        </> : <p className="feature-copy">Přihlas se v panelu Účet hráče. Nové účty dostanou jednorázový startovní zůstatek 100 mincí; nákupy ověřuje databázová transakce. Místní tréninkové mince se do peněženky nepřevádějí.</p>}
       </article>
       <article className="feature-panel">
         <div className="panel-heading"><Trophy/><div><h2>Mise a odměny</h2><p>Odměnu lze vyzvednout pouze jednou v aktuální relaci</p></div></div>
