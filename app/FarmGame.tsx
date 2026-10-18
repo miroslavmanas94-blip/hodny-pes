@@ -14,7 +14,8 @@ type LocationId = "centre" | "obedience" | "puller" | "scent" | "rest" | "park";
 type Panel = "missions" | "dogs" | "map" | "shop" | "settings" | "about" | null;
 type MapObject = { id: string; title: string; subtitle: string; x: number; y: number; kind: "training" | "puller" | "scent" | "care" | "explore" | "mission"; reward: number; xp: number; energy?: number };
 type DogProfile = { id: string; name: string; breed: string; color: string; accent: string; unlockLevel: number };
-type SaveData = { coins: number; xp: number; dogXp: number; energy: number; bond: number; activeDog: string; unlockedDogs: string[]; completed: string[]; language: Language; muted: boolean; showHud: boolean; lastLocation: LocationId };
+type DogProgress = { energy: number; bond: number; xp: number };
+type SaveData = { coins: number; xp: number; dogStats: Record<string, DogProgress>; activeDog: string; unlockedDogs: string[]; completed: string[]; language: Language; muted: boolean; showHud: boolean; lastLocation: LocationId };
 const SAVE_KEY = "hodny-pes-adventure-save-v2";
 
 const DOGS: DogProfile[] = [
@@ -130,7 +131,7 @@ const iconFor = (kind: MapObject["kind"]) => {
 };
 
 const defaultSave: SaveData = {
-  coins: 120, xp: 0, dogXp: 0, energy: 100, bond: 20, activeDog: "monty",
+  coins: 120, xp: 0, dogStats: { monty: { energy: 100, bond: 20, xp: 0 } }, activeDog: "monty",
   unlockedDogs: ["monty"], completed: [], language: "cs", muted: false, showHud: true, lastLocation: "centre",
 };
 
@@ -148,11 +149,11 @@ export default function FarmGame() {
 
   const t = (key: keyof typeof TXT.cs) => TXT[save.language][key] || TXT.cs[key];
   const level = Math.floor(save.xp / 100) + 1;
-  const dogLevel = Math.floor(save.dogXp / 100) + 1;
   const activeDog = DOGS.find(d => d.id === save.activeDog) || DOGS[0];
+  const activeDogStats = save.dogStats[activeDog.id] || { energy: 100, bond: 20, xp: 0 };
+  const dogLevel = Math.floor(activeDogStats.xp / 100) + 1;
   const location = LOCATIONS.find(l => l.id === locationId) || LOCATIONS[0];
   const progress = save.xp % 100;
-  const dogProgress = save.dogXp % 100;
   const currentObjects = location.objects;
   const unfinished = LOCATIONS.flatMap(loc => loc.objects).filter(obj => !save.completed.includes(obj.id));
   const nextObjective = unfinished[0] || currentObjects[0];
@@ -170,9 +171,7 @@ export default function FarmGame() {
           ...parsed,
           coins: typeof parsed.coins === "number" ? Math.max(0, parsed.coins) : defaultSave.coins,
           xp: typeof parsed.xp === "number" ? Math.max(0, parsed.xp) : 0,
-          dogXp: typeof parsed.dogXp === "number" ? Math.max(0, parsed.dogXp) : 0,
-          energy: typeof parsed.energy === "number" ? Math.max(0, Math.min(100, parsed.energy)) : 100,
-          bond: typeof parsed.bond === "number" ? Math.max(0, Math.min(100, parsed.bond)) : 20,
+          dogStats: parsed.dogStats && typeof parsed.dogStats === "object" ? parsed.dogStats : defaultSave.dogStats,
           unlockedDogs: Array.isArray(parsed.unlockedDogs) ? parsed.unlockedDogs.filter(id => DOGS.some(d => d.id === id)) : ["monty"],
           completed: Array.isArray(parsed.completed) ? parsed.completed.filter(id => typeof id === "string") : [],
           language: parsed.language === "en" ? "en" : "cs",
@@ -214,36 +213,34 @@ export default function FarmGame() {
   const doActivity = (obj: MapObject) => {
     setPlayer({ x: obj.x, y: Math.max(60, obj.y + 16) });
     setActiveObject(obj.id);
-    if (save.completed.includes(obj.id)) {
-      notify(save.language === "cs" ? "Tuhle aktivitu už máš splněnou. Můžeš si ji zopakovat." : "You've completed this activity. You can practise it again.");
-      return;
-    }
-    if (obj.energy && obj.energy > 0 && save.energy < obj.energy) {
+    if (obj.energy && obj.energy > 0 && activeDogStats.energy < obj.energy) {
       notify(t("noEnergy"));
       travelTo("rest");
       return;
     }
-    const newXp = save.xp + obj.xp;
-    const newDogXp = save.dogXp + obj.xp;
+    const alreadyCompleted = save.completed.includes(obj.id);
+    const rewardCoins = alreadyCompleted ? 0 : obj.reward;
+    const earnedXp = alreadyCompleted ? 5 : obj.xp;
+    const newXp = save.xp + earnedXp;
+    const newDogXp = activeDogStats.xp + earnedXp;
     const newLevel = Math.floor(newXp / 100) + 1;
-    const unlocks = DOGS.filter(d => d.unlockLevel <= newLevel && !save.unlockedDogs.includes(d.id));
+    const newDogLevel = Math.floor(newDogXp / 100) + 1;
+    const unlocks = DOGS.filter(d => d.unlockLevel <= newDogLevel && !save.unlockedDogs.includes(d.id));
     const updatedUnlocked = [...save.unlockedDogs, ...unlocks.map(d => d.id)];
     setSave(prev => ({
       ...prev,
-      coins: prev.coins + obj.reward,
+      coins: prev.coins + rewardCoins,
       xp: newXp,
-      dogXp: newDogXp,
-      energy: Math.max(0, Math.min(100, prev.energy - (obj.energy || 8))),
-      bond: Math.max(0, Math.min(100, prev.bond + (obj.kind === "care" ? 8 : 3))),
-      completed: [...prev.completed, obj.id],
+      dogStats: { ...prev.dogStats, [activeDog.id]: { energy: Math.max(0, Math.min(100, (prev.dogStats[activeDog.id]?.energy ?? 100) - (obj.energy || 8))), bond: Math.max(0, Math.min(100, (prev.dogStats[activeDog.id]?.bond ?? 20) + (obj.kind === "care" ? 8 : 3))), xp: newDogXp } },
+      completed: alreadyCompleted ? prev.completed : [...prev.completed, obj.id],
       unlockedDogs: updatedUnlocked,
     }));
-    notify(newLevel > level ? t("newLevel") : (save.language === "cs" ? "Aktivita splněna — skvělá spolupráce!" : "Activity complete — great teamwork!"));
+    notify(alreadyCompleted ? (save.language === "cs" ? "Trénink zopakován: +5 XP bez další odměny." : "Practice repeated: +5 XP, no extra coins.") : (newLevel > level ? t("newLevel") : (save.language === "cs" ? "Aktivita splněna — skvělá spolupráce!" : "Activity complete — great teamwork!")));
     if (unlocks.length) window.setTimeout(() => notify((save.language === "cs" ? "Odemčen nový pes: " : "New dog unlocked: ") + unlocks.map(d => d.name).join(", ")), 900);
   };
 
   const restDog = () => {
-    updateSave({ energy: Math.min(100, save.energy + 35), bond: Math.min(100, save.bond + 5) });
+    updateSave({ dogStats: { ...save.dogStats, [activeDog.id]: { energy: Math.min(100, activeDogStats.energy + 35), bond: Math.min(100, activeDogStats.bond + 5), xp: activeDogStats.xp } } });
     notify(save.language === "cs" ? "Paráda. Energie je doplněná, můžete pokračovat." : "Great. Energy restored — ready when you are.");
   };
 
@@ -284,7 +281,7 @@ export default function FarmGame() {
           <div className="sidebarSectionLabel">{t("eyebrow")}</div>
           <button className="activeDogCard" onClick={() => setPanel("dogs")}>
             <span className="dogAvatar" style={{ "--dog-color": activeDog.color, "--dog-accent": activeDog.accent } as CSSProperties}><Dog size={29}/></span>
-            <span className="dogCardText"><b>{activeDog.name}</b><small>{activeDog.breed}</small><span><Heart size={12}/> {t("bond")} {save.bond}%</span></span>
+            <span className="dogCardText"><b>{activeDog.name}</b><small>{activeDog.breed}</small><span><Heart size={12}/> {t("bond")} {activeDogStats.bond}%</span></span>
             <ChevronRight size={17}/>
           </button>
           <div className="levelCard">
@@ -381,7 +378,7 @@ export default function FarmGame() {
         <section className="adventurePanel" role="dialog" aria-modal="true" aria-label={panel} onClick={e => e.stopPropagation()}>
           <header className="adventurePanelHeader"><div><small>HODNÝ PES · PSÍ DOBRODRUŽSTVÍ</small><h2>{panel === "missions" ? t("missions") : panel === "dogs" ? t("dogs") : panel === "map" ? t("map") : panel === "shop" ? t("shop") : panel === "settings" ? t("settings") : t("about")}</h2></div><button onClick={() => setPanel(null)} aria-label="Close"><X size={20}/></button></header>
           {panel === "missions" && <div className="missionList">{LOCATIONS.map(loc => <div className="missionLocationGroup" key={loc.id}><h3>{loc.title}</h3>{loc.objects.map(obj => { const Icon = iconFor(obj.kind); const done = save.completed.includes(obj.id); return <article className={"missionRow " + (done ? "missionRowDone" : "")} key={obj.id}><span className="missionIcon"><Icon size={18}/></span><span className="missionText"><b>{obj.title}</b><small>{obj.subtitle}</small><em>+{obj.reward} {t("coin")} · +{obj.xp} XP</em></span>{done ? <span className="missionDone"><Check size={15}/>{t("completed")}</span> : <button onClick={() => { travelTo(loc.id); window.setTimeout(() => doActivity(obj), 50); }}>{t("doTask")}<ChevronRight size={14}/></button>}</article>; })}</div>)}</div>}
-          {panel === "dogs" && <div className="dogRoster"><p className="panelLead">{t("moreDogs")}</p>{DOGS.map(d => { const unlocked = save.unlockedDogs.includes(d.id); const selected = save.activeDog === d.id; return <article key={d.id} className={"dogRosterRow " + (selected ? "dogRosterSelected" : "") + (!unlocked ? " dogRosterLocked" : "")}><span className="dogRosterAvatar" style={{ "--dog-color": d.color, "--dog-accent": d.accent } as CSSProperties}>{unlocked ? <Dog size={25}/> : <Lock size={21}/>}</span><span className="dogRosterInfo"><b>{d.name}</b><small>{d.breed}</small><em>{unlocked ? (selected ? t("active") : (save.language === "cs" ? "Úroveň psa " + (d.id === "monty" ? dogLevel : d.unlockLevel) : "Dog level " + (d.id === "monty" ? dogLevel : d.unlockLevel))) : t("dogLocked") + " " + d.unlockLevel}</em></span>{unlocked ? <button disabled={selected} onClick={() => updateSave({ activeDog: d.id, energy: 100, bond: Math.min(100, save.bond + 3) })}>{selected ? <Check size={16}/> : t("choose")}</button> : <span className="lockRequirement"><Lock size={14}/>{d.unlockLevel}</span>}</article>; })}</div>}
+          {panel === "dogs" && <div className="dogRoster"><p className="panelLead">{t("moreDogs")}</p>{DOGS.map(d => { const unlocked = save.unlockedDogs.includes(d.id); const selected = save.activeDog === d.id; return <article key={d.id} className={"dogRosterRow " + (selected ? "dogRosterSelected" : "") + (!unlocked ? " dogRosterLocked" : "")}><span className="dogRosterAvatar" style={{ "--dog-color": d.color, "--dog-accent": d.accent } as CSSProperties}>{unlocked ? <Dog size={25}/> : <Lock size={21}/>}</span><span className="dogRosterInfo"><b>{d.name}</b><small>{d.breed}</small><em>{unlocked ? (selected ? t("active") : (save.language === "cs" ? "Úroveň psa " + (d.id === "monty" ? dogLevel : d.unlockLevel) : "Dog level " + (d.id === "monty" ? dogLevel : d.unlockLevel))) : t("dogLocked") + " " + d.unlockLevel}</em></span>{unlocked ? <button disabled={selected} onClick={() => updateSave({ activeDog: d.id, dogStats: { ...save.dogStats, [d.id]: save.dogStats[d.id] || { energy: 100, bond: 20, xp: 0 } } })}>{selected ? <Check size={16}/> : t("choose")}</button> : <span className="lockRequirement"><Lock size={14}/>{d.unlockLevel}</span>}</article>; })}</div>}
           {panel === "map" && <div className="locationCards">{LOCATIONS.map(loc => { const Icon = loc.icon; const done = loc.objects.filter(obj => save.completed.includes(obj.id)).length; return <button className={"locationCard " + (locationId === loc.id ? "locationCardActive" : "")} key={loc.id} onClick={() => travelTo(loc.id)}><span className="locationCardIcon" style={{ background: loc.tint, color: loc.color }}><Icon size={22}/></span><span><b>{loc.title}</b><small>{loc.subtitle}</small><em>{done}/{loc.objects.length} {t("completed").toLowerCase()}</em></span><ChevronRight size={17}/></button>; })}</div>}
           {panel === "shop" && <div className="shopContent"><p className="panelLead">{save.language === "cs" ? "Vybavení odemykáš hraním a plněním aktivit. Tato první verze používá jednoduché herní odměny bez plateb." : "Unlock equipment by playing and completing activities. This first version uses simple in-game rewards without payments."}</p><article className="shopProduct"><span><Bone size={27}/></span><div><b>Dog Puller</b><small>{save.language === "cs" ? "Sportovní pomůcka · odemyká se hraním" : "Sports equipment · earned through play"}</small></div><strong><Coins size={15}/> 80</strong><button disabled={save.coins < 80 || save.completed.includes("shop-puller")} onClick={() => { updateSave({ coins: save.coins - 80, completed: [...save.completed, "shop-puller"] }); notify(save.language === "cs" ? "Vybavení odemčeno." : "Equipment unlocked."); }}>{save.completed.includes("shop-puller") ? t("completed") : (save.language === "cs" ? "Odemknout" : "Unlock")}</button></article><article className="shopProduct"><span><Leaf size={27}/></span><div><b>{save.language === "cs" ? "Přírodní obojek" : "Nature collar"}</b><small>{save.language === "cs" ? "Kosmetická odměna pro parťáka" : "Cosmetic reward for your companion"}</small></div><strong><Coins size={15}/> 120</strong><button disabled={save.coins < 120 || save.completed.includes("shop-collar")} onClick={() => { updateSave({ coins: save.coins - 120, completed: [...save.completed, "shop-collar"] }); notify(save.language === "cs" ? "Obojek odemčen." : "Collar unlocked."); }}>{save.completed.includes("shop-collar") ? t("completed") : (save.language === "cs" ? "Odemknout" : "Unlock")}</button></article><a className="externalShopLink" href="https://www.hodnypes.cz/internetovy-obchod/" target="_blank" rel="noreferrer">{save.language === "cs" ? "Skutečné pomůcky v e-shopu Hodný pes" : "Real equipment in the Hodný pes shop"} <ArrowUpRight size={15}/></a></div>}
           {panel === "settings" && <div className="settingsContent"><div className="settingRow"><span><Languages size={18}/><span><b>{t("language")}</b><small>{save.language === "cs" ? "Čeština / English" : "English / Čeština"}</small></span></span><button onClick={() => updateSave({ language: save.language === "cs" ? "en" : "cs" })}>{save.language === "cs" ? "Čeština" : "English"}</button></div><div className="settingRow"><span>{save.muted ? <VolumeX size={18}/> : <Volume2 size={18}/>}<span><b>{t("sound")}</b><small>{save.language === "cs" ? "V této verzi nejsou přidány zvukové soubory." : "No sound files are bundled in this version."}</small></span></span><button onClick={() => updateSave({ muted: !save.muted })}>{save.muted ? (save.language === "cs" ? "Vypnuto" : "Off") : (save.language === "cs" ? "Zapnuto" : "On")}</button></div><div className="settingRow"><span><Search size={18}/><span><b>{t("hud")}</b><small>{save.language === "cs" ? "Cíl mise na mapě" : "Map objective panel"}</small></span></span><button onClick={() => updateSave({ showHud: !save.showHud })}>{save.showHud ? (save.language === "cs" ? "Zobrazeno" : "Shown") : (save.language === "cs" ? "Skryto" : "Hidden")}</button></div><div className="saveNotice"><Check size={17}/>{t("save")}</div><button className="dangerButton" onClick={() => setConfirmReset(true)}>{t("newGame")}</button>{confirmReset && <div className="resetConfirm"><b>{t("resetTitle")}</b><p>{t("resetBody")}</p><div><button onClick={() => setConfirmReset(false)}>{t("cancel")}</button><button onClick={resetSave}>{t("reset")}</button></div></div>}</div>}
