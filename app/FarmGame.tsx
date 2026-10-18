@@ -1,195 +1,398 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  ArrowRight, ArrowUpRight, Award, Bone, BookOpen, Check, ChevronRight,
+  CircleHelp, Coins, Dog, Droplets, Footprints, Heart, House, Languages,
+  Leaf, Lock, Map, Menu, Plus, Search, ShoppingBag, Sparkles, Target,
+  Trees, Trophy, UserRound, Volume2, VolumeX, X
+} from "lucide-react";
 import "./farm.css";
-import { ArrowUpRight, Award, Bone, Check, ChevronRight, CircleHelp, Coins, Dog, Footprints, House, Languages, Leaf, Map, Menu, Plus, Search, ShoppingBag, Sparkles, Target, X } from "lucide-react";
 
-type Panel = "dogs" | "build" | "quests" | "map" | "shop" | "help" | null;
-type Building = { type: string; name: string; cost: number; color: string; short: string };
-type Plot = { id: number; r: number; c: number; owned: boolean };
-const BUILDINGS: Building[] = [
-  { type: "kennel", name: "Psí zázemí", cost: 120, color: "#e8bd85", short: "K" },
-  { type: "training", name: "Cvičiště", cost: 180, color: "#7f9e63", short: "C" },
-  { type: "shop", name: "Výcvikový obchod", cost: 240, color: "#b98b73", short: "O" },
-  { type: "salon", name: "Odpočinková zóna", cost: 280, color: "#8caeb0", short: "R" },
-  { type: "puller", name: "Dog Puller aréna", cost: 320, color: "#a58bc4", short: "P" },
-  { type: "garden", name: "Psí zahrada", cost: 90, color: "#79a36b", short: "Z" },
+type Language = "cs" | "en";
+type LocationId = "centre" | "obedience" | "puller" | "scent" | "rest" | "park";
+type Panel = "missions" | "dogs" | "map" | "shop" | "settings" | "about" | null;
+type MapObject = { id: string; title: string; subtitle: string; x: number; y: number; kind: "training" | "puller" | "scent" | "care" | "explore" | "mission"; reward: number; xp: number; energy?: number };
+type DogProfile = { id: string; name: string; breed: string; color: string; accent: string; unlockLevel: number };
+type SaveData = { coins: number; xp: number; dogXp: number; energy: number; bond: number; activeDog: string; unlockedDogs: string[]; completed: string[]; language: Language; muted: boolean; showHud: boolean; lastLocation: LocationId };
+const SAVE_KEY = "hodny-pes-adventure-save-v2";
+
+const DOGS: DogProfile[] = [
+  { id: "monty", name: "Monty", breed: "Sheltie", color: "#b87846", accent: "#f0d2a4", unlockLevel: 1 },
+  { id: "bety", name: "Bety", breed: "Welsh corgi", color: "#c88a4d", accent: "#f4d8a5", unlockLevel: 3 },
+  { id: "rex", name: "Rex", breed: "Border kolie", color: "#454c47", accent: "#d9ded4", unlockLevel: 5 },
+  { id: "luna", name: "Luna", breed: "Zlatý retrívr", color: "#cda85c", accent: "#f6e4b8", unlockLevel: 7 },
+  { id: "flek", name: "Flek", breed: "Dalmatin", color: "#ece8dd", accent: "#333a35", unlockLevel: 9 },
+  { id: "bella", name: "Bella", breed: "Australský ovčák", color: "#7e6554", accent: "#d5bfa4", unlockLevel: 11 },
 ];
-const DOGS = [
-  { name: "Monty", breed: "Sheltie", trait: "Zvědavý průzkumník", color: "#c58c55" },
-  { name: "Bety", breed: "Corgi", trait: "Veselá parťačka", color: "#d8a35f" },
-  { name: "Rex", breed: "Border kolie", trait: "Chytrý šikula", color: "#626b67" },
-  { name: "Luna", breed: "Zlatý retrívr", trait: "Milovnice aportu", color: "#d8bd78" },
-  { name: "Flek", breed: "Dalmatin", trait: "Malý dobrodruh", color: "#d8d8d1" },
+
+const LOCATIONS: { id: LocationId; title: string; subtitle: string; description: string; icon: typeof House; color: string; tint: string; objects: MapObject[] }[] = [
+  {
+    id: "centre", title: "Hlavní areál", subtitle: "Vstup a zázemí", description: "Tvoje základna. Rozhlédni se, naplánuj trénink a vydej se do další části centra.",
+    icon: House, color: "#547c48", tint: "#dbe7cb",
+    objects: [
+      { id: "welcome", title: "Recepce", subtitle: "Začni dnešní dobrodružství", x: 48, y: 44, kind: "mission", reward: 20, xp: 15 },
+      { id: "centre-training", title: "Tréninkový plac", subtitle: "Krátké cvičení poslušnosti", x: 70, y: 61, kind: "training", reward: 25, xp: 25, energy: 12 },
+      { id: "centre-garden", title: "Odpočinková zóna", subtitle: "Dopřej psovi pauzu", x: 28, y: 65, kind: "care", reward: 5, xp: 8, energy: -35 },
+    ],
+  },
+  {
+    id: "obedience", title: "Cvičiště", subtitle: "Poslušnost a komunikace", description: "Trénuj přivolání, klid, pozornost a spolupráci. Každý pokus je příležitost naučit se něco nového.",
+    icon: Target, color: "#65884e", tint: "#e1ebd2",
+    objects: [
+      { id: "sit", title: "Sedni a čekej", subtitle: "Krátká lekce sebekontroly", x: 31, y: 48, kind: "training", reward: 25, xp: 30, energy: 10 },
+      { id: "recall", title: "Přivolání", subtitle: "Odměň návrat k člověku", x: 62, y: 38, kind: "training", reward: 30, xp: 35, energy: 12 },
+      { id: "focus", title: "Pozornost na psovoda", subtitle: "Všímej si signálů svého psa", x: 70, y: 67, kind: "mission", reward: 20, xp: 20, energy: 8 },
+    ],
+  },
+  {
+    id: "puller", title: "Dog Puller aréna", subtitle: "Sport a spolupráce", description: "Seznam se s pomůckou, připrav se na aktivitu a střídej pohyb s odpočinkem.",
+    icon: Trophy, color: "#9a8053", tint: "#f0e2c3",
+    objects: [
+      { id: "warmup", title: "Rozcvička", subtitle: "Připrav se na bezpečný trénink", x: 27, y: 61, kind: "care", reward: 10, xp: 15, energy: -8 },
+      { id: "puller-running", title: "Running", subtitle: "První sportovní výzva", x: 53, y: 43, kind: "puller", reward: 40, xp: 40, energy: 18 },
+      { id: "puller-jumping", title: "Jumping", subtitle: "Zkus přesnost a načasování", x: 75, y: 59, kind: "puller", reward: 45, xp: 45, energy: 20 },
+    ],
+  },
+  {
+    id: "scent", title: "Čichací zahrada", subtitle: "Nos jako super schopnost", description: "Hledej pachové stopy, zkoumej prostředí a nech psa pracovat vlastním tempem.",
+    icon: Search, color: "#64865a", tint: "#d9e7ce",
+    objects: [
+      { id: "scent-box", title: "Pachový box", subtitle: "Najdi správnou stopu", x: 33, y: 44, kind: "scent", reward: 35, xp: 35, energy: 10 },
+      { id: "scent-trail", title: "Pachová stopa", subtitle: "Postupuj krok za krokem", x: 61, y: 59, kind: "scent", reward: 40, xp: 40, energy: 12 },
+      { id: "scent-find", title: "Najdi odměnu", subtitle: "Dokonči čichací úkol", x: 77, y: 39, kind: "mission", reward: 25, xp: 25, energy: 8 },
+    ],
+  },
+  {
+    id: "rest", title: "Klidová zóna", subtitle: "Péče a odpočinek", description: "Dobrý trénink počítá i s pauzou. Napij se, odpočiň si a posiluj důvěru.",
+    icon: Heart, color: "#7b9870", tint: "#e0ead8",
+    objects: [
+      { id: "water", title: "Čerstvá voda", subtitle: "Doplň energii", x: 31, y: 47, kind: "care", reward: 5, xp: 8, energy: -28 },
+      { id: "bond", title: "Společná chvilka", subtitle: "Buduj důvěru a vztah", x: 56, y: 57, kind: "care", reward: 10, xp: 15, energy: -12 },
+      { id: "rest-bed", title: "Pelíšek", subtitle: "Pořádná pauza pro parťáka", x: 74, y: 41, kind: "care", reward: 5, xp: 10, energy: -45 },
+    ],
+  },
+  {
+    id: "park", title: "Psí park", subtitle: "Průzkum a běžný život", description: "Procvičuj dovednosti v klidném prostředí a uč se vnímat okolí i potřeby psa.",
+    icon: Trees, color: "#628c57", tint: "#dce9d1",
+    objects: [
+      { id: "park-explore", title: "Prozkoumat okolí", subtitle: "Vydej se za novým podnětem", x: 30, y: 41, kind: "explore", reward: 20, xp: 20, energy: 8 },
+      { id: "park-recall", title: "Přivolání v parku", subtitle: "Procvič dovednost v novém místě", x: 59, y: 54, kind: "training", reward: 30, xp: 30, energy: 12 },
+      { id: "park-sniff", title: "Čichací stezka", subtitle: "Prozkoumej pachy kolem cesty", x: 74, y: 37, kind: "scent", reward: 25, xp: 25, energy: 10 },
+    ],
+  },
 ];
-const LOCATIONS = [
-  { id: "centre", name: "Hlavní areál", sub: "Centrum dění", x: 50, y: 46 },
-  { id: "training", name: "Cvičiště", sub: "Trénink a poslušnost", x: 30, y: 36 },
-  { id: "park", name: "Psí park", sub: "Volný pohyb", x: 72, y: 31 },
-  { id: "puller", name: "Dog Puller", sub: "Sportovní aréna", x: 70, y: 68 },
-  { id: "garden", name: "Zahrada", sub: "Klid a odpočinek", x: 31, y: 70 },
-];
-const tileCenter = (r: number, c: number) => ({ x: 350 + (c - r) * 53, y: 72 + (c + r) * 27 });
+
+const TXT = {
+  cs: {
+    eyebrow: "VÍTEJ VE SVÉM PSÍM SVĚTĚ", intro: "Buduj vztah. Trénuj s respektem. Objevuj společně.",
+    play: "Pokračovat ve hře", newGame: "Začít znovu", level: "ÚROVEŇ", xp: "ZKUŠENOSTI",
+    energy: "ENERGIE PSA", bond: "DŮVĚRA", map: "Lokace", missions: "Mise a cíle", dogs: "Moji psi",
+    shop: "Vybavení", settings: "Nastavení", about: "O projektu", objective: "DNEŠNÍ CÍL",
+    objectiveText: "Vyber místo na mapě a začni společný trénink.", explore: "Prozkoumat lokaci",
+    travel: "Přejít do lokace", back: "Zpět do světa", completed: "Splněno", doTask: "Začít aktivitu",
+    reward: "Odměna", noEnergy: "Pejsek potřebuje pauzu. Zajdi do klidové zóny.", notEnough: "Na tohle ještě nemáš dost Hafíků.",
+    dogLocked: "Odemkne se na úrovni", choose: "Vybrat parťáka", active: "AKTIVNÍ PARŤÁK",
+    moreDogs: "Další pes se odemkne po tréninkovém pokroku. Každý pes má vlastní energii a potřebuje péči.",
+    language: "Jazyk", sound: "Zvukové efekty", hud: "Zobrazovat herní HUD", save: "Postup se ukládá v tomto prohlížeči.",
+    real: "Skutečný Hodný pes", realText: "Hra představuje pozitivní výcvik a psí sporty. Nenahrazuje odborné vedení.",
+    website: "Navštívit hodnypes.cz", training: "Výcvik", puller: "Dog Puller", scent: "Čichání", care: "Péče", exploreKind: "Průzkum",
+    newLevel: "Nová úroveň! Skvělá práce.", complete: "Hotovo", start: "Vstoupit do areálu", continue: "Pokračovat",
+    firstTitle: "Každý velký tým začíná důvěrou", firstBody: "Poznej svého prvního parťáka, prozkoumej areál a vyber si první aktivitu. Trénuj krátce a dopřej psovi pauzu.",
+    coin: "Hafíků", resetTitle: "Začít novou hru?", resetBody: "Tímto se smaže místní uložený postup v tomto prohlížeči.", cancel: "Zrušit", reset: "Smazat postup",
+  },
+  en: {
+    eyebrow: "WELCOME TO YOUR DOG WORLD", intro: "Build trust. Train kindly. Discover together.",
+    play: "Continue game", newGame: "Start over", level: "LEVEL", xp: "EXPERIENCE",
+    energy: "DOG ENERGY", bond: "TRUST", map: "Locations", missions: "Missions & goals", dogs: "My dogs",
+    shop: "Equipment", settings: "Settings", about: "About", objective: "TODAY'S GOAL",
+    objectiveText: "Choose a place on the map and start training together.", explore: "Explore location",
+    travel: "Travel to location", back: "Back to world", completed: "Completed", doTask: "Start activity",
+    reward: "Reward", noEnergy: "Your dog needs a break. Visit the rest area.", notEnough: "You need more Pawcoins for this.",
+    dogLocked: "Unlocks at level", choose: "Choose companion", active: "ACTIVE COMPANION",
+    moreDogs: "Unlock more dogs as you progress. Every dog has their own energy and needs care.",
+    language: "Language", sound: "Sound effects", hud: "Show game HUD", save: "Progress is saved in this browser.",
+    real: "The real Hodný pes", realText: "The game introduces positive training and dog sports. It does not replace professional guidance.",
+    website: "Visit hodnypes.cz", training: "Training", puller: "Dog Puller", scent: "Scent work", care: "Care", exploreKind: "Explore",
+    newLevel: "Level up! Great work.", complete: "Done", start: "Enter the grounds", continue: "Continue",
+    firstTitle: "Every great team starts with trust", firstBody: "Meet your first companion, explore the grounds and choose an activity. Keep sessions short and give your dog breaks.",
+    coin: "Pawcoins", resetTitle: "Start a new game?", resetBody: "This removes the local save in this browser.", cancel: "Cancel", reset: "Delete save",
+  },
+} satisfies Record<Language, Record<string, string>>;
+
+const iconFor = (kind: MapObject["kind"]) => {
+  if (kind === "training") return Target;
+  if (kind === "puller") return Trophy;
+  if (kind === "scent") return Search;
+  if (kind === "care") return Heart;
+  if (kind === "explore") return Trees;
+  return Sparkles;
+};
+
+const defaultSave: SaveData = {
+  coins: 120, xp: 0, dogXp: 0, energy: 100, bond: 20, activeDog: "monty",
+  unlockedDogs: ["monty"], completed: [], language: "cs", muted: false, showHud: true, lastLocation: "centre",
+};
 
 export default function FarmGame() {
-  const [coins, setCoins] = useState(350);
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [owned, setOwned] = useState<number[]>([7, 8, 9, 12, 13, 14, 15, 16, 17, 20, 21, 22]);
-  const [buildings, setBuildings] = useState<Record<number, string>>({ 8: "kennel", 13: "training", 16: "garden" });
-  const [activeDog, setActiveDog] = useState(0);
-  const [selectedBuild, setSelectedBuild] = useState<string | null>(null);
-  const [panel, setPanel] = useState<Panel>(null);
-  const [completed, setCompleted] = useState<string[]>([]);
-  const [toast, setToast] = useState("");
-  const [language, setLanguage] = useState<"cs" | "en">("cs");
+  const [save, setSave] = useState<SaveData>(defaultSave);
   const [loaded, setLoaded] = useState(false);
-  const [activeLocation, setActiveLocation] = useState("centre");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mapZoom, setMapZoom] = useState(1);
+  const [locationId, setLocationId] = useState<LocationId>("centre");
+  const [panel, setPanel] = useState<Panel>(null);
+  const [mobileNav, setMobileNav] = useState(false);
+  const [toast, setToast] = useState("");
+  const [player, setPlayer] = useState({ x: 48, y: 76 });
+  const [activeObject, setActiveObject] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [welcome, setWelcome] = useState(true);
 
-  const en = language === "en";
-  const t = (cs: string, english: string) => en ? english : cs;
-  const plots: Plot[] = useMemo(() => Array.from({ length: 36 }, (_, id) => ({ id, r: Math.floor(id / 6), c: id % 6, owned: owned.includes(id) })), [owned]);
-  const dog = DOGS[activeDog];
-  const location = LOCATIONS.find(l => l.id === activeLocation) || LOCATIONS[0];
-  const quests = [
-    { id: "welcome", title: t("Prohlédni si hlavní areál", "Explore the main grounds"), desc: t("Poznej své nové psí centrum.", "Get to know your new dog centre."), reward: 30, xp: 10 },
-    { id: "train", title: t("První trénink", "First training session"), desc: t("Vyzkoušej si krátkou tréninkovou výzvu.", "Try a short training challenge."), reward: 45, xp: 25 },
-    { id: "garden", title: t("Čas na průzkum", "Time to explore"), desc: t("Navštiv klidnou část areálu.", "Visit a quiet part of the grounds."), reward: 25, xp: 10 },
-    { id: "puller", title: t("Dog Puller výzva", "Dog Puller challenge"), desc: t("Připrav se na sportovní aktivitu.", "Get ready for a sport activity."), reward: 60, xp: 25 },
-    { id: "shop", title: t("Vybavení pro parťáka", "Gear for your companion"), desc: t("Prohlédni si výcvikové vybavení.", "Browse training equipment."), reward: 50, xp: 15 },
-  ];
+  const t = (key: keyof typeof TXT.cs) => TXT[save.language][key] || TXT.cs[key];
+  const level = Math.floor(save.xp / 100) + 1;
+  const dogLevel = Math.floor(save.dogXp / 100) + 1;
+  const activeDog = DOGS.find(d => d.id === save.activeDog) || DOGS[0];
+  const location = LOCATIONS.find(l => l.id === locationId) || LOCATIONS[0];
+  const progress = save.xp % 100;
+  const dogProgress = save.dogXp % 100;
+  const currentObjects = location.objects;
+  const unfinished = LOCATIONS.flatMap(loc => loc.objects).filter(obj => !save.completed.includes(obj.id));
+  const nextObjective = unfinished[0] || currentObjects[0];
+  const ownedDogs = DOGS.filter(d => save.unlockedDogs.includes(d.id));
+  const tForObject = (obj: MapObject) => ({ training: t("training"), puller: t("puller"), scent: t("scent"), care: t("care"), explore: t("exploreKind"), mission: t("missions") })[obj.kind];
+
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("hodny-pes-isometric-save-v1");
+      const raw = window.localStorage.getItem(SAVE_KEY);
       if (raw) {
-        const save = JSON.parse(raw);
-        if (typeof save.coins === "number") setCoins(save.coins);
-        if (typeof save.xp === "number") { setXp(save.xp); setLevel(Math.floor(save.xp / 100) + 1); }
-        if (Array.isArray(save.owned)) setOwned(save.owned);
-        if (save.buildings && typeof save.buildings === "object") setBuildings(save.buildings);
-        if (Array.isArray(save.completed)) setCompleted(save.completed);
-        if (typeof save.activeDog === "number") setActiveDog(Math.max(0, Math.min(DOGS.length - 1, save.activeDog)));
-        if (save.language === "en") setLanguage("en");
+        const parsed = JSON.parse(raw) as Partial<SaveData>;
+        const validLocations: LocationId[] = ["centre", "obedience", "puller", "scent", "rest", "park"];
+        setSave({
+          ...defaultSave,
+          ...parsed,
+          coins: typeof parsed.coins === "number" ? Math.max(0, parsed.coins) : defaultSave.coins,
+          xp: typeof parsed.xp === "number" ? Math.max(0, parsed.xp) : 0,
+          dogXp: typeof parsed.dogXp === "number" ? Math.max(0, parsed.dogXp) : 0,
+          energy: typeof parsed.energy === "number" ? Math.max(0, Math.min(100, parsed.energy)) : 100,
+          bond: typeof parsed.bond === "number" ? Math.max(0, Math.min(100, parsed.bond)) : 20,
+          unlockedDogs: Array.isArray(parsed.unlockedDogs) ? parsed.unlockedDogs.filter(id => DOGS.some(d => d.id === id)) : ["monty"],
+          completed: Array.isArray(parsed.completed) ? parsed.completed.filter(id => typeof id === "string") : [],
+          language: parsed.language === "en" ? "en" : "cs",
+          lastLocation: validLocations.includes(parsed.lastLocation as LocationId) ? parsed.lastLocation as LocationId : "centre",
+          activeDog: DOGS.some(d => d.id === parsed.activeDog) ? parsed.activeDog as string : "monty",
+          muted: Boolean(parsed.muted), showHud: parsed.showHud !== false,
+        });
+        setLocationId(validLocations.includes(parsed.lastLocation as LocationId) ? parsed.lastLocation as LocationId : "centre");
+        setWelcome(false);
       }
-    } catch { /* Ignore an invalid local save and start a new game. */ }
+    } catch {
+      // Invalid or unavailable browser storage should not prevent the game from starting.
+    }
     setLoaded(true);
   }, []);
+
   useEffect(() => {
     if (!loaded) return;
-    localStorage.setItem("hodny-pes-isometric-save-v1", JSON.stringify({ coins, xp, owned, buildings, completed, activeDog, language }));
-  }, [loaded, coins, xp, owned, buildings, completed, activeDog, language]);
+    try { window.localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, lastLocation: locationId })); } catch { /* Storage can be disabled or full. */ }
+  }, [loaded, save, locationId]);
 
-  const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(""), 2600); };
-  const award = (amount: number, experience = 10) => {
-    setCoins(v => v + amount);
-    const nextXp = xp + experience;
-    const nextLevel = Math.floor(nextXp / 100) + 1;
-    setXp(nextXp);
-    if (nextLevel > level) notify(t("Nová úroveň. Dobrá práce!", "Level up. Nicely done!"));
-    setLevel(nextLevel);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(""), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const notify = (message: string) => setToast(message);
+  const updateSave = (patch: Partial<SaveData>) => setSave(prev => ({ ...prev, ...patch }));
+
+  const travelTo = (id: LocationId) => {
+    setLocationId(id);
+    setActiveObject(null);
+    setPlayer({ x: 50, y: 76 });
+    setPanel(null);
+    setMobileNav(false);
   };
-  const claimQuest = (id: string, title: string, reward: number, experience: number) => {
-    if (completed.includes(id)) return;
-    setCompleted(v => [...v, id]); award(reward, experience);
-    notify(t("Splněno: ", "Completed: ") + title + " · +" + reward);
-  };
-  const buyPlot = (id: number) => {
-    if (owned.includes(id)) return;
-    if (coins < 100) { notify(t("Na rozšíření potřebuješ 100 Hafíků.", "You need 100 Pawcoins to expand.")); return; }
-    const near = owned.some(own => Math.abs(Math.floor(own / 6) - Math.floor(id / 6)) + Math.abs(own % 6 - id % 6) === 1);
-    if (!near) { notify(t("Nejdřív rozšiř pozemek vedle svého areálu.", "Expand a neighbouring plot first.")); return; }
-    setCoins(v => v - 100); setOwned(v => [...v, id]); award(0, 15); notify(t("Nový pozemek je tvůj.", "New land unlocked."));
-  };
-  const handlePlot = (plot: Plot) => {
-    if (!plot.owned) { buyPlot(plot.id); return; }
-    if (selectedBuild) {
-      const item = BUILDINGS.find(b => b.type === selectedBuild);
-      if (buildings[plot.id]) { notify(t("Na tomto místě už něco stojí.", "This plot is already occupied.")); return; }
-      if (!item) return;
-      if (coins < item.cost) { notify(t("Na tuto budovu nemáš dost Hafíků.", "Not enough Pawcoins for this building.")); return; }
-      setCoins(v => v - item.cost); setBuildings(v => ({ ...v, [plot.id]: selectedBuild })); setSelectedBuild(null); award(0, 20); notify(t("Nová část areálu: ", "New facility: ") + item.name);
+
+  const doActivity = (obj: MapObject) => {
+    setPlayer({ x: obj.x, y: Math.max(60, obj.y + 16) });
+    setActiveObject(obj.id);
+    if (save.completed.includes(obj.id)) {
+      notify(save.language === "cs" ? "Tuhle aktivitu už máš splněnou. Můžeš si ji zopakovat." : "You've completed this activity. You can practise it again.");
       return;
     }
-    const type = buildings[plot.id];
-    if (type === "kennel") setPanel("dogs");
-    else if (type === "training") { setActiveLocation("training"); claimQuest("train", t("První trénink", "First training"), 45, 25); }
-    else if (type === "garden") { setActiveLocation("garden"); claimQuest("garden", t("Čas na průzkum", "Time to explore"), 25, 10); }
-    else if (type === "shop") { setActiveLocation("centre"); setPanel("shop"); }
-    else if (type === "puller") { setActiveLocation("puller"); claimQuest("puller", t("Dog Puller výzva", "Dog Puller challenge"), 60, 25); }
-    else if (type === "salon") { setActiveLocation("park"); claimQuest("shop", t("Odpočinek pro parťáka", "A break for your companion"), 50, 15); }
-    else notify(t("Vyber budovu v nabídce a umísti ji sem.", "Choose a building and place it here."));
+    if (obj.energy && obj.energy > 0 && save.energy < obj.energy) {
+      notify(t("noEnergy"));
+      travelTo("rest");
+      return;
+    }
+    const newXp = save.xp + obj.xp;
+    const newDogXp = save.dogXp + obj.xp;
+    const newLevel = Math.floor(newXp / 100) + 1;
+    const unlocks = DOGS.filter(d => d.unlockLevel <= newLevel && !save.unlockedDogs.includes(d.id));
+    const updatedUnlocked = [...save.unlockedDogs, ...unlocks.map(d => d.id)];
+    setSave(prev => ({
+      ...prev,
+      coins: prev.coins + obj.reward,
+      xp: newXp,
+      dogXp: newDogXp,
+      energy: Math.max(0, Math.min(100, prev.energy - (obj.energy || 8))),
+      bond: Math.max(0, Math.min(100, prev.bond + (obj.kind === "care" ? 8 : 3))),
+      completed: [...prev.completed, obj.id],
+      unlockedDogs: updatedUnlocked,
+    }));
+    notify(newLevel > level ? t("newLevel") : (save.language === "cs" ? "Aktivita splněna — skvělá spolupráce!" : "Activity complete — great teamwork!"));
+    if (unlocks.length) window.setTimeout(() => notify((save.language === "cs" ? "Odemčen nový pes: " : "New dog unlocked: ") + unlocks.map(d => d.name).join(", ")), 900);
   };
 
-  return <main className="farmApp">
-    <header className="farmTopbar">
-      <button className="brandMark" onClick={() => {setActiveLocation("centre");setPanel(null);}} aria-label="Hodný pes — hlavní areál"><span className="brandSymbol"><Dog size={23}/></span><span className="brandText"><b>HODNÝ PES</b><small>PSÍ DOBRODRUŽSTVÍ</small></span></button>
-      <div className="topLocation"><span className="statusDot"/><span>{t("HERNÍ AREÁL", "GAME GROUNDS")}</span><b>{location.name}</b></div>
-      <div className="topActions"><div className="currencyPill"><Coins size={17}/><b>{coins.toLocaleString(language === "cs" ? "cs-CZ" : "en-US")}</b><span>{t("Hafíků", "Pawcoins")}</span></div><button className="topIconButton" title={t("Změnit jazyk", "Change language")} onClick={() => setLanguage(v => v === "cs" ? "en" : "cs")}><Languages size={17}/><small>{language.toUpperCase()}</small></button><a className="websiteButton" href="https://hodnypes.cz/" target="_blank" rel="noreferrer">{t("Hodný pes v reálu", "Real Hodný pes")} <ArrowUpRight size={15}/></a><button className="mobileMenuToggle" onClick={() => setSidebarOpen(v => !v)} aria-label={t("Otevřít navigaci", "Open navigation")}><Menu size={19}/></button></div>
-    </header>
-    <div className="gameShell">
-      <aside className={"gameSidebar "+(sidebarOpen?"gameSidebarOpen":"")}>
-        <div className="sidebarEyebrow">{t("TVÉ CENTRUM", "YOUR CENTRE")}</div>
-        <button className="profileButton" onClick={() => setPanel("dogs")}><span className="profileDog" style={{"--dog-color":dog.color} as CSSProperties}><Dog size={26}/></span><span className="profileInfo"><b>{dog.name}</b><small>{dog.breed} · {t("tvůj parťák", "your companion")}</small></span><ChevronRight size={16}/></button>
-        <div className="levelPanel"><div className="levelLabel"><span>{t("ÚROVEŇ CENTRA", "CENTRE LEVEL")}</span><b>{level}</b></div><div className="levelTrack"><span style={{width:(xp%100)+"%"}}/></div><div className="levelCaption"><span>{xp%100}/100 XP</span><span>{t("Další úroveň", "Next level")}</span></div></div>
-        <div className="navLabel">{t("PROZKOUMAT", "EXPLORE")}</div>
-        <button className="navItem navActive" onClick={() => {setActiveLocation("centre");setPanel(null);}}><House size={18}/><span>{t("Hlavní areál", "Main grounds")}</span><i/></button>
-        <button className={"navItem "+(panel==="map"?"navSelected":"")} onClick={() => setPanel("map")}><Map size={18}/><span>{t("Mapa a lokace", "Map & locations")}</span><ChevronRight size={15}/></button>
-        <button className={"navItem "+(panel==="dogs"?"navSelected":"")} onClick={() => setPanel("dogs")}><Dog size={18}/><span>{t("Psí parťáci", "Dog companions")}</span><span className="navBadge">{DOGS.length}</span></button>
-        <button className={"navItem "+(panel==="quests"?"navSelected":"")} onClick={() => setPanel("quests")}><Target size={18}/><span>{t("Mise a výzvy", "Missions & challenges")}</span><span className="navBadge">{quests.filter(q=>!completed.includes(q.id)).length}</span></button>
-        <div className="navLabel navLabelSpaced">{t("SPRÁVA AREÁLU", "CENTRE MANAGEMENT")}</div>
-        <button className={"navItem "+(panel==="build"?"navSelected":"")} onClick={() => setPanel("build")}><House size={18}/><span>{t("Budovy a vybavení", "Buildings & equipment")}</span></button>
-        <button className={"navItem "+(panel==="shop"?"navSelected":"")} onClick={() => setPanel("shop")}><ShoppingBag size={18}/><span>{t("Výcvikový obchod", "Training shop")}</span></button>
-        <button className="navItem" onClick={() => setPanel("help")}><CircleHelp size={18}/><span>{t("Jak hrát", "How to play")}</span></button>
-        <div className="sidebarSpacer"/>
-        <div className="realWorldCard"><span className="realWorldIcon"><Footprints size={20}/></span><span className="realWorldEyebrow">{t("VÍCE NEŽ HRA", "MORE THAN A GAME")}</span><b>{t("Skutečné zážitky se psy", "Real experiences with dogs")}</b><p>{t("Poznej kurzy, workshopy a pozitivní výcvik v centru Hodný pes.", "Discover courses, workshops and positive dog training.")}</p><a href="https://hodnypes.cz/" target="_blank" rel="noreferrer">{t("Objev centrum", "Discover the centre")} <ArrowUpRight size={14}/></a></div>
-        <div className="sidebarBottom"><span className="brandMini"><Dog size={14}/></span><span>Hodný pes <small>· {t("s respektem a radostí", "with care and joy")}</small></span></div>
-      </aside>
-      <section className="worldArea">
-        <div className="worldHeading"><div><span className="worldEyebrow"><span className="statusDot"/> {t("TVŮJ PSÍ SVĚT", "YOUR DOG WORLD")}</span><h1>{location.name}<span>.</span></h1><p>{location.sub} · {t("Vyber místo přímo na mapě a vydej se za dalším dobrodružstvím.", "Choose a place on the map and head into your next adventure.")}</p></div><div className="worldStats"><div><span>{t("POZEMKY", "PLOTS")}</span><b>{owned.length}<small>/36</small></b></div><div><span>{t("SPLNĚNO", "COMPLETED")}</span><b>{completed.length}<small>/{quests.length}</small></b></div></div></div>
-        <div className="mapViewport">
-          <div className="mapAtmosphere"><span className="mapSun"/><span className="mapCloud cloudOne"/><span className="mapCloud cloudTwo"/></div>
-          <div className="mapTopLabel"><span className="mapLiveDot"/><span>{t("HLAVNÍ AREÁL HODNÝ PES", "HODNÝ PES MAIN GROUNDS")}</span><small>{t("INTERAKTIVNÍ MAPA", "INTERACTIVE MAP")}</small></div>
-          <svg className="isometricBoard" style={{transform:`translate(-50%,-48%) scale(${mapZoom})`}} viewBox="0 0 700 420" role="img" aria-label={t("Izometrická mapa hlavního areálu. Vyber pozemek nebo lokaci.", "Isometric map of the main grounds. Choose a plot or location.")}>
-            <defs><linearGradient id="groundWash" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b8d29a"/><stop offset="100%" stopColor="#8eaf79"/></linearGradient><filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#34472d" floodOpacity=".16"/></filter></defs>
-            <ellipse cx="350" cy="245" rx="294" ry="145" fill="#4f7046" opacity=".12"/>
-            <path d="M350 42 L640 190 L350 365 L60 190 Z" fill="url(#groundWash)" stroke="#77996a" strokeWidth="2"/>
-            {plots.map(plot => {
-              const {x,y}=tileCenter(plot.r,plot.c);
-              const points = `${x},${y} ${x+53},${y+27} ${x},${y+54} ${x-53},${y+27}`;
-              const type=buildings[plot.id];
-              const item=BUILDINGS.find(b=>b.type===type);
-              const active = plot.owned && (plot.r===2 || plot.r===3);
-              return <g key={plot.id} className={"plotGroup "+(plot.owned?"plotOwned":"plotLocked")} onClick={() => handlePlot(plot)} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" ")handlePlot(plot)}} aria-label={plot.owned?(item?.name||t("Volný pozemek","Empty plot")):t("Odemknout pozemek za 100 Hafíků","Unlock plot for 100 Pawcoins")}>
-                <polygon points={points} fill={!plot.owned?"#d4c8a4":active?"#b8d69b":((plot.r+plot.c)%2===0?"#a9cc8c":"#b5d596")} stroke={!plot.owned?"#a99b77":"#8bae72"} strokeWidth="1.4"/>
-                {plot.owned && <path d={`M ${x-19} ${y+27} l 8 -4 M ${x+13} ${y+34} l 7 -3`} stroke="#83ac70" strokeWidth="2" opacity=".6" strokeLinecap="round"/>}
-                {!plot.owned && <g><circle cx={x} cy={y+25} r="10" fill="#f5edda" stroke="#b7a77d"/><path d={`M ${x-3} ${y+25} h6 M ${x} ${y+22} v6`} stroke="#8e805e" strokeWidth="1.5"/><text x={x} y={y+43} textAnchor="middle" fontSize="8" fill="#655d45">100</text></g>}
-                {item && <g filter="url(#softShadow)"><ellipse cx={x} cy={y+23} rx="25" ry="9" fill="#536c45" opacity=".2"/><path d={`M ${x-22} ${y+17} l22 -12 22 12 -22 12 z`} fill={item.color} stroke="#6d775c" strokeWidth="1"/><path d={`M ${x-22} ${y+17} v-15 l22 -12 v15 z`} fill={item.color} stroke="#6d775c" strokeWidth="1" transform={`translate(0 13)`}/><path d={`M ${x} ${y+5} l22 12 v-15 l-22 -12 z`} fill="#f3e4c6" stroke="#6d775c" strokeWidth="1" transform="translate(0 13)"/><text x={x} y={y+26} textAnchor="middle" fontSize="10" fontWeight="800" fill="#334631">{item.short}</text><text x={x} y={y+43} textAnchor="middle" fontSize="8" fontWeight="700" fill="#34472d">{item.name}</text></g>}
-              </g>;
-            })}
-            <g className="mapDog" onClick={() => setPanel("dogs")} role="button" tabIndex={0} aria-label={t("Vybrat psího parťáka","Choose dog companion")}><ellipse cx="350" cy="238" rx="24" ry="8" fill="#4b6941" opacity=".24"/><circle cx="350" cy="218" r="17" fill={dog.color} stroke="#fff4dd" strokeWidth="3"/><path d="M338 208 l-7 -9 12 3 M362 208 l7 -9 -12 3" fill={dog.color} stroke="#fff4dd" strokeWidth="2" strokeLinejoin="round"/><circle cx="344" cy="217" r="2" fill="#2f392b"/><circle cx="356" cy="217" r="2" fill="#2f392b"/><ellipse cx="350" cy="224" rx="5" ry="3" fill="#f6eee0"/><text x="350" y="257" textAnchor="middle" fontSize="10" fontWeight="800" fill="#2f432c">{dog.name}</text></g>
-          </svg>
-          {LOCATIONS.filter(l=>l.id!=="centre").map(l=><button key={l.id} className={"mapLocationPin "+(activeLocation===l.id?"mapLocationPinActive":"")} style={{left:l.x+"%",top:l.y+"%"}} onClick={() => {setActiveLocation(l.id);setPanel(null);}}><span className="pinCore">{l.id==="training"?<Target size={17}/>:l.id==="park"?<Dog size={17}/>:l.id==="puller"?<Award size={17}/>:<Leaf size={17}/>}</span><span className="pinLabel"><b>{l.name}</b><small>{l.sub}</small></span></button>)}
-          <button className={"mapCentrePin "+(activeLocation==="centre"?"mapCentrePinActive":"")} onClick={() => {setActiveLocation("centre");setPanel(null);}}><span className="centrePinIcon"><House size={17}/></span><span><b>{t("Hlavní areál","Main grounds")}</b><small>{t("Centrum dění","Main hub")}</small></span></button>
-          {selectedBuild && <div className="placementHint"><span className="placementDot"/><span>{t("Vyber volný pozemek pro", "Choose an empty plot for")} <b>{BUILDINGS.find(b=>b.type===selectedBuild)?.name}</b></span><button onClick={() => setSelectedBuild(null)} aria-label={t("Zrušit výběr","Cancel selection")}><X size={15}/></button></div>}
-          <div className="mapLegend"><span><i className="legendYourLand"/> {t("Tvůj pozemek","Your land")}</span><span><i className="legendLockedLand"/> {t("K rozšíření","Available to unlock")}</span><span className="legendCount">{owned.length}/36 {t("pozemků","plots")}</span></div>
-          <div className="mapCompass" aria-hidden="true"><span>N</span><div/></div>
-          <div className="mapZoomControls"><button onClick={() => setMapZoom(v => Math.min(1.35, Number((v + 0.1).toFixed(2))))} aria-label={t("Přiblížit mapu","Zoom map")}><Plus size={17}/></button><button onClick={() => {setActiveLocation("centre");setSelectedBuild(null);setMapZoom(1);}} aria-label={t("Zobrazit celý areál","Show full grounds")}><Search size={16}/></button></div>
+  const restDog = () => {
+    updateSave({ energy: Math.min(100, save.energy + 35), bond: Math.min(100, save.bond + 5) });
+    notify(save.language === "cs" ? "Paráda. Energie je doplněná, můžete pokračovat." : "Great. Energy restored — ready when you are.");
+  };
+
+  const resetSave = () => {
+    setSave(defaultSave);
+    setLocationId("centre");
+    setPlayer({ x: 48, y: 76 });
+    setPanel(null);
+    setConfirmReset(false);
+    setWelcome(true);
+    try { window.localStorage.removeItem(SAVE_KEY); } catch { /* Ignore storage errors. */ }
+    notify(save.language === "cs" ? "Nová hra je připravená." : "Your new game is ready.");
+  };
+
+  const MapIcon = location.icon;
+  const totalDone = save.completed.length;
+  const totalTasks = LOCATIONS.reduce((sum, loc) => sum + loc.objects.length, 0);
+
+  return (
+    <main className="adventureApp">
+      <header className="adventureTopbar">
+        <button className="adventureBrand" onClick={() => travelTo("centre")} aria-label="Hodný pes: Psí dobrodružství — hlavní areál">
+          <span className="brandBadge"><Dog size={23} /></span>
+          <span className="brandWordmark"><b>Psí dobrodružství</b><small>HODNÝ PES · VÝCVIK S RESPEKTEM</small></span>
+        </button>
+        <div className="topbarLocation"><span className="liveIndicator" /><span>{location.title}</span></div>
+        <div className="topbarActions">
+          <div className="currencyBadge"><Coins size={17} /><b>{save.coins.toLocaleString(save.language === "cs" ? "cs-CZ" : "en-US")}</b><small>{t("coin")}</small></div>
+          <button className="iconButton languageButton" onClick={() => updateSave({ language: save.language === "cs" ? "en" : "cs" })} aria-label={t("language")}><Languages size={17}/><span>{save.language.toUpperCase()}</span></button>
+          <button className="iconButton settingsButton" onClick={() => setPanel("settings")} aria-label={t("settings")}><Volume2 size={17}/></button>
+          <a className="brandLink" href="https://www.hodnypes.cz/" target="_blank" rel="noreferrer">{t("real")} <ArrowUpRight size={14}/></a>
+          <button className="iconButton mobileMenuButton" onClick={() => setMobileNav(v => !v)} aria-label="Menu"><Menu size={19}/></button>
         </div>
-        <div className="worldBottomBar"><div className="activeCompanion"><span className="companionBadge" style={{"--dog-color":dog.color} as CSSProperties}><Dog size={21}/></span><span><small>{t("AKTIVNÍ PARŤÁK", "ACTIVE COMPANION")}</small><b>{dog.name} <em>{dog.breed}</em></b></span><button onClick={() => setPanel("dogs")}>{t("Změnit", "Change")}</button></div><div className="quickActions"><button onClick={() => {setPanel("quests");setSidebarOpen(false);}}><Target size={17}/><span>{t("Mise", "Missions")}</span><i>{quests.filter(q=>!completed.includes(q.id)).length}</i></button><button onClick={() => {setPanel("build");setSidebarOpen(false);}}><House size={17}/><span>{t("Stavět", "Build")}</span></button><button onClick={() => {setPanel("shop");setSidebarOpen(false);}}><ShoppingBag size={17}/><span>{t("Obchod", "Shop")}</span></button><button onClick={() => claimQuest("welcome",quests[0].title,30,10)} disabled={completed.includes("welcome")}><Sparkles size={17}/><span>{completed.includes("welcome")?t("Splněno","Complete"):t("Denní úkol","Daily task")}</span></button></div></div>
-        <footer className="worldFooter"><span>HODNÝ PES <i>·</i> {t("hra o důvěře a společných zážitcích", "a game about trust and shared moments")}</span><a href="https://hodnypes.cz/" target="_blank" rel="noreferrer">{t("Skutečné kurzy a výcvik", "Real training & courses")} <ArrowUpRight size={13}/></a></footer>
-      </section>
-    </div>
-    {panel && <div className="panelBackdrop" onClick={() => {setPanel(null);setSelectedBuild(null);}}><section className="gamePanel" role="dialog" aria-modal="true" onClick={e=>e.stopPropagation()}><header className="panelHeader"><div><span className="panelEyebrow">HODNÝ PES · {t("CENTRUM","CENTRE")}</span><h2>{panel==="dogs"?t("Psí parťáci","Dog companions"):panel==="build"?t("Budovy a vybavení","Buildings & equipment"):panel==="quests"?t("Mise a výzvy","Missions & challenges"):panel==="map"?t("Mapa a lokace","Map & locations"):panel==="shop"?t("Výcvikový obchod","Training shop"):t("Jak hrát","How to play")}</h2></div><button className="panelClose" onClick={()=>{setPanel(null);setSelectedBuild(null);}} aria-label={t("Zavřít","Close")}><X size={20}/></button></header>
-      {panel==="dogs" && <><p className="panelIntro">{t("Vyber parťáka pro dnešní dobrodružství. Každý má svůj charakter a oblíbené aktivity.", "Choose a companion for today's adventure. Each has a distinct character and favourite activities.")}</p><div className="dogRadialGrid"><div className="dogRadialCenter"><span className="dogRadialCenterIcon" style={{"--dog-color":dog.color} as CSSProperties}><Dog size={27}/></span><b>{dog.name}</b><small>{t("VYBRANÝ PARŤÁK","ACTIVE COMPANION")}</small></div>{DOGS.map((d,i)=><button key={d.name} className={"dogRadialChoice "+(i===activeDog?"dogRadialChoiceActive":"")} onClick={()=>{setActiveDog(i);notify(t("Tvým parťákem je ","Your companion is now ")+d.name);}}><span className="dogPortrait" style={{"--dog-color":d.color} as CSSProperties}><Dog size={27}/></span><b>{d.name}</b><small>{d.breed}</small><span className="dogTrait">{d.trait}</span>{i===activeDog&&<span className="selectedCheck"><Check size={14}/></span>}</button>)}</div><div className="panelCallout"><Bone size={18}/><span>{t("Pozitivní výcvik začíná důvěrou. Každý pes se učí vlastním tempem.", "Positive training starts with trust. Every dog learns at their own pace.")}</span></div></>}
-      {panel==="build" && <><p className="panelIntro">{t("Vyber vybavení a pak klikni na volný pozemek na mapě. Budovy rozšiřují možnosti tvého areálu.", "Choose a facility, then click an empty owned plot on the map. Buildings expand your centre's options.")}</p><div className="facilityList">{BUILDINGS.map(b=><button key={b.type} className={"facilityRow "+(selectedBuild===b.type?"facilitySelected":"")} onClick={()=>{setSelectedBuild(b.type);setPanel(null);notify(t("Teď vyber volný pozemek na mapě.","Now choose an empty plot on the map."));}}><span className="facilityIcon" style={{background:b.color}}>{b.short}</span><span className="facilityInfo"><b>{b.name}</b><small>{t("Zařízení psího centra","Dog centre facility")}</small></span><strong><Coins size={14}/>{b.cost}</strong><ChevronRight size={16}/></button>)}</div></>}
-      {panel==="quests" && <><p className="panelIntro">{t("Úkoly tě provedou areálem. Za splnění získáš Hafíky a zkušenosti.", "Quests guide you around the grounds. Complete them to earn Pawcoins and experience.")}</p><div className="questList">{quests.map(q=><article className={"questPanelRow "+(completed.includes(q.id)?"questPanelDone":"")} key={q.id}><span className="questPanelIcon">{completed.includes(q.id)?<Check size={19}/>:<Target size={19}/>}</span><div><b>{q.title}</b><p>{q.desc}</p><small>+{q.reward} {t("Hafíků","Pawcoins")} · +{q.xp} XP</small></div><button disabled={completed.includes(q.id)} onClick={()=>{if(q.id==="welcome")claimQuest(q.id,q.title,q.reward,q.xp);else {setPanel(null);setActiveLocation(q.id==="train"?"training":q.id==="garden"?"garden":q.id==="puller"?"puller":"centre");notify(t("Dokonči aktivitu v příslušné části areálu.","Complete the activity in the matching area."));}}}>{completed.includes(q.id)?t("Splněno","Done"):t("Najít","Find")}</button></article>)}</div></>}
-      {panel==="map" && <><p className="panelIntro">{t("Vyber lokaci a mapa tě přenese do její části areálu. Hlavní areál je tvým výchozím bodem.", "Choose a location to focus the map. The main grounds are your starting point.")}</p><div className="locationList">{LOCATIONS.map(l=><button key={l.id} className={"locationRow "+(activeLocation===l.id?"locationRowActive":"")} onClick={()=>{setActiveLocation(l.id);setPanel(null);}}><span className="locationMarker">{l.id==="centre"?<House size={18}/>:l.id==="training"?<Target size={18}/>:l.id==="park"?<Dog size={18}/>:l.id==="puller"?<Award size={18}/>:<Leaf size={18}/>}</span><span><b>{l.name}</b><small>{l.sub}</small></span>{activeLocation===l.id?<Check size={18}/>:<ChevronRight size={17}/>}</button>)}</div><div className="panelCallout"><Map size={18}/><span>{t("Lokace jsou herní body na mapě. Kliknutím na ně přepneš aktivní oblast.", "Locations are interactive map points. Select one to focus that area.")}</span></div></>}
-      {panel==="shop" && <><p className="panelIntro">{t("Vybavení v této herní ukázce představuje pomůcky pro trénink. Skutečné produkty najdeš v e-shopu Hodný pes.", "Equipment in this demo represents training tools. Find real products in the Hodný pes shop.")}</p><div className="shopFeature"><span className="shopFeatureIcon"><Bone size={30}/></span><div><span className="panelEyebrow">{t("DOPORUČENÉ VYBAVENÍ","FEATURED EQUIPMENT")}</span><h3>Dog Puller</h3><p>{t("Hra, pohyb a spolupráce se psem.", "Play, movement and teamwork with your dog.")}</p><a href="https://www.hodnypes.cz/internetovy-obchod/" target="_blank" rel="noreferrer">{t("Prohlédnout e-shop","Visit the online shop")} <ArrowUpRight size={15}/></a></div></div><div className="panelCallout"><ShoppingBag size={18}/><span>{t("Hra nenahrazuje odborný výcvik. Inspiruj se a objev skutečné možnosti centra.", "The game does not replace professional training. Explore real centre activities.")}</span></div></>}
-      {panel==="help" && <div className="helpList"><p><b>{t("Mapa","Map")}</b> — {t("klikni na pozemek, budovu nebo značku lokace.","Select a plot, building or location marker.")}</p><p><b>{t("Rozšíření","Expansion")}</b> — {t("sousední pozemek stojí 100 Hafíků.","A neighbouring plot costs 100 Pawcoins.")}</p><p><b>{t("Stavění","Building")}</b> — {t("vyber budovu v nabídce a umísti ji na volné vlastní místo.","Choose a facility and place it on an empty owned plot.")}</p><p><b>{t("Psí parťáci","Companions")}</b> — {t("vyber si jednoho z pěti psích průvodců.","Choose one of five dog companions.")}</p><p><b>{t("Postup","Progress")}</b> — {t("odměny a postup se ukládají v tomto prohlížeči.","Rewards and progress save in this browser.")}</p><p><b>{t("Hodný pes","Hodný pes")}</b> — {t("skutečné kurzy a pozitivní výcvik najdeš na hodnypes.cz.","Find real courses and positive training at hodnypes.cz.")}</p></div>}
-      <footer className="panelFooter"><span><Coins size={15}/> {coins.toLocaleString(language==="cs"?"cs-CZ":"en-US")} {t("Hafíků","Pawcoins")}</span><button onClick={()=>{setPanel(null);setSelectedBuild(null);}}>{t("Zpět do areálu","Back to grounds")}</button></footer>
-    </section></div>}
-    {toast && <div className="gameToast"><span className="toastMark"><Check size={15}/></span>{toast}</div>}
-  </main>;
+      </header>
+
+      <div className="adventureLayout">
+        <aside className={"adventureSidebar " + (mobileNav ? "sidebarVisible" : "")}>
+          <div className="sidebarSectionLabel">{t("eyebrow")}</div>
+          <button className="activeDogCard" onClick={() => setPanel("dogs")}>
+            <span className="dogAvatar" style={{ "--dog-color": activeDog.color, "--dog-accent": activeDog.accent } as CSSProperties}><Dog size={29}/></span>
+            <span className="dogCardText"><b>{activeDog.name}</b><small>{activeDog.breed}</small><span><Heart size={12}/> {t("bond")} {save.bond}%</span></span>
+            <ChevronRight size={17}/>
+          </button>
+          <div className="levelCard">
+            <div className="levelCardTop"><span>{t("level")} {level}</span><b>{progress}/100 XP</b></div>
+            <div className="progressTrack"><span style={{ width: progress + "%" }}/></div>
+            <div className="levelCardBottom"><span>{t("xp")}</span><span>{totalDone}/{totalTasks}</span></div>
+          </div>
+          <div className="sidebarSectionLabel sidebarSectionSpaced">{t("explore")}</div>
+          <nav className="locationNav" aria-label={t("map")}>
+            {LOCATIONS.map(loc => {
+              const Icon = loc.icon;
+              return <button key={loc.id} className={"locationNavItem " + (locationId === loc.id ? "locationNavActive" : "")} onClick={() => travelTo(loc.id)}>
+                <span className="locationNavIcon"><Icon size={17}/></span><span><b>{loc.title}</b><small>{loc.subtitle}</small></span>{locationId === loc.id && <span className="navActiveDot"/>}
+              </button>;
+            })}
+          </nav>
+          <div className="sidebarGrow"/>
+          <div className="brandPromoCard">
+            <span className="promoIcon"><Footprints size={20}/></span>
+            <small>{t("real")}</small>
+            <b>{save.language === "cs" ? "Více porozumění. Lepší společný život." : "More understanding. A better life together."}</b>
+            <p>{t("realText")}</p>
+            <a href="https://www.hodnypes.cz/" target="_blank" rel="noreferrer">{t("website")} <ArrowUpRight size={13}/></a>
+          </div>
+          <button className="sidebarTextButton" onClick={() => setPanel("about")}><CircleHelp size={16}/>{t("about")}</button>
+        </aside>
+
+        <section className="adventureMain">
+          <div className="worldIntro">
+            <div>
+              <div className="worldKicker"><MapIcon size={14}/>{t("eyebrow")}</div>
+              <h1>{location.title}<span>.</span></h1>
+              <p>{location.description}</p>
+            </div>
+            <div className="worldIntroActions">
+              <button className="secondaryButton" onClick={() => setPanel("map")}><Map size={16}/>{t("map")}</button>
+              <button className="primaryButton" onClick={() => setPanel("missions")}><Target size={16}/>{t("missions")} <span>{totalTasks - totalDone}</span></button>
+            </div>
+          </div>
+
+          <div className={"gameWorld world-" + locationId}>
+            <div className="worldSky"><span className="skySun"/><span className="skyCloud skyCloudOne"/><span className="skyCloud skyCloudTwo"/></div>
+            <div className="worldMapHeader"><span><span className="liveIndicator"/>{location.title}</span><small>{save.language === "cs" ? "KLEPNI NA MÍSTO A VYBER AKCI" : "TAP A PLACE TO CHOOSE AN ACTION"}</small></div>
+            <svg className="terrainSvg" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="terrainGrass" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={locationId === "puller" ? "#d9c99b" : locationId === "scent" ? "#bad2a4" : "#c9d9ac"}/><stop offset="100%" stopColor={locationId === "rest" ? "#b9cba7" : "#a8c48e"}/></linearGradient>
+                <filter id="terrainShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="9" stdDeviation="7" floodColor="#36533a" floodOpacity=".16"/></filter>
+              </defs>
+              <path d="M0 0H1000V640H0Z" fill="#dce7d0"/>
+              <path d="M-40 260 Q180 145 350 250 T700 230 T1050 205 V680H-40Z" fill="url(#terrainGrass)"/>
+              <path d="M-50 455 Q170 350 330 440 T650 430 T1040 390" fill="none" stroke="#e7d9b5" strokeWidth="82" strokeLinecap="round"/>
+              <path d="M-50 455 Q170 350 330 440 T650 430 T1040 390" fill="none" stroke="#f4e8cc" strokeWidth="67" strokeLinecap="round"/>
+              <path d="M260 -20 Q310 120 440 230 T590 680" fill="none" stroke="#e8dbb9" strokeWidth="70" strokeLinecap="round"/>
+              <path d="M260 -20 Q310 120 440 230 T590 680" fill="none" stroke="#f7edda" strokeWidth="56" strokeLinecap="round"/>
+              {locationId === "centre" && <g filter="url(#terrainShadow)"><path d="M90 145L235 65L380 145L235 224Z" fill="#e4d7b7" stroke="#8e9f77" strokeWidth="3"/><path d="M90 145V218L235 298V224Z" fill="#c4ad82"/><path d="M235 224L380 145V219L235 298Z" fill="#ad946a"/><path d="M155 145L235 100L315 145L235 190Z" fill="#b86f50"/><path d="M155 145V188L235 232V190Z" fill="#9c593f"/><path d="M235 190L315 145V188L235 232Z" fill="#804932"/><rect x="218" y="211" width="35" height="57" rx="2" fill="#f3e8ce" stroke="#8f785b" strokeWidth="3"/><path d="M220 226H250M235 212V268" stroke="#9d8c6d" strokeWidth="2"/></g>}
+              {locationId === "obedience" && <g filter="url(#terrainShadow)"><path d="M130 150L495 70L720 185L355 265Z" fill="#d6c79d" stroke="#a3b28a" strokeWidth="3"/><path d="M180 150L490 83L670 175L360 242Z" fill="#b7cf99" stroke="#f4e8cc" strokeWidth="8"/><path d="M255 151L492 101L604 159L367 211Z" fill="none" stroke="#e9f0d9" strokeWidth="4" strokeDasharray="13 10"/><circle cx="470" cy="156" r="25" fill="#f4e8cc"/><circle cx="470" cy="156" r="15" fill="#75985e"/></g>}
+              {locationId === "puller" && <g filter="url(#terrainShadow)"><ellipse cx="500" cy="275" rx="250" ry="140" fill="#b7a67b" stroke="#f1e3c3" strokeWidth="13"/><ellipse cx="500" cy="275" rx="208" ry="106" fill="#d6c79d" stroke="#b6c28f" strokeWidth="7"/><ellipse cx="500" cy="275" rx="160" ry="75" fill="#c5d7a8" stroke="#f6edda" strokeWidth="5"/><path d="M295 274H705" stroke="#f6edda" strokeWidth="4" strokeDasharray="12 10"/></g>}
+              {locationId === "scent" && <g filter="url(#terrainShadow)"><path d="M140 170L330 90L510 190L320 270Z" fill="#a3bf8b" stroke="#f3e6c7" strokeWidth="7"/><path d="M195 172L330 115L455 187L320 244Z" fill="#8eaa73" stroke="#c6d9b1" strokeWidth="4"/><rect x="265" y="146" width="64" height="46" rx="8" fill="#d9b77c" stroke="#f4e7c7" strokeWidth="4"/><circle cx="297" cy="168" r="10" fill="#a7c48f"/></g>}
+              {locationId === "rest" && <g filter="url(#terrainShadow)"><path d="M160 165L380 75L590 188L370 280Z" fill="#b7c7a0" stroke="#e7edda" strokeWidth="4"/><path d="M210 166L380 96L540 188L370 258Z" fill="#d9e2c8" stroke="#a6bc91" strokeWidth="3"/><rect x="325" y="160" width="100" height="52" rx="18" fill="#b5cda2" stroke="#77966a" strokeWidth="4"/><path d="M342 176H408" stroke="#f7f1df" strokeWidth="5" strokeLinecap="round"/></g>}
+              {locationId === "park" && <g filter="url(#terrainShadow)"><path d="M90 190Q310 65 470 190T850 170" fill="none" stroke="#f2e5c7" strokeWidth="64" strokeLinecap="round"/><path d="M90 190Q310 65 470 190T850 170" fill="none" stroke="#fff3da" strokeWidth="50" strokeLinecap="round"/></g>}
+              {Array.from({ length: 10 }, (_, i) => <g key={i} transform={"translate(" + (65 + (i * 97) % 890) + " " + (100 + (i * 67) % 470) + ")"} opacity=".78"><ellipse cx="0" cy="18" rx="22" ry="8" fill="#69885a" opacity=".23"/><circle cx="-7" cy="0" r="18" fill={i % 2 ? "#789c68" : "#86a975"}/><circle cx="8" cy="-7" r="17" fill={i % 2 ? "#88a978" : "#719565"}/><circle cx="0" cy="-15" r="15" fill={i % 2 ? "#9fbd89" : "#80a471"}/><path d="M0 4V24" stroke="#927e5c" strokeWidth="5" strokeLinecap="round"/></g>)}
+            </svg>
+
+            {currentObjects.map(obj => {
+              const Icon = iconFor(obj.kind);
+              const done = save.completed.includes(obj.id);
+              return <button key={obj.id} className={"worldObject " + (done ? "worldObjectDone" : "") + (activeObject === obj.id ? " worldObjectActive" : "")} style={{ left: obj.x + "%", top: obj.y + "%" }} onClick={() => doActivity(obj)} aria-label={obj.title}>
+                <span className="objectShadow"/><span className="objectIcon"><Icon size={22}/>{done && <span className="objectCheck"><Check size={11}/></span>}</span><span className="objectLabel"><b>{obj.title}</b><small>{done ? t("completed") : tForObject(obj)}</small></span>
+              </button>;
+            })}
+            <div className="playerPair" style={{ left: player.x + "%", top: player.y + "%" }} aria-label={save.language === "cs" ? "Tvoje postava a pes" : "Your character and dog"}>
+              <span className="playerShadow"/><span className="playerPerson"><UserRound size={22}/></span><span className="playerDog" style={{ "--dog-color": activeDog.color, "--dog-accent": activeDog.accent } as CSSProperties}><Dog size={23}/></span>
+            </div>
+            <div className="mapCompass"><Map size={14}/><span>{location.title}</span><small>{currentObjects.filter(o => !save.completed.includes(o.id)).length} {save.language === "cs" ? "aktivity" : "activities"}</small></div>
+            <div className="mapZoomControls"><button onClick={() => notify(save.language === "cs" ? "Mapa se dá prozkoumat klepnutím na jednotlivé aktivity." : "Explore the map by tapping activity markers.")} aria-label={save.language === "cs" ? "Nápověda k mapě" : "Map help"}><CircleHelp size={17}/></button></div>
+            {save.showHud && <div className="mapObjective"><span className="objectiveBadge"><Target size={18}/></span><span><small>{t("objective")}</small><b>{nextObjective ? nextObjective.title : (save.language === "cs" ? "Všechny aktivity splněny!" : "All activities completed!")}</b><em>{nextObjective ? nextObjective.subtitle : t("complete")}</em></span><button onClick={() => nextObjective && doActivity(nextObjective)} aria-label={t("doTask")}><ArrowRight size={18}/></button></div>}
+          </div>
+
+          <div className="belowMapGrid">
+            <section className="progressPanel">
+              <div className="panelHeading"><span className="panelHeadingIcon"><Award size={18}/></span><div><h2>{save.language === "cs" ? "Tvoje cesta" : "Your journey"}</h2><p>{save.language === "cs" ? "Každý malý krok se počítá." : "Every small step counts."}</p></div><b>{totalDone}/{totalTasks}</b></div>
+              <div className="progressTrack progressTrackWide"><span style={{ width: Math.min(100, totalDone / totalTasks * 100) + "%" }}/></div>
+              <div className="journeyStats"><span><Sparkles size={15}/>{save.xp} XP</span><span><Dog size={15}/>{dogLevel} {save.language === "cs" ? "úroveň psa" : "dog level"}</span><span><Heart size={15}/>{save.bond}% {t("bond").toLowerCase()}</span></div>
+            </section>
+            <section className="quickActionsPanel">
+              <div className="panelHeading"><span className="panelHeadingIcon"><Footprints size={18}/></span><div><h2>{save.language === "cs" ? "Co podnikneme?" : "What's next?"}</h2><p>{save.language === "cs" ? "Vyber další krok." : "Choose your next step."}</p></div></div>
+              <div className="quickActionButtons"><button onClick={() => setPanel("missions")}><Target size={16}/>{t("missions")}<ChevronRight size={15}/></button><button onClick={() => travelTo("rest")}><Heart size={16}/>{t("care")}<ChevronRight size={15}/></button><button onClick={() => setPanel("dogs")}><Dog size={16}/>{t("dogs")}<ChevronRight size={15}/></button></div>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      {panel && <div className="panelBackdrop" onClick={() => setPanel(null)}>
+        <section className="adventurePanel" role="dialog" aria-modal="true" aria-label={panel} onClick={e => e.stopPropagation()}>
+          <header className="adventurePanelHeader"><div><small>HODNÝ PES · PSÍ DOBRODRUŽSTVÍ</small><h2>{panel === "missions" ? t("missions") : panel === "dogs" ? t("dogs") : panel === "map" ? t("map") : panel === "shop" ? t("shop") : panel === "settings" ? t("settings") : t("about")}</h2></div><button onClick={() => setPanel(null)} aria-label="Close"><X size={20}/></button></header>
+          {panel === "missions" && <div className="missionList">{LOCATIONS.map(loc => <div className="missionLocationGroup" key={loc.id}><h3>{loc.title}</h3>{loc.objects.map(obj => { const Icon = iconFor(obj.kind); const done = save.completed.includes(obj.id); return <article className={"missionRow " + (done ? "missionRowDone" : "")} key={obj.id}><span className="missionIcon"><Icon size={18}/></span><span className="missionText"><b>{obj.title}</b><small>{obj.subtitle}</small><em>+{obj.reward} {t("coin")} · +{obj.xp} XP</em></span>{done ? <span className="missionDone"><Check size={15}/>{t("completed")}</span> : <button onClick={() => { travelTo(loc.id); window.setTimeout(() => doActivity(obj), 50); }}>{t("doTask")}<ChevronRight size={14}/></button>}</article>; })}</div>)}</div>}
+          {panel === "dogs" && <div className="dogRoster"><p className="panelLead">{t("moreDogs")}</p>{DOGS.map(d => { const unlocked = save.unlockedDogs.includes(d.id); const selected = save.activeDog === d.id; return <article key={d.id} className={"dogRosterRow " + (selected ? "dogRosterSelected" : "") + (!unlocked ? " dogRosterLocked" : "")}><span className="dogRosterAvatar" style={{ "--dog-color": d.color, "--dog-accent": d.accent } as CSSProperties}>{unlocked ? <Dog size={25}/> : <Lock size={21}/>}</span><span className="dogRosterInfo"><b>{d.name}</b><small>{d.breed}</small><em>{unlocked ? (selected ? t("active") : (save.language === "cs" ? "Úroveň psa " + (d.id === "monty" ? dogLevel : d.unlockLevel) : "Dog level " + (d.id === "monty" ? dogLevel : d.unlockLevel))) : t("dogLocked") + " " + d.unlockLevel}</em></span>{unlocked ? <button disabled={selected} onClick={() => updateSave({ activeDog: d.id, energy: 100, bond: Math.min(100, save.bond + 3) })}>{selected ? <Check size={16}/> : t("choose")}</button> : <span className="lockRequirement"><Lock size={14}/>{d.unlockLevel}</span>}</article>; })}</div>}
+          {panel === "map" && <div className="locationCards">{LOCATIONS.map(loc => { const Icon = loc.icon; const done = loc.objects.filter(obj => save.completed.includes(obj.id)).length; return <button className={"locationCard " + (locationId === loc.id ? "locationCardActive" : "")} key={loc.id} onClick={() => travelTo(loc.id)}><span className="locationCardIcon" style={{ background: loc.tint, color: loc.color }}><Icon size={22}/></span><span><b>{loc.title}</b><small>{loc.subtitle}</small><em>{done}/{loc.objects.length} {t("completed").toLowerCase()}</em></span><ChevronRight size={17}/></button>; })}</div>}
+          {panel === "shop" && <div className="shopContent"><p className="panelLead">{save.language === "cs" ? "Vybavení odemykáš hraním a plněním aktivit. Tato první verze používá jednoduché herní odměny bez plateb." : "Unlock equipment by playing and completing activities. This first version uses simple in-game rewards without payments."}</p><article className="shopProduct"><span><Bone size={27}/></span><div><b>Dog Puller</b><small>{save.language === "cs" ? "Sportovní pomůcka · odemyká se hraním" : "Sports equipment · earned through play"}</small></div><strong><Coins size={15}/> 80</strong><button disabled={save.coins < 80 || save.completed.includes("shop-puller")} onClick={() => { updateSave({ coins: save.coins - 80, completed: [...save.completed, "shop-puller"] }); notify(save.language === "cs" ? "Vybavení odemčeno." : "Equipment unlocked."); }}>{save.completed.includes("shop-puller") ? t("completed") : (save.language === "cs" ? "Odemknout" : "Unlock")}</button></article><article className="shopProduct"><span><Leaf size={27}/></span><div><b>{save.language === "cs" ? "Přírodní obojek" : "Nature collar"}</b><small>{save.language === "cs" ? "Kosmetická odměna pro parťáka" : "Cosmetic reward for your companion"}</small></div><strong><Coins size={15}/> 120</strong><button disabled={save.coins < 120 || save.completed.includes("shop-collar")} onClick={() => { updateSave({ coins: save.coins - 120, completed: [...save.completed, "shop-collar"] }); notify(save.language === "cs" ? "Obojek odemčen." : "Collar unlocked."); }}>{save.completed.includes("shop-collar") ? t("completed") : (save.language === "cs" ? "Odemknout" : "Unlock")}</button></article><a className="externalShopLink" href="https://www.hodnypes.cz/internetovy-obchod/" target="_blank" rel="noreferrer">{save.language === "cs" ? "Skutečné pomůcky v e-shopu Hodný pes" : "Real equipment in the Hodný pes shop"} <ArrowUpRight size={15}/></a></div>}
+          {panel === "settings" && <div className="settingsContent"><div className="settingRow"><span><Languages size={18}/><span><b>{t("language")}</b><small>{save.language === "cs" ? "Čeština / English" : "English / Čeština"}</small></span></span><button onClick={() => updateSave({ language: save.language === "cs" ? "en" : "cs" })}>{save.language === "cs" ? "Čeština" : "English"}</button></div><div className="settingRow"><span>{save.muted ? <VolumeX size={18}/> : <Volume2 size={18}/>}<span><b>{t("sound")}</b><small>{save.language === "cs" ? "V této verzi nejsou přidány zvukové soubory." : "No sound files are bundled in this version."}</small></span></span><button onClick={() => updateSave({ muted: !save.muted })}>{save.muted ? (save.language === "cs" ? "Vypnuto" : "Off") : (save.language === "cs" ? "Zapnuto" : "On")}</button></div><div className="settingRow"><span><Search size={18}/><span><b>{t("hud")}</b><small>{save.language === "cs" ? "Cíl mise na mapě" : "Map objective panel"}</small></span></span><button onClick={() => updateSave({ showHud: !save.showHud })}>{save.showHud ? (save.language === "cs" ? "Zobrazeno" : "Shown") : (save.language === "cs" ? "Skryto" : "Hidden")}</button></div><div className="saveNotice"><Check size={17}/>{t("save")}</div><button className="dangerButton" onClick={() => setConfirmReset(true)}>{t("newGame")}</button>{confirmReset && <div className="resetConfirm"><b>{t("resetTitle")}</b><p>{t("resetBody")}</p><div><button onClick={() => setConfirmReset(false)}>{t("cancel")}</button><button onClick={resetSave}>{t("reset")}</button></div></div>}</div>}
+          {panel === "about" && <div className="aboutContent"><span className="aboutMark"><Dog size={35}/></span><h3>Hodný pes: Psí dobrodružství</h3><p>{save.language === "cs" ? "Herní prototyp inspirovaný pozitivním výcvikem, důvěrou mezi člověkem a psem a psími sporty. V této verzi se postup ukládá pouze do místního prohlížeče. Účty, online multiplayer a synchronizace mezi zařízeními zatím nejsou zapojené." : "A game prototype inspired by positive dog training, trust between people and dogs, and dog sports. Progress in this version is saved only in the local browser. Accounts, online multiplayer and cross-device sync are not connected yet."}</p><a href="https://www.hodnypes.cz/" target="_blank" rel="noreferrer">{t("website")} <ArrowUpRight size={15}/></a></div>}
+          <footer className="adventurePanelFooter"><span><Coins size={15}/>{save.coins} {t("coin")}</span><button onClick={() => setPanel(null)}>{save.language === "cs" ? "Zpět do hry" : "Back to game"}</button></footer>
+        </section>
+      </div>}
+
+      {welcome && <div className="welcomeOverlay"><section className="welcomeCard"><div className="welcomeArt"><span className="welcomeSun"/><span className="welcomeTree welcomeTreeOne"/><span className="welcomeTree welcomeTreeTwo"/><span className="welcomeGround"/><span className="welcomePerson"><UserRound size={42}/></span><span className="welcomeDog"><Dog size={43}/></span></div><div className="welcomeText"><small>{t("eyebrow")}</small><h2>{t("firstTitle")}</h2><p>{t("firstBody")}</p><div className="welcomeBenefits"><span><Heart size={15}/>{save.language === "cs" ? "Pozitivní výcvik" : "Positive training"}</span><span><Map size={15}/>{save.language === "cs" ? "6 lokací" : "6 locations"}</span><span><Award size={15}/>{save.language === "cs" ? "Mise a odměny" : "Missions & rewards"}</span></div><button className="primaryButton welcomeStart" onClick={() => { setWelcome(false); travelTo("centre"); }}>{t("start")} <ArrowRight size={17}/></button><button className="welcomeSkip" onClick={() => setWelcome(false)}>{t("continue")}</button></div></section></div>}
+
+      {toast && <div className="gameToast"><span><Check size={16}/></span>{toast}</div>}
+    </main>
+  );
 }
