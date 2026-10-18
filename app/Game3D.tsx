@@ -18,6 +18,8 @@ export default function Game3D({ onExit }: Props) {
   const [sound, setSound] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [notice, setNotice] = useState("Vítej v akademii! Rozhlédni se a vydej se na průzkum.");
+  const joystickRef = useRef<HTMLDivElement>(null);
+  const [joystickKnob, setJoystickKnob] = useState({ x: 0, y: 0 });
   const collectedRef = useRef(0);
 
   useEffect(() => {
@@ -285,7 +287,7 @@ export default function Game3D({ onExit }: Props) {
           fwd /= length; side /= length;
           const speed = activeMode === "dog" ? 6.1 : 4.6;
           // Normalize diagonal input and rotate toward the actual travel direction.
-          const angle = Math.atan2(side, fwd);
+          const angle = Math.atan2(side, -fwd);
           p.rotation.y = THREE.MathUtils.damp(p.rotation.y, angle, 8, delta);
           const nextX = p.position.x + side * speed * delta;
           const nextZ = p.position.z - fwd * speed * delta;
@@ -315,7 +317,7 @@ export default function Game3D({ onExit }: Props) {
         if (activeMode === "dog") human.position.copy(dog.position);
         else dog.position.copy(human.position);
         const target = new THREE.Vector3(p.position.x, p.position.y + 1.0, p.position.z);
-        const desiredCamera = new THREE.Vector3(p.position.x - Math.sin(p.rotation.y) * 7.2, p.position.y + 5.2, p.position.z + Math.cos(p.rotation.y) * 7.2);
+        const desiredCamera = new THREE.Vector3(p.position.x - Math.sin(p.rotation.y) * 7.2, p.position.y + 5.2, p.position.z - Math.cos(p.rotation.y) * 7.2);
         camera.position.lerp(desiredCamera, 1 - Math.exp(-4.2 * delta));
         camera.lookAt(target);
 
@@ -356,6 +358,21 @@ export default function Game3D({ onExit }: Props) {
   }, []);
 
   const hold = (key: string) => ({ onPointerDown: (e: PointerEvent<HTMLButtonElement>) => { e.preventDefault(); gameRef.current?.setKey(key, true); }, onPointerUp: () => gameRef.current?.setKey(key, false), onPointerLeave: () => gameRef.current?.setKey(key, false), onPointerCancel: () => gameRef.current?.setKey(key, false) });
+  const updateJoystick = (e: PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const rect = joystickRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const radius = Math.min(rect.width, rect.height) * 0.34;
+    let x = e.clientX - (rect.left + rect.width / 2);
+    let y = e.clientY - (rect.top + rect.height / 2);
+    const distance = Math.hypot(x, y);
+    if (distance > radius) { x = x / distance * radius; y = y / distance * radius; }
+    const nx = x / radius, ny = y / radius;
+    setJoystickKnob({ x, y });
+    gameRef.current?.setKey("a", nx < -0.24); gameRef.current?.setKey("d", nx > 0.24);
+    gameRef.current?.setKey("w", ny < -0.24); gameRef.current?.setKey("s", ny > 0.24);
+  };
+  const releaseJoystick = () => { setJoystickKnob({ x: 0, y: 0 }); ["w", "a", "s", "d"].forEach(key => gameRef.current?.setKey(key, false)); };
   return <section className="gameShell">
     <div className="gameTop">
       <div className="gameBrand"><span className="gameBrandIcon"><Dog size={20}/></span><div><b>HODNÝ PES</b><small>3D AKADEMIE</small></div></div>
@@ -369,10 +386,16 @@ export default function Game3D({ onExit }: Props) {
       <div className="gameStats"><div><span className="statBubble purpleBubble"><Trophy size={16}/></span><div><small>ZÍSKANÉ XP</small><b>{xp.toLocaleString("cs-CZ")}</b></div></div><div><span className="statBubble peachBubble"><Heart size={16}/></span><div><small>PAMLSEK</small><b>{collected} / 8</b></div></div></div>
       <div className="gameCompass"><Map size={15}/><span>AREÁL</span><i>●</i></div>
       {notice && <div className="gameNotice" key={notice}>{notice}</div>}
-      {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p></div>}
+      {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb (W dopředu, S dozadu)</p><p>Na mobilu — podrž a táhni joystickem</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p></div>}
       {paused && <div className="pauseOverlay"><div><Pause size={28}/><h2>Hra pozastavena</h2><p>Svět na tebe počká.</p><button className="gamePrimary" onClick={() => gameRef.current?.togglePause()}><Play size={16}/> Pokračovat</button><button className="gameSecondary" onClick={() => gameRef.current?.reset()}><RotateCcw size={15}/> Začít znovu</button></div></div>}
       <div className="gameControls">
-        <div className="mobilePad"><button aria-label="Dopředu" {...hold("w")}>▲</button><div><button aria-label="Doleva" {...hold("a")}>◀</button><button aria-label="Dozadu" {...hold("s")}>▼</button><button aria-label="Doprava" {...hold("d")}>▶</button></div></div>
+        <div className="mobileJoystick" aria-label="Joystick pro pohyb">
+          <div className="joystickBase" ref={joystickRef} onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); updateJoystick(e); }} onPointerMove={e => { if (e.buttons !== 0) updateJoystick(e); }} onPointerUp={releaseJoystick} onPointerCancel={releaseJoystick} onLostPointerCapture={releaseJoystick}>
+            <span className="joystickDirection north">▲</span><span className="joystickDirection west">◀</span><span className="joystickDirection east">▶</span><span className="joystickDirection south">▼</span>
+            <span className="joystickKnob" style={{ transform: "translate(calc(-50% + " + joystickKnob.x + "px), calc(-50% + " + joystickKnob.y + "px))" }} />
+          </div>
+          <small>POHYB</small>
+        </div>
         <div className="rightControls"><button className="actionControl" onClick={() => { const keyEvent = new KeyboardEvent("keydown", { key: " " }); window.dispatchEvent(keyEvent); setTimeout(() => window.dispatchEvent(new KeyboardEvent("keyup", { key: " " })), 70); }}><span>↑</span><small>SKOK</small></button><button className="actionControl" onClick={() => { window.dispatchEvent(new KeyboardEvent("keydown", { key: "e" })); }}><span>✦</span><small>AKCE</small></button></div>
       </div>
     </div>
