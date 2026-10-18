@@ -174,9 +174,6 @@ export default function Home() {
     setXp(value => value + 20);
     setCoins(value => value + 5);
     setNotice("Povel „" + command + "“ procvičen. +20 XP a +5 mincí (jen pro tuto relaci).");
-    if (!completed.includes("sit") && command === "Sedni") {
-      setCompleted(current => [...current, "sit"]);
-    }
   }
 
   function claimMission(id: string, reward: number) {
