@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import * as THREE from "three";
-import { Dog, Footprints, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX, Settings, Navigation, Target, CheckCircle2 } from "lucide-react";
+import { Dog, Footprints, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX, Settings, Navigation, Target, CheckCircle2, Camera } from "lucide-react";
 
 type Mode = "dog" | "human";
 type Props = { onExit?: () => void };
@@ -21,6 +21,9 @@ export default function Game3D({ onExit }: Props) {
   const [mapOpen, setMapOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [cameraSensitivity, setCameraSensitivity] = useState(50);
+  const [cameraView, setCameraView] = useState<"third" | "first" | "photo">("third");
+  const cameraViewRef = useRef<"third" | "first" | "photo">("third");
+  const [progressReady, setProgressReady] = useState(false);
   const cameraSensitivityRef = useRef(0.008);
   const [ownedSkins, setOwnedSkins] = useState<string[]>(["#c58b58"]);
   const [selectedSkin, setSelectedSkin] = useState("#c58b58");
@@ -30,14 +33,38 @@ export default function Game3D({ onExit }: Props) {
   const collectedRef = useRef(0);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("hodny-pes-game-save-v1");
+      if (raw) {
+        const save = JSON.parse(raw) as { xp?: number; ownedSkins?: string[]; selectedSkin?: string; cameraSensitivity?: number };
+        if (typeof save.xp === "number" && Number.isFinite(save.xp)) setXp(Math.max(0, save.xp));
+        if (Array.isArray(save.ownedSkins) && save.ownedSkins.every(v => typeof v === "string")) setOwnedSkins(Array.from(new Set(["#c58b58", ...save.ownedSkins])));
+        if (typeof save.selectedSkin === "string") setSelectedSkin(save.selectedSkin);
+        if (typeof save.cameraSensitivity === "number") setCameraSensitivity(Math.min(100, Math.max(20, save.cameraSensitivity)));
+      }
+    } catch { /* Ignore invalid local saves and start with defaults. */ }
+    setProgressReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!progressReady) return;
+    try { localStorage.setItem("hodny-pes-game-save-v1", JSON.stringify({ xp, ownedSkins, selectedSkin, cameraSensitivity })); } catch { /* Storage can be unavailable in private browsing. */ }
+  }, [progressReady, xp, ownedSkins, selectedSkin, cameraSensitivity]);
+
+  useEffect(() => {
+    cameraViewRef.current = cameraView;
+    gameRef.current?.setDogStyle(selectedSkin);
+  }, [cameraView, selectedSkin]);
+
+  useEffect(() => {
     const host = mountRef.current;
     if (!host) return;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("#b9d9f2");
-    scene.fog = new THREE.Fog("#b9d9f2", 38, 115);
+    scene.fog = new THREE.Fog("#b9d9f2", 85, 340);
 
-    const camera = new THREE.PerspectiveCamera(58, host.clientWidth / host.clientHeight, 0.1, 220);
+    const camera = new THREE.PerspectiveCamera(62, host.clientWidth / host.clientHeight, 0.1, 520);
     camera.position.set(0, 7, 11);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
@@ -61,22 +88,22 @@ export default function Game3D({ onExit }: Props) {
 
     const mat = (color: string, roughness = 0.9) => new THREE.MeshStandardMaterial({ color, roughness });
     const grassMat = mat("#78a95b");
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), grassMat);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(440, 440), grassMat);
     ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; ground.position.y = -0.12; scene.add(ground);
 
     const pathMat = mat("#d8c39b");
-    const path = new THREE.Mesh(new THREE.PlaneGeometry(10, 105), pathMat);
-    path.rotation.x = -Math.PI / 2; path.position.set(0, -0.06, -24); path.receiveShadow = true; scene.add(path);
-    const sidePath = new THREE.Mesh(new THREE.PlaneGeometry(65, 5), pathMat);
-    sidePath.rotation.x = -Math.PI / 2; sidePath.position.set(5, -0.055, -17); scene.add(sidePath);
+    const path = new THREE.Mesh(new THREE.PlaneGeometry(12, 360), pathMat);
+    path.rotation.x = -Math.PI / 2; path.position.set(0, -0.06, -120); path.receiveShadow = true; scene.add(path);
+    const sidePath = new THREE.Mesh(new THREE.PlaneGeometry(190, 6), pathMat);
+    sidePath.rotation.x = -Math.PI / 2; sidePath.position.set(5, -0.055, -38); scene.add(sidePath);
 
     // Low-poly garden, deliberately built from geometry so the first game is self-contained.
     const worldColliders: { x: number; z: number; r: number }[] = [];
     const trunkMat = mat("#78513b"), leafMats = [mat("#3f8250"), mat("#58965b"), mat("#75a85d")];
-    for (let i = 0; i < 54; i++) {
-      const x = (Math.sin(i * 78.23) * 0.5 + 0.5) * 100 - 50;
-      const z = (Math.cos(i * 31.7) * 0.5 + 0.5) * 100 - 62;
-      if (Math.abs(x) < 9 && z > -65 && z < 16) continue;
+    for (let i = 0; i < 190; i++) {
+      const x = Math.sin(i * 78.23) * 198;
+      const z = Math.cos(i * 31.7) * 210 - 88;
+      if (Math.abs(x) < 10 && z > -220 && z < 18) continue;
       worldColliders.push({ x, z, r: 0.82 });
       const tree = new THREE.Group();
       const h = 1.4 + (i % 5) * 0.18;
@@ -214,6 +241,10 @@ export default function Game3D({ onExit }: Props) {
     makeStation(5.5, -12, "#ed8d47", "Slalom", "Našel jsi slalomovou zónu. Každá překážka je nový zážitek.");
     makeStation(0, -26, "#33a879", "Základna akademie", "Dobrá práce! Tady začíná tvoje cesta pozitivním výcvikem.");
     makeStation(0, -7, "#3f8153", "Dog Puller", "Najdi Puller, přibliž se ke stanovišti a stiskni E pro dokončení výzvy.");
+    makeStation(34, -58, "#5e9b62", "Lesní stezka", "Objevil jsi lesní stezku. Prozkoumej okolí a najdi další pamlsky.");
+    makeStation(-42, -92, "#d99b57", "Městské náměstí", "Dorazil jsi do městské části světa. Rozhlédni se po nových cestách.");
+    makeStation(58, -145, "#4f9ec4", "Jezero", "Našel jsi klidné místo u jezera. Zkus se psem chvíli odpočívat.");
+    makeStation(-72, -178, "#b77bd1", "Tajná vyhlídka", "Tajné místo objeveno! Pokračuj v průzkumu a hledej další skryté body.");
     const pullerToy = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.12, 10, 22), mat("#f6efdd", 0.42));
     pullerToy.position.set(0, 0.24, -7);
     pullerToy.rotation.x = Math.PI / 2;
@@ -366,14 +397,22 @@ export default function Game3D({ onExit }: Props) {
         } else {
           humanLegs.forEach((leg, i) => { leg.rotation.x = length > 0 ? Math.sin(frame * 10 + i * Math.PI) * 0.45 : 0; });
         }
-        p.position.x = THREE.MathUtils.clamp(p.position.x, -55, 55);
-        p.position.z = THREE.MathUtils.clamp(p.position.z, -62, 24);
+        p.position.x = THREE.MathUtils.clamp(p.position.x, -205, 205);
+        p.position.z = THREE.MathUtils.clamp(p.position.z, -218, 30);
         if (activeMode === "dog") human.position.copy(dog.position);
         else dog.position.copy(human.position);
         const target = new THREE.Vector3(p.position.x, p.position.y + 1.0, p.position.z);
-        const desiredCamera = new THREE.Vector3(p.position.x - Math.sin(cameraYaw) * 7.2, p.position.y + cameraPitch, p.position.z - Math.cos(cameraYaw) * 7.2);
-        camera.position.lerp(desiredCamera, 1 - Math.exp(-4.2 * delta));
-        camera.lookAt(target);
+        const view = cameraViewRef.current;
+        const desiredCamera = view === "first"
+          ? new THREE.Vector3(p.position.x + Math.sin(cameraYaw) * 0.12, p.position.y + (activeMode === "dog" ? 1.45 : 1.65), p.position.z + Math.cos(cameraYaw) * 0.12)
+          : view === "photo"
+            ? new THREE.Vector3(p.position.x - Math.sin(cameraYaw) * 11.5, p.position.y + cameraPitch + 3.2, p.position.z - Math.cos(cameraYaw) * 11.5)
+            : new THREE.Vector3(p.position.x - Math.sin(cameraYaw) * 7.2, p.position.y + cameraPitch, p.position.z - Math.cos(cameraYaw) * 7.2);
+        camera.position.lerp(desiredCamera, 1 - Math.exp(-(view === "first" ? 12 : 4.2) * delta));
+        const lookTarget = view === "first"
+          ? new THREE.Vector3(p.position.x + Math.sin(cameraYaw) * 8, p.position.y + (activeMode === "dog" ? 1.4 : 1.65) + Math.sin(cameraPitch) * 0.35, p.position.z + Math.cos(cameraYaw) * 8)
+          : target;
+        camera.lookAt(lookTarget);
 
         for (const treat of treats) {
           if (treat.taken) continue;
@@ -433,17 +472,17 @@ export default function Game3D({ onExit }: Props) {
     <div className="gameTop">
       <div className="gameBrand"><span className="gameBrandIcon"><Dog size={20}/></span><div><b>HODNÝ PES</b><small>3D AKADEMIE</small></div></div>
       <div className="gameTopCenter"><span className="liveDot"/> VOLNÝ VÝCVIK <span className="gameWorld">· AREÁL AKADEMIE</span></div>
-      <div className="gameTopActions"><button title="Mapa světa" aria-label="Mapa světa" onClick={() => setMapOpen(v => !v)}><Map size={17}/></button><button title="Obchod a vzhled psa" aria-label="Obchod a vzhled psa" onClick={() => setShopOpen(v => !v)}><Sparkles size={17}/></button><button title="Nastavení" aria-label="Nastavení" onClick={() => setSettingsOpen(v => !v)}><Settings size={17}/></button><button title="Nápověda" aria-label="Nápověda" onClick={() => setShowHelp(v => !v)}><Keyboard size={17}/></button><button title={sound ? "Vypnout zvuk" : "Zapnout zvuk"} aria-label={sound ? "Vypnout zvuk" : "Zapnout zvuk"} onClick={() => setSound(v => !v)}>{sound ? <Volume2 size={17}/> : <VolumeX size={17}/>}</button><button title="Pozastavit" aria-label="Pozastavit" onClick={() => gameRef.current?.togglePause()}>{paused ? <Play size={17}/> : <Pause size={17}/>}</button></div>
+      <div className="gameTopActions"><button title={"Kamera: " + (cameraView === "third" ? "za postavou" : cameraView === "first" ? "první osoba" : "fotografický režim")} aria-label="Přepnout režim kamery" onClick={() => setCameraView(v => v === "third" ? "first" : v === "first" ? "photo" : "third")}><Camera size={17}/></button><button title="Mapa světa" aria-label="Mapa světa" onClick={() => setMapOpen(v => !v)}><Map size={17}/></button><button title="Obchod a vzhled psa" aria-label="Obchod a vzhled psa" onClick={() => setShopOpen(v => !v)}><Sparkles size={17}/></button><button title="Nastavení" aria-label="Nastavení" onClick={() => setSettingsOpen(v => !v)}><Settings size={17}/></button><button title="Nápověda" aria-label="Nápověda" onClick={() => setShowHelp(v => !v)}><Keyboard size={17}/></button><button title={sound ? "Vypnout zvuk" : "Zapnout zvuk"} aria-label={sound ? "Vypnout zvuk" : "Zapnout zvuk"} onClick={() => setSound(v => !v)}>{sound ? <Volume2 size={17}/> : <VolumeX size={17}/>}</button><button title="Pozastavit" aria-label="Pozastavit" onClick={() => gameRef.current?.togglePause()}>{paused ? <Play size={17}/> : <Pause size={17}/>}</button></div>
     </div>
     <div className="gameViewport">
       <div className="threeMount" ref={mountRef}/>
       <div className="gameVignette"/>
       <div className="gameObjective"><div className="objectiveIcon"><Sparkles size={17}/></div><div><small>AKTUÁLNÍ VÝZVA</small><b>{task}</b><span>Prozkoumej svět vlastním tempem</span></div></div>
       <div className="gameStats"><div><span className="statBubble purpleBubble"><Trophy size={16}/></span><div><small>ZÍSKANÉ XP</small><b>{xp.toLocaleString("cs-CZ")}</b></div></div><div><span className="statBubble peachBubble"><Heart size={16}/></span><div><small>PAMLSEK</small><b>{collected} / 8</b></div></div></div>
-      <div className="gameCompass"><Map size={15}/><span>AREÁL</span><i>●</i></div>
+      <div className="gameCompass"><Map size={15}/><span>{cameraView === "photo" ? "FOTO REŽIM" : cameraView === "first" ? "POHLED Z PRVNÍ OSOBY" : "OTEVŘENÝ SVĚT"}</span><i>●</i></div>
       {notice && <div className="gameNotice" key={notice}>{notice}</div>}
-      {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb (W dopředu, S dozadu)</p><p>Na mobilu — podrž a táhni joystickem</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p><p>Myš / prst na herní obrazovce — otáčení kamery; směr pohybu se řídí kamerou.</p></div>}
-      {mapOpen && <div className="academyOverlay"><section className="academyPanel mapPanel"><header><div><small>PRŮZKUM SVĚTA</small><h2>Mapa akademie</h2><p>Vyber si další cíl a vydej se za dobrodružstvím.</p></div><button aria-label="Zavřít mapu" onClick={() => setMapOpen(false)}>×</button></header><div className="academyMap"><div className="mapPath mapPathVertical"/><div className="mapPath mapPathHorizontal"/><span className="mapPoint mapBase"><Dog size={17}/><small>Základna</small></span><span className="mapPoint mapPuller"><Target size={17}/><small>Dog Puller</small></span><span className="mapPoint mapSlalom"><Navigation size={17}/><small>Slalom</small></span><span className="mapPoint mapGate"><CheckCircle2 size={17}/><small>Brána</small></span></div><div className="mapLocations"><div><span className="mapLocationIcon"><Dog size={16}/></span><span><b>Základna akademie</b><small>Start dobrodružství</small></span><button onClick={() => {setMapOpen(false);gameRef.current?.reset();}}>Start</button></div><div><span className="mapLocationIcon"><Target size={16}/></span><span><b>Dog Puller</b><small>Trénink a aportovací výzva</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi stanoviště Dog Puller a stiskni E.");setNotice("Výzva Dog Puller: vydej se k tréninkové zóně.");}}>Cíl</button></div><div><span className="mapLocationIcon"><Navigation size={16}/></span><span><b>Slalomová zóna</b><small>Procvič pohyb a přesnost</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi slalomovou zónu.");setNotice("Slalom: sleduj značky v areálu.");}}>Cíl</button></div></div><footer><span>Tip: pohyb je nyní vztažený ke směru kamery.</span><button onClick={() => setMapOpen(false)}>Zpět do hry</button></footer></section></div>}
+      {showHelp && <div className="gameHelp"><button onClick={() => setShowHelp(false)}>×</button><b>Ovládání hry</b><p><kbd>W A S D</kbd> / šipky — pohyb (W dopředu, S dozadu)</p><p>Na mobilu — podrž a táhni joystickem</p><p><kbd>Mezerník</kbd> — skok</p><p><kbd>V</kbd> — přepnout psa / trenéra</p><p><kbd>E</kbd> — aktivovat blízké stanoviště</p><p><kbd>Esc</kbd> — pauza</p><p>Myš / prst na herní obrazovce — otáčení kamery; směr pohybu se řídí kamerou.</p><p><kbd>Kamera</kbd> — přepíná pohled za postavou, první osobu a fotografický režim.</p><p>XP a odemčené barvy srsti se ukládají do tohoto prohlížeče.</p></div>}
+      {mapOpen && <div className="academyOverlay"><section className="academyPanel mapPanel"><header><div><small>PRŮZKUM SVĚTA</small><h2>Mapa akademie</h2><p>Vyber si další cíl a vydej se za dobrodružstvím.</p></div><button aria-label="Zavřít mapu" onClick={() => setMapOpen(false)}>×</button></header><div className="academyMap"><div className="mapPath mapPathVertical"/><div className="mapPath mapPathHorizontal"/><span className="mapPoint mapBase"><Dog size={17}/><small>Základna</small></span><span className="mapPoint mapPuller"><Target size={17}/><small>Dog Puller</small></span><span className="mapPoint mapSlalom"><Navigation size={17}/><small>Slalom</small></span><span className="mapPoint mapGate"><CheckCircle2 size={17}/><small>Brána</small></span></div><div className="mapLocations"><div><span className="mapLocationIcon"><Dog size={16}/></span><span><b>Základna akademie</b><small>Start dobrodružství</small></span><button onClick={() => {setMapOpen(false);gameRef.current?.reset();}}>Start</button></div><div><span className="mapLocationIcon"><Target size={16}/></span><span><b>Dog Puller</b><small>Trénink a aportovací výzva</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi stanoviště Dog Puller a stiskni E.");setNotice("Výzva Dog Puller: vydej se k tréninkové zóně.");}}>Cíl</button></div><div><span className="mapLocationIcon"><Navigation size={16}/></span><span><b>Slalomová zóna</b><small>Procvič pohyb a přesnost</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi slalomovou zónu.");setNotice("Slalom: sleduj značky v areálu.");}}>Cíl</button></div><div><span className="mapLocationIcon"><Dog size={16}/></span><span><b>Lesní stezka</b><small>Průzkum nové oblasti</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi stanoviště Lesní stezka.");setNotice("Lesní stezka je na východě světa.");}}>Cíl</button></div><div><span className="mapLocationIcon"><Target size={16}/></span><span><b>Městské náměstí</b><small>Nová oblast k objevování</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi Městské náměstí.");setNotice("Městské náměstí leží na západě světa.");}}>Cíl</button></div><div><span className="mapLocationIcon"><Navigation size={16}/></span><span><b>Jezero a tajná vyhlídka</b><small>Skryté body a odměny</small></span><button onClick={() => {setMapOpen(false);setTask("Najdi jezero nebo tajnou vyhlídku.");setNotice("Vydej se dál do světa a sleduj zářící stanoviště.");}}>Cíl</button></div></div><footer><span>Tip: pohyb je nyní vztažený ke směru kamery.</span><button onClick={() => setMapOpen(false)}>Zpět do hry</button></footer></section></div>}
       {settingsOpen && <div className="academyOverlay"><section className="academyPanel settingsPanel"><header><div><small>PŘIZPŮSOB SI HRU</small><h2>Nastavení hry</h2><p>Uprav si citlivost kamery a ovládání pro své zařízení.</p></div><button aria-label="Zavřít nastavení" onClick={() => setSettingsOpen(false)}>×</button></header><label className="settingLabel">Citlivost kamery <b>{cameraSensitivity}%</b></label><input className="sensitivityRange" type="range" min="20" max="100" step="5" value={cameraSensitivity} onChange={e => changeCameraSensitivity(Number(e.target.value))}/><div className="settingScale"><span>Pomalá</span><span>Rychlá</span></div><div className="settingInfo"><span><Keyboard size={17}/></span><div><b>Počítač</b><p>WASD / šipky – pohyb · Mezerník – skok · V – pes / trenér · E – interakce</p></div></div><div className="settingInfo"><span><Navigation size={17}/></span><div><b>Mobil a tablet</b><p>Joystick pro pohyb, tlačítka pro skok a akci, tažením po světě otáčíš kamerou.</p></div></div><div className="settingInfo"><span><Volume2 size={17}/></span><div><b>Zvukové efekty</b><p>{sound ? "Zvukové přepnutí je zapnuté." : "Zvuk je aktuálně vypnutý."} Použij ikonu zvuku v horní liště.</p></div></div><footer><button onClick={() => changeCameraSensitivity(50)}>Obnovit výchozí</button><button onClick={() => setSettingsOpen(false)}>Hotovo</button></footer></section></div>}
       {shopOpen && <div className="shopOverlay"><section className="shopPanel"><header><div><small>AKADEMICKÝ OBCHOD</small><h2>Vzhled tvého parťáka</h2><p>Utrácej získané XP za nové barvy srsti. Odemčené vzhledy zůstávají při hraní v tomto okně.</p></div><button aria-label="Zavřít obchod" onClick={() => setShopOpen(false)}>×</button></header><div className="shopBalance"><Trophy size={16}/> Tvoje XP <b>{xp.toLocaleString("cs-CZ")}</b></div><div className="shopItems">{[{color:"#c58b58",name:"Klasický parťák",price:0,desc:"Přírodní hnědá srst"},{color:"#d6d8e0",name:"Stříbrný obláček",price:60,desc:"Světlá elegantní srst"},{color:"#252333",name:"Noční průzkumník",price:100,desc:"Tmavá srst"},{color:"#d97a45",name:"Liščí dobrodruh",price:150,desc:"Teplý měděný odstín"}].map(item => {const owned = ownedSkins.includes(item.color); const selected = selectedSkin === item.color; return <article className={"shopItem" + (selected ? " shopItemSelected" : "")} key={item.color}><div className="shopDogSwatch" style={{background:item.color}}>🐕</div><div className="shopItemInfo"><b>{item.name}</b><span>{item.desc}</span><small>{item.price === 0 ? "ZDARMA" : item.price + " XP"}</small></div><button disabled={!owned && xp < item.price} onClick={() => {if (!owned) {setXp(v => v - item.price);setOwnedSkins(v => [...v,item.color]);}setSelectedSkin(item.color);gameRef.current?.setDogStyle(item.color);}}>{selected ? "Vybráno" : owned ? "Použít" : "Odemknout"}</button></article>;})}</div><footer><span>XP získáš sbíráním pamlsků a plněním stanovišť.</span><button onClick={() => setShopOpen(false)}>Zpět do hry</button></footer></section></div>}
       {paused && <div className="pauseOverlay"><div><Pause size={28}/><h2>Hra pozastavena</h2><p>Svět na tebe počká.</p><button className="gamePrimary" onClick={() => gameRef.current?.togglePause()}><Play size={16}/> Pokračovat</button><button className="gameSecondary" onClick={() => gameRef.current?.reset()}><RotateCcw size={15}/> Začít znovu</button></div></div>}
