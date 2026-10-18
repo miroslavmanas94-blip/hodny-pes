@@ -282,7 +282,7 @@ export default function FarmGame() {
           <div className="sidebarSectionLabel">{t("eyebrow")}</div>
           <button className="activeDogCard" onClick={() => setPanel("dogs")}>
             <span className="dogAvatar" style={{ "--dog-color": activeDog.color, "--dog-accent": activeDog.accent } as CSSProperties}><Dog size={29}/></span>
-            <span className="dogCardText"><b>{activeDog.name}</b><small>{activeDog.breed}</small><span><Heart size={12}/> {t("bond")} {activeDogStats.bond}%</span></span>
+            <span className="dogCardText"><b>{activeDog.name}</b><small>{activeDog.breed}</small><span><Heart size={12}/> {t("bond")} {activeDogStats.bond}%</span><span><Droplets size={12}/> {t("energy")} {activeDogStats.energy}%</span></span>
             <ChevronRight size={17}/>
           </button>
           <div className="levelCard">
@@ -365,7 +365,7 @@ export default function FarmGame() {
             <section className="progressPanel">
               <div className="panelHeading"><span className="panelHeadingIcon"><Award size={18}/></span><div><h2>{save.language === "cs" ? "Tvoje cesta" : "Your journey"}</h2><p>{save.language === "cs" ? "Každý malý krok se počítá." : "Every small step counts."}</p></div><b>{totalDone}/{totalTasks}</b></div>
               <div className="progressTrack progressTrackWide"><span style={{ width: Math.min(100, totalDone / totalTasks * 100) + "%" }}/></div>
-              <div className="journeyStats"><span><Sparkles size={15}/>{save.xp} XP</span><span><Dog size={15}/>{dogLevel} {save.language === "cs" ? "úroveň psa" : "dog level"}</span><span><Heart size={15}/>{save.bond}% {t("bond").toLowerCase()}</span></div>
+              <div className="journeyStats"><span><Sparkles size={15}/>{save.xp} XP</span><span><Dog size={15}/>{dogLevel} {save.language === "cs" ? "úroveň psa" : "dog level"}</span><span><Heart size={15}/>{activeDogStats.bond}% {t("bond").toLowerCase()}</span></div>
             </section>
             <section className="quickActionsPanel">
               <div className="panelHeading"><span className="panelHeadingIcon"><Footprints size={18}/></span><div><h2>{save.language === "cs" ? "Co podnikneme?" : "What's next?"}</h2><p>{save.language === "cs" ? "Vyber další krok." : "Choose your next step."}</p></div></div>
