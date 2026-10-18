@@ -10,7 +10,7 @@ function Grass() {
   const blades = useMemo(() => Array.from({ length: 550 }, (_, i) => ({ x: (Math.random() - .5) * 26, z: (Math.random() - .5) * 25, h: .12 + Math.random() * .28, r: Math.random() * Math.PI })), []);
   return <group>{blades.map((b, i) => <mesh key={i} position={[b.x, b.h / 2, b.z]} rotation={[0, b.r, .12]}><coneGeometry args={[.035, b.h, 3]}/><meshStandardMaterial color={i % 4 === 0 ? "#73945a" : "#526f43"} roughness={1}/></mesh>)}</group>;
 }
-function Dog({ active, mode }: { active: boolean; mode: Mode }) {
+function Dog({ active, mode, cameraMode }: { active: boolean; mode: Mode; cameraMode: "third-person" | "first-person" }) {
   const root = useRef<THREE.Group>(null);
   const tail = useRef<THREE.Group>(null);
   const ring = useRef<THREE.Mesh>(null);
@@ -27,7 +27,7 @@ function Dog({ active, mode }: { active: boolean; mode: Mode }) {
       if (e.code === "Space" && mode === "puller" && !e.repeat) window.dispatchEvent(new CustomEvent("puller:throw"));
     };
     const up = (e: KeyboardEvent) => { keys.current[e.key.toLowerCase()] = false; };
-    const throwRing = () => {
+    const moveControl = (event: Event) => { const detail = (event as CustomEvent<{key:string;pressed:boolean}>).detail; keys.current[detail.key] = detail.pressed; };\n    const throwRing = () => {
       if (!root.current || !ring.current || ringState.current !== "ready") return;
       ringState.current = "flying"; ringAge.current = 0;
       const yaw = root.current.rotation.y;
@@ -39,11 +39,11 @@ function Dog({ active, mode }: { active: boolean; mode: Mode }) {
     };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
-    window.addEventListener("puller:throw", throwRing);
+    window.addEventListener("puller:throw", throwRing);\n    window.addEventListener("game:control", moveControl);
     if (ring.current) ring.current.visible = false;
     return () => {
       window.removeEventListener("keydown", down); window.removeEventListener("keyup", up);
-      window.removeEventListener("puller:throw", throwRing);
+      window.removeEventListener("puller:throw", throwRing);\n      window.removeEventListener("game:control", moveControl);
     };
   }, [mode]);
   useFrame((state, dt) => {
@@ -102,7 +102,7 @@ function Dog({ active, mode }: { active: boolean; mode: Mode }) {
     <mesh ref={ring} visible={false} castShadow><torusGeometry args={[.28,.07,12,28]}/><meshStandardMaterial color="#e3b95d" metalness={.35} roughness={.3}/></mesh>
   </group>;
 }
-function World({ mode, active }: { mode: Mode; active: boolean }) {
+function World({ mode, active, cameraMode }: { mode: Mode; active: boolean; cameraMode: "third-person" | "first-person" }) {
   return <>
     <Sky sunPosition={[80,25,40]} turbidity={7} rayleigh={1.8} />
     <ambientLight intensity={1.1}/><directionalLight castShadow position={[-5,10,4]} intensity={2.1} shadow-mapSize={[1024,1024]}/>
@@ -110,7 +110,7 @@ function World({ mode, active }: { mode: Mode; active: boolean }) {
     <Grass/>
     <mesh position={[0,.01,-5]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[3.8,4.2,64]}/><meshBasicMaterial color={mode === "puller" ? "#d8b45c" : "#d7dfc4"}/></mesh>
     {Array.from({length:16},(_,i)=><group key={i} position={[(i%4-1.5)*4,0,Math.floor(i/4)*-3-4]}><mesh castShadow position={[0,.45,0]}><cylinderGeometry args={[.13,.17,.9,8]}/><meshStandardMaterial color="#76563d" roughness={1}/></mesh><mesh castShadow position={[0,1.1,0]}><sphereGeometry args={[.65,8,6]}/><meshStandardMaterial color={i%2 ? "#426443" : "#59784b"} roughness={1}/></mesh></group>)}
-    <Dog active={active} mode={mode}/>
+    <Dog active={active} mode={mode} cameraMode={cameraMode}/>
     <ContactShadows position={[0,-.02,0]} opacity={.4} scale={18} blur={2.5} far={4}/>
     <Environment preset="forest"/>
   </>;
@@ -118,6 +118,6 @@ function World({ mode, active }: { mode: Mode; active: boolean }) {
 export default function GameCanvas({ mode, active }: { mode: Mode; active: boolean }) {
   return <Canvas shadows camera={{ position: [5,4,9], fov: 48 }} dpr={[1,1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
     <color attach="background" args={["#b9d1c3"]}/>
-    <Suspense fallback={null}><World mode={mode} active={active}/></Suspense>
+    <Suspense fallback={null}><World mode={mode} active={active} cameraMode={cameraMode}/></Suspense>
   </Canvas>;
 }
