@@ -157,6 +157,7 @@ export default function FarmGame() {
   const currentObjects = location.objects;
   const unfinished = LOCATIONS.flatMap(loc => loc.objects).filter(obj => !save.completed.includes(obj.id));
   const nextObjective = unfinished[0] || currentObjects[0];
+  const nextObjectiveLocation = nextObjective ? LOCATIONS.find(loc => loc.objects.some(obj => obj.id === nextObjective.id)) || location : location;
   const ownedDogs = DOGS.filter(d => save.unlockedDogs.includes(d.id));
   const tForObject = (obj: MapObject) => ({ training: t("training"), puller: t("puller"), scent: t("scent"), care: t("care"), explore: t("exploreKind"), mission: t("missions") })[obj.kind];
 
@@ -357,7 +358,7 @@ export default function FarmGame() {
             </div>
             <div className="mapCompass"><Map size={14}/><span>{location.title}</span><small>{currentObjects.filter(o => !save.completed.includes(o.id)).length} {save.language === "cs" ? "aktivity" : "activities"}</small></div>
             <div className="mapZoomControls"><button onClick={() => notify(save.language === "cs" ? "Mapa se dá prozkoumat klepnutím na jednotlivé aktivity." : "Explore the map by tapping activity markers.")} aria-label={save.language === "cs" ? "Nápověda k mapě" : "Map help"}><CircleHelp size={17}/></button></div>
-            {save.showHud && <div className="mapObjective"><span className="objectiveBadge"><Target size={18}/></span><span><small>{t("objective")}</small><b>{nextObjective ? nextObjective.title : (save.language === "cs" ? "Všechny aktivity splněny!" : "All activities completed!")}</b><em>{nextObjective ? nextObjective.subtitle : t("complete")}</em></span><button onClick={() => nextObjective && doActivity(nextObjective)} aria-label={t("doTask")}><ArrowRight size={18}/></button></div>}
+            {save.showHud && <div className="mapObjective"><span className="objectiveBadge"><Target size={18}/></span><span><small>{t("objective")}</small><b>{nextObjective ? nextObjective.title : (save.language === "cs" ? "Všechny aktivity splněny!" : "All activities completed!")}</b><em>{nextObjective ? nextObjective.subtitle : t("complete")}</em></span><button onClick={() => { if (!nextObjective) return; if (nextObjectiveLocation.id !== locationId) { travelTo(nextObjectiveLocation.id); window.setTimeout(() => doActivity(nextObjective), 80); } else doActivity(nextObjective); }} aria-label={t("doTask")}><ArrowRight size={18}/></button></div>}
           </div>
 
           <div className="belowMapGrid">
