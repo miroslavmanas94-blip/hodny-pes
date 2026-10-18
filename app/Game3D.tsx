@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import * as THREE from "three";
 import { Dog, Footprints, Heart, Keyboard, Map, Pause, Play, RotateCcw, Sparkles, Trophy, UserRound, Volume2, VolumeX } from "lucide-react";
 
@@ -272,15 +272,15 @@ export default function Game3D({ onExit }: Props) {
     const onBlur = () => { Object.keys(keys).forEach(k => keys[k] = false); };
     window.addEventListener("blur", onBlur);
     const canvas = renderer.domElement;
-    const onPointerDown = (event: globalThis.PointerEvent) => { dragPointer = event.pointerId; lastPointerX = event.clientX; lastPointerY = event.clientY; canvas.setPointerCapture(event.pointerId); };
-    const onPointerMove = (event: globalThis.PointerEvent) => {
+    const onPointerDown = (event: PointerEvent) => { dragPointer = event.pointerId; lastPointerX = event.clientX; lastPointerY = event.clientY; canvas.setPointerCapture(event.pointerId); };
+    const onPointerMove = (event: PointerEvent) => {
       if (dragPointer !== event.pointerId) return;
       const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
       lastPointerX = event.clientX; lastPointerY = event.clientY;
       cameraYaw -= dx * 0.008;
       cameraPitch = THREE.MathUtils.clamp(cameraPitch + dy * 0.018, 2.8, 8.5);
     };
-    const onPointerUp = (event: globalThis.PointerEvent) => { if (dragPointer === event.pointerId) dragPointer = null; };
+    const onPointerUp = (event: PointerEvent) => { if (dragPointer === event.pointerId) dragPointer = null; };
     canvas.style.touchAction = "none";
     canvas.style.cursor = "grab";
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -386,8 +386,8 @@ export default function Game3D({ onExit }: Props) {
     };
   }, []);
 
-  const hold = (key: string) => ({ onPointerDown: (e: PointerEvent<HTMLButtonElement>) => { e.preventDefault(); gameRef.current?.setKey(key, true); }, onPointerUp: () => gameRef.current?.setKey(key, false), onPointerLeave: () => gameRef.current?.setKey(key, false), onPointerCancel: () => gameRef.current?.setKey(key, false) });
-  const updateJoystick = (e: PointerEvent<HTMLDivElement>) => {
+  const hold = (key: string) => ({ onPointerDown: (e: ReactPointerEvent<HTMLButtonElement>) => { e.preventDefault(); gameRef.current?.setKey(key, true); }, onPointerUp: () => gameRef.current?.setKey(key, false), onPointerLeave: () => gameRef.current?.setKey(key, false), onPointerCancel: () => gameRef.current?.setKey(key, false) });
+  const updateJoystick = (e: ReactPointerEvent<HTMLDivElement>) => {
     e.preventDefault();
     const rect = joystickRef.current?.getBoundingClientRect();
     if (!rect) return;
