@@ -227,7 +227,7 @@ export default function Game3D({ onExit }: Props) {
       setNotice(next === "dog" ? "Ovládáš psa. Prozkoumej areál a hledej pamlsky." : "Ovládáš trenéra. Dojdi k zářícím stanovištím a stiskni E.");
     };
     const reset = () => {
-      dog.position.set(0, 0, 3); dog.rotation.set(0, 0, 0);
+      dog.position.set(0, 0, 3); dog.rotation.set(0, Math.PI, 0);
       human.position.copy(dog.position);
       for (const treat of treats) { treat.taken = false; treat.group.visible = true; }
       for (const station of stations) station.done = false;
