@@ -1,55 +1,25 @@
-# Hodný pes: Cesta
+# Hodný Pes Academy
 
-Nově obnovovaný projekt české 3D webové hry o společném dobrodružství člověka a psa. Aktuální verze je **hratelný prototyp první lokace**, nikoli dokončená plná hra.
+**Učte se spolu. Roste spolu.** Responzivní herní prototyp zaměřený na pozitivní výcvik, důvěru mezi člověkem a psem a Dog Puller.
 
-## Co je v aktuální verzi
+## Aktuální obsah
+- Nové rozhraní Academy s přehledem, akademií, profilem psa, komunitou a odměnami.
+- Interaktivní ukázková lekce s lokální odměnou XP a základní úpravou profilu.
+- Přepínání čeština/angličtina.
+- Responzivní rozvržení, přístupné ovládací prvky, omezení animací a PWA manifest.
+- Herní design dokument v docs/GAME_DESIGN.md.
 
-- Přepínání ovládání mezi psem a člověkem; druhá postava zůstává jako parťák.
-- Výběr tří prototypových oblastí: cvičiště, park a lesní stezka; každá má jiné prostředí a sběratelské předměty.
+## Spuštění
+Požadavky: Node.js 20+ a npm.
 
-- 3D cvičiště renderované pomocí Next.js, React Three Fiber a Three.js.
-- Procedurální nízkopolygonový model psa s pohybem, otočením a kamerou.
-- Prostor pro volný průzkum, tréninkové značky a režim Dog Puller.
-- Sběratelské zářící tlapky; za jejich nalezení se přičítají XP a mince v aktuální herní relaci.
-- Přepínání režimů a kamery, české/anglické UI, nápověda a responzivní rozvržení s dotykovými tlačítky.
-- Základní endpoint pro kontrolu běhu aplikace: `/api/health`.
+    npm install
+    cp .env.example .env.local
+    npm run dev
 
-## Ovládání
+Aplikace funguje bez Supabase klíčů. Přihlášení, cloud save, offline cache, push notifikace, multiplayer a platby zatím nejsou implementované.
 
-- **W A S D** nebo šipky: pohyb
-- **E**: aktivovat hod Dog Puller v režimu Dog Puller
-- **R**: návrat na start
-- Na telefonu použij směrová tlačítka na scéně.
+## Barvy
+- Fialová: #6A00F4
+- Meruňková: #FFD6A5
 
-## Spuštění lokálně
-
-Požadavky: Node.js 20+, npm a Git.
-
-```bash
-git clone https://github.com/miroslavmanas94-blip/hodny-pes.git
-cd hodny-pes
-npm install
-cp .env.example .env.local
-npm run dev
-```
-
-Otevři http://localhost:3000. Hra se spustí i bez Supabase konfigurace; přihlášení a cloudové ukládání zatím nejsou součástí této první hratelné verze.
-
-## Technický základ
-
-- Next.js App Router + TypeScript
-- React 19, Three.js, React Three Fiber, Drei
-- Barvy značky: `#FFD6A5` a `#6A00F4`
-- GitHub Actions ověřuje typecheck a produkční build.
-- Vercel projekt a Supabase projekt jsou zachovány, databáze nebyla smazána ani resetována.
-
-## Co ještě není hotové
-
-Plná příběhová kampaň, více lokací, skutečné animace/modely plemen, trvalé ukládání, autentizace, multiplayer, soutěžní pravidla Dog Puller a propojení s rezervacemi/e-shopem musí být implementovány a ověřeny v dalších etapách. Aktuální prototyp nesmí být zaměňován za tyto dokončené funkce.
-
-## Dokumentace
-
-- `docs/GAME_DESIGN.md` — návrh herního obsahu.
-- `docs/ARCHITECTURE.md` — cílová technická architektura.
-- `docs/implementation-status.md` — původní auditní stav; aktualizovat spolu s dalšími etapami.
-- `docs/setup.md` — nastavení služeb.
+Původní historie repozitáře zůstává zachována; tento commit nahrazuje obsah pracovní větve novou verzí.

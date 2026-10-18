@@ -1,106 +1,159 @@
-# Hodný pes: Psí svět — herní design dokument
-Verze: 0.1 · Stav: návrh pro postupnou implementaci · Jazyk hry: čeština + připravená lokalizace
+# Hodný Pes Academy — Game Design Document
+**Verze:** 1.0 · **Stav:** návrh pro herní studio a implementační plán · **Datum:** 18. 10. 2026
 
-## 1. Produktové pilíře
-1. **Vztah před výkonem:** pes se učí odměnou, bezpečným opakováním a přestávkami. Frustrace, přetížení nebo nátlak snižují motivaci a důvěru; hra nikdy nepodporuje násilné zacházení.
-2. **Přátelské dobrodružství:** semi-cartoon low-poly svět, čitelná silueta psa, teplé světlo a jasné cíle bez dětsky přehnaných efektů.
-3. **Sport i hra:** Dog Puller má volný trénink a soutěžní pravidla; soutěžní výsledky jsou oddělené od arkádových odměn.
-4. **Poctivé vzdělávání:** vysvětlení ve hře je obecné vzdělávací vodítko, ne náhrada individuálního posouzení trenérem.
-5. **Odpovědná propagace:** centrum Hodný pes se nabízí jako další krok, nikoli jako agresivní reklama. Kontakty a rezervace se aktivují až po ověření skutečných oficiálních odkazů a souhlasu centra.
+## 1. Executive summary
+Hodný Pes Academy je responzivní vzdělávací hra pro web a mobilní prohlížeče, která převádí principy pozitivního výcviku do krátkých interaktivních lekcí. Hráč rozvíjí vztah se psem, učí se číst jeho signály, trénuje základní dovednosti a seznamuje se s Dog Pullerem. Odměny oceňují spolupráci, bezpečí a učení, nikoli výkon za každou cenu. Produkt podporuje značku a služby centra Hodný pes, buduje komunitu a může využívat férový freemium model.
 
-## 2. Platformy a vizuální identita
-- React, Next.js App Router, TypeScript, React Three Fiber / Three.js, Supabase, Vercel, GitHub.
-- Primární barvy: meruňková **#FFD6A5** a fialová **#6A00F4**. Tmavé plochy #17151D, světlý text #FFFFFF.
-- Styl: low-poly / stylizovaný 3D, čisté tvary, kvalitní nasvícení, měkké stíny, přírodní paleta prostředí. Fialová je pro interakce a aktivní stavy, meruňková pro odměny a přátelské zvýraznění.
-- Responzivní HUD: klávesnice/myš na desktopu; dotykový joystick a velká akční tlačítka na mobilu; bezpečné okraje a podpora orientace na výšku.
-- Adaptivní kvalita: automatický DPR, stíny, počet dekorací a post-processing podle zařízení. Nabídnout ruční nízkou/střední/vysokou kvalitu.
-- Přepínatelná kamera třetí a první osoby; první osoba musí zůstat pohodlná a nevyvolávat rychlé pohyby kamery.
+**Produktový slib:** „Učte se spolu. Roste spolu.“  
+**Základní smyčka:** vyber lekci → pozoruj psa → zvol reakci → dostaň vysvětlenou zpětnou vazbu → dej pauzu → zaznamenej pokrok → vrať se, až to oběma vyhovuje.
 
-## 3. Úvod a výběr psa
-- Host může začít bez účtu; při propojení účtu se místní postup bezpečně sloučí pouze po vyřešení konfliktů a potvrzení hráčem.
-- Hráč zvolí jméno, plemeno, variantu srsti a doplňky. Začít s menším počtem kvalitních rigovaných modelů a rozšiřovat katalog; cílový katalog 15–20 plemen včetně možnosti křížence.
-- Každé skutečně dostupné plemeno musí mít model, rig, animace a validované ID. Nedostupné modely nesmí být prezentovány jako hratelné.
-- Po úvodu hráč navštíví bezpečné cvičiště, pozná trenérku a dostane první krátký úkol.
+## 2. Vize a pilíře
+1. Vztah před výkonem: úspěch znamená bezpečí, dobrovolnou spolupráci a srozumitelnou komunikaci.
+2. Pozitivní výcvik bez moralizování: chyba je příležitost zjednodušit úkol.
+3. Krátké lekce: 3–8 minut, jasný cíl a doporučená pauza.
+4. Férová hra: žádné pay-to-win, odměny za přestávku a žádné trestání za vynechaný den.
+5. Přístupnost: mobil-first, ovládání dotykem i klávesnicí, čeština a angličtina.
+6. Autentická značka: skutečné prostory, produkty, logo a trenéři se použijí až po schválení vlastníkem práv.
 
-## 4. Atributy psa
-Všechny hodnoty jsou v rozsahu 0–100 a musí být vysvětlené hráči:
-- **Motivace:** ochota zapojit se; zvyšuje se vhodnou odměnou, hrou a pauzou.
-- **Fokus:** schopnost věnovat pozornost; roste krátkými úspěšnými bloky a snižuje se při rušení.
-- **Kondice:** sportovní připravenost; obnovuje se odpočinkem, nesmí podporovat přetěžování.
-- **Vztah:** kvalita spolupráce; roste konzistentními pozitivními interakcemi.
-- **Sebedůvěra:** ochota zkoušet úkoly; roste postupnou obtížností a bezpečným úspěchem.
-- **Technika:** herní dovednost v naučených disciplínách; roste praxí a zpětnou vazbou.
-Atributy nesmí být skrytým pay-to-win systémem. Kosmetické nákupy výkon nezvyšují.
+## 3. Cílová skupina a tón
+Majitelé psů všech úrovní, rodiny s dětmi od 8 let a začínající či mírně pokročilí trenéři. Tón je respektující, pozitivní, praktický, lehce humorný a nikdy infantilní. Dětské účty vyžadují minimalizaci dat, soukromí ve výchozím stavu a omezení sociálních funkcí.
 
-## 5. Hlavní herní smyčka
-Prozkoumej lokaci → vyber krátký cíl → trénuj pomocí pozitivního posilování → přečti si zpětnou vazbu → dopřej psovi odpočinek → získej XP / herní mince / kosmetické odemčení → otevři další výzvu nebo lokaci. Každá aktivita má jasné zahájení, podmínku úspěchu, bezpečné selhání a možnost opakování bez trestu.
+## 4. Svět a propojení s realitou
+- Akademická recepce: onboarding, volba jazyka a psa.
+- Výcviková hala: základy poslušnosti, marker a rušivé vlivy.
+- Venkovní cvičiště: přivolání, sebedůvěra a práce na vodítku.
+- Dog Puller aréna: výukový a tréninkový režim Running a Jumping.
+- Klidová zóna: kooperativní péče a bezpečné přerušení.
+- Park a běžné prostředí: přenos dovedností do každodenních situací.
+- Klubovna: komunitní výzvy, výsledky a kosmetické odměny.
 
-## 6. Příběhová kampaň (cílově 8 kapitol)
-1. **Nový parťák:** jméno, základní ovládání, první společná procházka, pozitivní odměna.
-2. **Základy důvěry:** přivolání, pozornost, odpočinek a čtení signálů psa.
-3. **Psí škola:** sedni, lehni, zůstaň, pusť; krátké tréninkové bloky.
-4. **Svět plný podnětů:** lesní stezka a park, postupné přidávání rušivých vlivů.
-5. **První Puller:** bezpečné seznámení s pomůckou, hra a pravidla bezpečného přerušení.
-6. **Sportovní příprava:** disciplíny Running a Jumping, kondice, technika a odpočinek.
-7. **Klubová výzva:** vedlejší mise, přátelská soutěž, férové skóre a spolupráce.
-8. **Den společného úspěchu:** závěrečná výzva, rekapitulace pokroku a doporučení dalšího tréninku.
-Kapitoly mají cíl, 3–5 misí, krátké dialogy, odměny a volitelný vzdělávací tip. Dokončení kampaně nevyžaduje placené předměty.
+Počáteční verze používá stylizované ilustrace. Rekonstrukce skutečného areálu, fotografie, názvy produktů, 4dox a podoba členů týmu vyžadují dodané podklady a souhlas. Fiktivní trenéři nesmějí být vydáváni za konkrétní reálné osoby.
 
-## 7. Svět a lokace
-Hybridní struktura: propojená centrální oblast a samostatné instance disciplín.
-- **Cvičiště:** výchozí hub, výcvikové zóny, informační tabule.
-- **Park a louky:** procházky, přivolání, hledání předmětů.
-- **Lesní stezka:** orientace a postupné zvykání na podněty.
-- **Sportovní areál:** Dog Puller Running/Jumping a časované výzvy.
-- **Klubovna:** vybavení, rekordy, plán výzev a kosmetika.
-- **Výukový kout:** krátké bezpečnostní tipy a vysvětlení pozitivního tréninku.
-Počasí, den/noc a další dekorace jsou rozšiřující systémy; nesmí zhoršit stabilní FPS na mobilu.
+## 5. Hlavní herní systémy
+### 5.1 Editor psa
+MVP: jméno, typ/plemeno, základní vzhled. Později: velikost, stavba těla, srst, uši, ocas, oči, znaky, osobnost a doplňky. Mix je plnohodnotná volba. Osobnost upravuje doporučenou obtížnost, nikoli „sílu“ psa nebo trest za citlivost.
 
-## 8. Dog Puller
-- **Volný trénink:** bez žebříčku, volné házení/chytání, opakování.
-- **Running:** jasně definovaný start/cíl, bezpečné návraty a skóre za přesnost / platné pokusy.
-- **Jumping:** skoky a technika; body pouze za platný, bezpečně dokončený pokus.
-- Další disciplíny lze přidat až po validaci fyziky a pravidel.
-- Rozlišit fyziku kruhu, detekci chycení, pokus, skóre a serverové potvrzení výsledku. Klientské eventy nejsou důvěryhodný zdroj soutěžního skóre.
-- V soutěžním režimu zobrazit pravidla a upozornění, že herní fyzika je zjednodušená simulace, ne oficiální rozhodčí systém.
+### 5.2 Progrese
+Oddělené úrovně psa a psovoda. XP se udělují za lekce, reflexi a bezpečnou práci. Návrhová křivka: úrovně 1–5 po 250 XP; 6–15 po 450 XP; vyšší úrovně po 650–1 000 XP. Opakování slouží učení, nikoli nekonečnému farmení. Reset skill tree je bezplatný.
 
-## 9. Výzvy, postup a ekonomika
-- XP odemyká úrovně a nové výzvy; herní mince se získávají hraním, denními/týdenními úkoly a férovými soutěžemi.
-- Denní a týdenní výzvy mají serverově ověřený claim, časové okno a idempotentní zpracování.
-- Kosmetický obchod nabízí obojky, postroje, vzhledy Pulleru, dekorace a sezónní balíčky.
-- Placené DLC je pouze kosmetické / obsahové bez výhody ve skóre nebo atributech. Nákupy za skutečné peníze přidat až po výběru poskytovatele, právním a věkovém posouzení a testování plateb.
-- Bez loot boxů a bez placených mechanismů, které cílí na děti. Veřejné žebříčky umožní přezdívku, soukromí a nahlášení.
-- Odměny za úkol musí být uděleny transakčně na serveru; UI nesmí samostatně přičítat cloudové mince.
+### 5.3 Skill tree
+- **Důvěra:** dobrovolný kontakt, bezpečný odchod, práce s pauzou.
+- **Komunikace:** marker, načasování odměny, čtení signálů.
+- **Sebedůvěra:** průzkum nového povrchu, volba vzdálenosti.
+- **Dog Puller:** seznámení s kruhem, motivace, Running a Jumping.
+- **Kooperativní péče:** dotyk tlapky, kartáč, krátká kontrola a signál stop.
+- **Sociální pohoda:** pozorování z dálky a bezpečné míjení.
 
-## 10. Virtuální trenérky
-- V první verzi jde o fiktivní postavy, nikoli podobizny konkrétních osob.
-- Každá trenérka nabízí krátké dialogy, cíle, nápovědu a pozitivní zpětnou vazbu.
-- Texty jsou oddělené od komponent a připravené na češtinu/angličtinu.
-- Případné pozdější spojení s reálnými trenérkami vyžaduje jejich výslovný souhlas a schválení centra.
+### 5.4 Výcvik a načasování
+Lekce má cíl, kontext, 1–3 rozhodnutí, okamžitou zpětnou vazbu a doporučenou pauzu. Marker označuje chování co nejblíže okamžiku, kdy nastalo. Při chybě hra vysvětlí alternativu a nabídne snazší variantu; nezahanbuje hráče. Obtížnost zvyšuje vždy jednu proměnnou: vzdálenost, délku, rušení nebo přesnost.
 
-## 11. Propojení s Hodným psem
-- Kontextové vzdělávací karty: „Chceš se naučit víc?“ s odkazem na oficiální kurzy.
-- Lead formulář sbírá jen nezbytné údaje, s jasným účelem, souhlasem a odkazem na zásady ochrany soukromí.
-- Rezervace / e-shop se otevírají na ověřených oficiálních URL; rezervace se nesmí simulovat, pokud neexistuje reálné API nebo odkaz.
-- Promo kód je zobrazen pouze pokud jej centrum skutečně schválilo.
-- Analytika je minimalizovaná, bez sledování dětí nebo citlivých profilů; marketingový souhlas je oddělený od podmínek hry.
+### 5.5 Scénáře problémového chování
+Scénáře: tahání na vodítku, štěkání, strach, reaktivita a skákání na lidi. Hráč pozoruje signály, mění prostředí a vzdálenost, posiluje žádoucí chování a může bezpečně odejít. Hra vysvětlí rizika zastrašování, fyzických trestů a nuceného vystavení. Nenahrazuje individuální posouzení kvalifikovaným trenérem nebo veterinárním behavioristou.
 
-## 12. Multiplayer a sociální funkce
-- Veřejné a soukromé místnosti, pozvánky, přátelé, společné volné aktivity.
-- Žebříčky jsou podle serverově ověřených výsledků; rate limit, idempotency, anti-replay a validace pravidel.
-- Realtime slouží k aktualizaci přítomnosti / událostí, ne jako jediná autorita skóre.
-- Ochrana soukromí: blokování a nahlašování, přezdívky místo veřejných e-mailů, minimalizace osobních údajů. Dětská bezpečnost musí být posouzena před veřejným chatem; výchozí volba je bez volného textového chatu.
+### 5.6 Kooperativní péče
+Tlapky, kartáčování, uši, zuby a drápky jsou rozděleny na mikrokroky: ukázat pomůcku → dobrovolné přiblížení → krátký dotyk → odměna → pauza. Pes může kdykoliv dát signál k přerušení. Body získává hráč i za rozpoznání nepohody a bezpečné ukončení.
 
-## 13. Přístupnost a lokalizace
-- Čeština je výchozí; angličtina je druhá locale. Všechny UI texty přes překladové klíče.
-- Podpora klávesnice, touch, dostatečných kontrastů, popisků tlačítek, redukovaného pohybu a vypnutí zvuku.
-- Žádné důležité informace pouze barvou nebo zvukem.
-- Respektovat reduced-motion a nastavení hlasitosti.
+### 5.7 Dog Puller
+Disciplíny Running a Jumping mají výuku, trénink a soutěžní simulaci. Hra zdůrazňuje rozcvičení, vhodný povrch, pauzy a přizpůsobení zátěže. Herní simulace není návodem pro reálný sport; pravidla a technické rady před vydáním ověří kompetentní instruktor. Žebříčky používají stejné podmínky a placené položky výsledek nemění.
 
-## 14. Akceptační kritéria prvního hratelného vydání
-- Hra se spustí bez účtu; hráč vybere psa a ovládá jej na desktopu i mobilu.
-- Kamera třetí osoby a první osoby fungují a nezpůsobují clipping / dezorientaci.
-- Nejméně jedna lokace, jedna kompletní výcviková lekce a jedna hratelná disciplína Dog Puller mají start, úspěch, selhání a opakování.
-- Přihlášení volitelně propojí profil a serverově ověřený postup; konflikty lokálního postupu jsou vysvětlené.
-- Testy ověřují pravidla, odměny, bezpečnost databázových funkcí a základní uživatelské toky.
-- Produkční build a nasazení jsou ověřené; chyby jsou zdokumentované. Žádná funkce není označena hotovou jen proto, že existuje tlačítko nebo návrh.
+### 5.8 Volný režim
+Pozorovací hry, hledání předmětů, klidné přivolání, volba vhodné vzdálenosti, denní mikroúkoly a sezónní arény. MVP dodá několik opakovatelných interakcí; rozsáhlejší obsah je až následná fáze.
+
+### 5.9 Příběh
+Kapitola 1: hráč přichází do akademie, poznává fiktivní trenérku Kláru a svého psa. První quest je pozorování toho, co psovi pomáhá cítit se bezpečně. Další kapitoly otevírají lokality a témata důvěry, péče, prostředí a týmové komunikace.
+
+### 5.10 Sociální vrstva
+Přátelé, kluby, sdílení odznaků, komunitní výzvy a žebříčky. Profil je ve výchozím stavu soukromý; poloha se nesdílí. Dětský režim nemá otevřené soukromé zprávy. Před multiplayerem je nutná moderace, nahlášení, blokování a jasná pravidla komunity.
+
+## 6. Player journey
+1. **První spuštění:** volba jazyka, filozofie, soukromí a přístupnosti.
+2. **Vytvoření psa:** jméno, typ, vzhled a preference.
+3. **První úspěch:** pozorování a správné načasování markeru.
+4. **První návrat:** doporučená krátká lekce bez agresivních notifikací.
+5. **První týden:** důvěra, komunikace, péče a první bezpečné seznámení s Pullerem.
+6. **Dlouhodobě:** kapitoly, kluby, kosmetika a sezónní výzvy.
+7. **Návrat po pauze:** bez ztráty postupu a bez penalizace za přestávku.
+
+## 7. Klíčové obrazovky
+- Dashboard: doporučená lekce, pokrok, denní plán a odměny.
+- Onboarding a editor psa.
+- Akademie: kategorie, obtížnost, délka a výukový cíl.
+- Scénář lekce: pozorování, rozhodnutí, zpětná vazba, pauza a reflexe.
+- Profil psa a skill tree.
+- Dog Puller aréna: checklist, pokusy, pauzy a výsledky.
+- Odměny, kosmetika a pass.
+- Komunita: kluby, výzvy, soukromí a moderace.
+- Nastavení: jazyk, zvuk, velikost textu, pohyb, notifikace a správa dat.
+
+## 8. Ekonomika a monetizace
+Měny: XP pro progres, tlapkové mince pro kosmetiku a odznaky jako trvalé milníky. Základní hra zůstává dlouhodobě zdarma. Příjmy mohou tvořit kosmetika, sezónní pass, tematické balíčky a kosmetické varianty Pullerů či postrojů. Žádné loot boxy, nákup soutěžních výsledků ani placené výhody v žebříčcích. Boostery lze zvažovat pouze v nekompetitivních režimech a bez nátlaku na děti.
+
+| Akce | XP | Mince | Pravidlo |
+|---|---:|---:|---|
+| První lekce | 80 | 20 | jednorázově |
+| Krátká lekce | 40–100 | 5–15 | denní limit |
+| Reflexe | 10 | 0 | dobrovolná |
+| Týdenní výzva | 150 | 50 | bez streak penalizace |
+| Nová kapitola | 200 | 30 | postup příběhem |
+| Bezpečná pauza | 20 | 5 | ocenění čtení signálů |
+
+## 9. Ukázkové questy
+1. **První společný krok:** dokonči úvodní lekci; 80 XP, 20 mincí a odznak Společná domluva.
+2. **Pohled, který říká ahoj:** označ dobrovolný pohled ve třech opakováních; 60 XP.
+3. **Víc prostoru, víc klidu:** uprav vzdálenost při signálu nepohody; 90 XP.
+4. **Tlapka na pozvánku:** odměň dobrovolné přiblížení k pomůcce; 70 XP.
+5. **Kruh bez spěchu:** bezpečné seznámení s Pullerem a pauza; 100 XP.
+6. **Čtyři tlapky na zemi:** odměň klidné přivítání; 80 XP.
+7. **Klidný pozorovatel:** rozpoznej tři signály psa; 100 XP.
+8. **Pauza je taky pokrok:** ukonči scénář podle signálu psa; 40 XP a reflexní odznak.
+
+## 10. Odznaky a skilly
+Odznaky: **Společná domluva**, **Klidná tlapka**, **Čtenář psí řeči**, **Mistr načasování**, **Pečující parťák**, **Kruh bez spěchu**, **Odvážný průzkumník**, **Týmová radost**, **Návrat s úsměvem**, **Respekt k hranicím**.
+
+| Větev | Skill | Herní efekt |
+|---|---|---|
+| Důvěra | Bezpečná základna | odemkne klidovou zónu |
+| Komunikace | Přesný marker | zvýrazní vhodný okamžik odměny |
+| Sebedůvěra | Volba vzdálenosti | upraví obtížnost scénáře |
+| Dog Puller | Seznámení s kruhem | výukový režim bez časového tlaku |
+| Péče | Souhlasový signál | bezpečné přerušení péče |
+| Sociální pohoda | Klidné míjení | scénáře práce s prostorem |
+
+## 11. Sezóny, eventy a slogany
+- Jarní čichací zahrada.
+- Týden důvěry.
+- Puller Play Days.
+- Podzimní stezky.
+- Zimní klubovna.
+- Akademický festival.
+- Slogany: „Vztah na prvním místě“, „Každý pes má svůj příběh“, „Malé kroky. Velké pouto.“
+
+Eventy nikdy nepenalizují vynechaný den a odměny lze získat více způsoby.
+
+## 12. KPI a analytika
+S consentem měřit dokončení onboardingu, čas k prvnímu úspěchu, dokončení lekcí, D1/D7/D30 návratnost, použití nápovědy a pauz, výkon zařízení a chybovost. Minimalizovat osobní údaje, poskytovat opt-out a neprovádět experimenty, které by učily nebezpečný výcvik nebo manipulovaly děti.
+
+## 13. Technická doporučení
+Frontend: Next.js App Router, TypeScript, React a responzivní CSS. Interaktivní lekce používají datově řízené scénáře a testovatelné stavové přechody. Supabase je cílová vrstva pro Auth, Postgres, Storage a Realtime. RLS na všech exponovaných tabulkách; odměny a měny ověřovat serverově; žádné service-role klíče v klientovi. Guest save musí být jasně označený a při přihlášení bezpečně sloučen. PWA potřebuje verzování cache a strategii aktualizace před zavedením offline režimu. Sociální funkce až po návrhu moderace a dětského soukromí.
+
+## 14. Rizika a mitigace
+- Nesprávná kynologická rada: revize kvalifikovaným trenérem.
+- Přetížení psa kvůli skóre: pauzy a limity.
+- Nepřesné zobrazení značky: schválení skutečným centrem.
+- Ochrana dětí: minimální data, soukromí, omezené zprávy a moderace.
+- Pay-to-win: kosmetická monetizace a oddělené žebříčky.
+- Slabý výkon: lehké assety, lazy loading a testy na telefonech střední třídy.
+- Rozsah: prioritizovat MVP a nepředstírat, že návrh je hotová funkce.
+
+## 15. Vývojové fáze
+**Fáze 0 — Discovery (1–2 týdny):** rozhovory s centrem, revize výcvikových scénářů, souhlas s assety a schválení vizuálního směru.
+
+**Fáze 1 — MVP (4–8 týdnů, plánovací odhad):** dashboard, onboarding, základní editor psa, 5–8 lekcí, první Dog Puller aréna, XP, odznaky, lokální save, CZ/EN a PWA základ.
+
+**Fáze 2 — Closed beta (3–5 týdnů):** testy s majiteli, úpravy obtížnosti, opt-in analytika, Supabase Auth/cloud save a bezpečnostní audit RLS.
+
+**Fáze 3 — Full launch (8–16 týdnů):** plné moduly, lokality, účty, synchronizace, moderovaná komunita, sezónní obsah a schválené značkové assety.
+
+**Fáze 4 — Live ops:** nové lekce, eventy, kosmetika, obsahové revize, bezpečnostní patche a pravidelné audity.
+
+Odhady jsou plánovací, nikoli garantovaný harmonogram.
