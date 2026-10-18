@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowUpRight, CalendarDays, Check, ChevronRight, CircleHelp, Coins, Dog, Heart, House, Languages, Leaf, Map, Plus, ShoppingBag, Sparkles, Star, Trophy, Users, X } from "lucide-react";
+import "./farm.css";
+import { ArrowUpRight, CalendarDays, Check, ChevronRight, CircleHelp, Coins, Dog, Heart, House, Languages, Leaf, Map, Plus, ShoppingBag, Sparkles, Star, X } from "lucide-react";
 
 type Building = { type: string; name: string; icon: string; cost: number; color: string };
 type Plot = { id: number; r: number; c: number; owned: boolean };
