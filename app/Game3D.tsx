@@ -466,3 +466,5 @@ export default function Game3D({ onExit }: Props) {
     </div>
   </section>;
 }
+
+// Keep this file's current main-branch version in the next deployment trigger.
