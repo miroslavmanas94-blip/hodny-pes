@@ -46,6 +46,7 @@ export default function Home() {
   const [trained, setTrained] = useState<string[]>([]);
   const [camera, setCamera] = useState<"third-person" | "first-person">("third-person");
   const [quality, setQuality] = useState<"auto" | "low" | "medium" | "high">("auto");
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -69,6 +70,31 @@ export default function Home() {
     });
     return () => { cancelled = true; };
   }, [supabase, user?.id]);
+
+  useEffect(() => {
+    if (!supabase || !user) { setSettingsLoaded(false); return; }
+    let cancelled = false;
+    supabase.from("game_settings").select("settings").eq("user_id", user.id).maybeSingle().then(({ data, error }) => {
+      if (cancelled) return;
+      if (error) { setNotice("Nastavení se nepodařilo načíst: " + error.message); setSettingsLoaded(true); return; }
+      const saved = data?.settings as { camera?: string; quality?: string; sound?: boolean } | null;
+      if (saved?.camera === "first-person" || saved?.camera === "third-person") setCamera(saved.camera);
+      if (saved?.quality === "auto" || saved?.quality === "low" || saved?.quality === "medium" || saved?.quality === "high") setQuality(saved.quality);
+      if (typeof saved?.sound === "boolean") setMuted(!saved.sound);
+      setSettingsLoaded(true);
+    });
+    return () => { cancelled = true; };
+  }, [supabase, user?.id]);
+
+  useEffect(() => {
+    if (!supabase || !user || !settingsLoaded) return;
+    supabase.from("game_settings").upsert({
+      user_id: user.id,
+      settings: { camera, quality, sound: !muted }
+    }).then(({ error }) => {
+      if (error) setNotice("Nastavení se nepodařilo uložit do cloudu: " + error.message);
+    });
+  }, [supabase, user?.id, settingsLoaded, camera, quality, muted]);
 
   async function refreshShop() {
     if (!supabase || !user) { setShopItems([]); setOwnedItems([]); setWalletCoins(null); return; }
