@@ -272,16 +272,16 @@ export default function Game3D({ onExit }: Props) {
     const onBlur = () => { Object.keys(keys).forEach(k => keys[k] = false); };
     window.addEventListener("blur", onBlur);
     const canvas = renderer.domElement;
-    const onPointerDown = (event: PointerEvent) => { dragPointer = event.pointerId; lastPointerX = event.clientX; lastPointerY = event.clientY; canvas.setPointerCapture(event.pointerId); };
-    const onPointerMove = (event: PointerEvent) => {
+    const onPointerDown = (event: globalThis.PointerEvent) => { dragPointer = event.pointerId; lastPointerX = event.clientX; lastPointerY = event.clientY; canvas.setPointerCapture(event.pointerId); };
+    const onPointerMove = (event: globalThis.PointerEvent) => {
       if (dragPointer !== event.pointerId) return;
       const dx = event.clientX - lastPointerX, dy = event.clientY - lastPointerY;
       lastPointerX = event.clientX; lastPointerY = event.clientY;
       cameraYaw -= dx * 0.008;
       cameraPitch = THREE.MathUtils.clamp(cameraPitch + dy * 0.018, 2.8, 8.5);
     };
-    const onPointerUp = (event: PointerEvent) => { if (dragPointer === event.pointerId) dragPointer = null; };
-    canvas.style.touchAction = "pan-y";
+    const onPointerUp = (event: globalThis.PointerEvent) => { if (dragPointer === event.pointerId) dragPointer = null; };
+    canvas.style.touchAction = "none";
     canvas.style.cursor = "grab";
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("pointermove", onPointerMove);
