@@ -41,6 +41,8 @@ export default function Home() {
   const [shopMessage, setShopMessage] = useState("");
   const [shopBusyItem, setShopBusyItem] = useState<string | null>(null);
   const [xp, setXp] = useState(0);
+  const [cloudExperience, setCloudExperience] = useState(0);
+  const [cloudCoins, setCloudCoins] = useState(0);
   const [notice, setNotice] = useState("");
   const [completed, setCompleted] = useState<string[]>([]);
   const [trained, setTrained] = useState<string[]>([]);
@@ -95,6 +97,26 @@ export default function Home() {
       if (error) setNotice("Nastavení se nepodařilo uložit do cloudu: " + error.message);
     });
   }, [supabase, user, settingsLoaded, camera, quality, muted]);
+
+  useEffect(() => {
+    if (!supabase || !user) {
+      setCloudExperience(0);
+      setCloudCoins(0);
+      return;
+    }
+    let cancelled = false;
+    Promise.all([
+      supabase.from("player_progress").select("experience").eq("user_id", user.id).maybeSingle(),
+      supabase.from("wallets").select("coins").eq("user_id", user.id).maybeSingle()
+    ]).then(([progress, wallet]) => {
+      if (cancelled) return;
+      if (progress.error) setNotice("Cloudový postup se nepodařilo načíst: " + progress.error.message);
+      if (wallet.error) setNotice("Cloudové mince se nepodařilo načíst: " + wallet.error.message);
+      setCloudExperience(Number(progress.data?.experience ?? 0));
+      setCloudCoins(Number(wallet.data?.coins ?? 0));
+    });
+    return () => { cancelled = true; };
+  }, [supabase, user]);
 
   const userId = user?.id;
   const refreshShop = useCallback(async () => {
@@ -195,12 +217,27 @@ export default function Home() {
     setNotice("Pes byl uložen do účtu Supabase.");
   }
 
-  function completeTraining(command: string) {
+  async function completeTraining(command: string) {
     if (trained.includes(command)) { setNotice("Tento povel už máš v této relaci procvičený."); return; }
+    if (user && supabase) {
+      const { data, error } = await supabase.rpc("complete_training_command", { p_command: command });
+      if (error) {
+        setNotice("Výcvik se nepodařilo uložit: " + error.message);
+        return;
+      }
+      const result = data as { status?: string; experience?: number; coins?: number };
+      setTrained(current => [...current, command]);
+      setCloudExperience(Number(result.experience ?? cloudExperience));
+      setCloudCoins(Number(result.coins ?? cloudCoins));
+      setNotice(result.status === "already_claimed"
+        ? "Povel „" + command + "“ už dnes odměnu přinesl. Postup je uložen v účtu."
+        : "Povel „" + command + "“ procvičen a uložen do cloudu. +20 XP a +5 mincí.");
+      return;
+    }
     setTrained(current => [...current, command]);
     setXp(value => value + 20);
     setCoins(value => value + 5);
-    setNotice("Povel „" + command + "“ procvičen. +20 XP a +5 mincí (jen pro tuto relaci).");
+    setNotice("Povel „" + command + "“ procvičen. +20 XP a +5 mincí pouze v této relaci. Přihlas se pro ukládání postupu.");
   }
 
   function claimMission(id: string, reward: number) {
@@ -268,9 +305,9 @@ export default function Home() {
         <button className="primary-cta" onClick={() => void saveDog()}><Save size={16}/> {user ? "Uložit psa do účtu" : "Vybrat psa"}</button>
       </article>
       <article className="feature-panel">
-        <div className="panel-heading"><GraduationCap/><div><h2>Psí škola</h2><p>Tréninkové akce s jednorázovou odměnou za povel v této relaci</p></div></div>
+        <div className="panel-heading"><GraduationCap/><div><h2>Psí škola</h2><p>Trénink povelů a odměny ukládané do účtu</p></div></div>
         <div className="command-grid">{["Sedni","Lehni","Zůstaň","Ke mně","K noze","Čekej","Přines","Pusť","Volno"].map(command => <button key={command} className={trained.includes(command) ? "command-button trained" : "command-button"} onClick={() => {setSection("school");setStarted(true);completeTraining(command);}}>{trained.includes(command) ? "✓ " : ""}{command}</button>)}</div>
-        <p className="feature-copy">Procvičeno: {trained.length}/9 · {xp} XP · {coins} mincí. Zatím jen v aktuální relaci, bez cloudového zápisu.</p>
+        <p className="feature-copy">Procvičeno: {trained.length}/9 · {user ? cloudExperience + " cloud XP · " + cloudCoins + " cloud mincí" : xp + " XP · " + coins + " mincí v relaci"}. {user ? "Odměna za každý povel je dostupná jednou denně." : "Přihlas se, aby se tréninkové odměny ukládaly."}</p>
       </article>
       <article className="feature-panel">
         <div className="panel-heading"><Target/><div><h2>Dog Puller</h2><p>Fyzický kruh v 3D scéně · mezerník nebo tlačítko</p></div></div>
