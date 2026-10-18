@@ -301,7 +301,7 @@ export default function Home() {
         <div className="panel-heading"><DogIcon/><div><h2>Tvůj psí parťák</h2><p>15 plemen v základu · katalog se bude rozšiřovat</p></div></div>
         <label className="field-label">Jméno psa</label><input value={dogName} onChange={e => setDogName(e.target.value)} maxLength={24} placeholder="Jméno psa"/>
         <label className="field-label">Plemeno</label><select value={breedId} onChange={e => {setBreedId(e.target.value);setDogSaved(false);}}>{BREEDS.map(breed => <option key={breed.id} value={breed.id}>{breed.name}</option>)}</select>
-        <p className="feature-copy">Barvy dostupné v katalogu: {activeBreed.coat.join(", ")}. V této verzi se mění herní profil; model psa zatím není anatomicky odlišný podle plemene.</p>
+        <p className="feature-copy">Barvy dostupné v katalogu: {activeBreed.coat.join(", ")}. Plemeno nyní mění barvu a základní proporce low-poly modelu; samostatné anatomicky věrné modely jednotlivých plemen jsou další etapa.</p>
         <button className="primary-cta" onClick={() => void saveDog()}><Save size={16}/> {user ? "Uložit psa do účtu" : "Vybrat psa"}</button>
       </article>
       <article className="feature-panel">
