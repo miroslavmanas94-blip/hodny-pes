@@ -1,8 +1,11 @@
-# Hodný pes: Psí svět
+# Hodný pes: Cesta
 
 Nově obnovovaný projekt české 3D webové hry o společném dobrodružství člověka a psa. Aktuální verze je **hratelný prototyp první lokace**, nikoli dokončená plná hra.
 
 ## Co je v aktuální verzi
+
+- Přepínání ovládání mezi psem a člověkem; druhá postava zůstává jako parťák.
+- Výběr tří prototypových oblastí: cvičiště, park a lesní stezka; každá má jiné prostředí a sběratelské předměty.
 
 - 3D cvičiště renderované pomocí Next.js, React Three Fiber a Three.js.
 - Procedurální nízkopolygonový model psa s pohybem, otočením a kamerou.
