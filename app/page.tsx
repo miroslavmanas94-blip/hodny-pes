@@ -24,7 +24,7 @@ export default function Home() {
   const [authConfigured, setAuthConfigured] = useState(false);
 
   useEffect(() => {
-    setAuthConfigured(Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
+    setAuthConfigured(Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)));
     try {
       const saved = localStorage.getItem("hodny-pes-profile");
       if (saved) setProfile(JSON.parse(saved) as LocalProfile);
@@ -49,7 +49,7 @@ export default function Home() {
     setBusy(true);
     try {
       const { createClient } = await import("@supabase/supabase-js");
-      const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+      const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)!);
       if (gate === "register") {
         const { data, error: authError } = await client.auth.signUp({ email: email.trim(), password, options: { data: { display_name: name.trim() || email.split("@")[0] } } });
         if (authError) throw authError;
