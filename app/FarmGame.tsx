@@ -88,11 +88,12 @@ export default function FarmGame() {
   const handlePlot = (plot: Plot) => {
     if (!plot.owned) { buyPlot(plot.id); return; }
     if (selectedBuild) {
+      const buildType = selectedBuild;
       if (buildings[plot.id]) { notify(t("Na tomto místě už něco stojí.", "This plot is already occupied.")); return; }
-      const item = BUILDINGS.find(b => b.type === selectedBuild);
+      const item = BUILDINGS.find(b => b.type === buildType);
       if (!item) return;
       if (coins < item.cost) { notify(t("Na tuto budovu zatím nemáš dost Hafíků.", "Not enough Pawcoins for this building yet.")); return; }
-      setCoins(v => v - item.cost); setBuildings(v => ({ ...v, [plot.id]: selectedBuild })); setSelectedBuild(null); award(0, 20); notify(t("Postavil/a jsi: ", "Built: ") + item.name);
+      setCoins(v => v - item.cost); setBuildings(v => ({ ...v, [plot.id]: buildType })); setSelectedBuild(null); award(0, 20); notify(t("Postavil/a jsi: ", "Built: ") + item.name);
       return;
     }
     const building = buildings[plot.id];
