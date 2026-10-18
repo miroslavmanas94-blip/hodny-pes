@@ -158,7 +158,6 @@ export default function FarmGame() {
   const unfinished = LOCATIONS.flatMap(loc => loc.objects).filter(obj => !save.completed.includes(obj.id));
   const nextObjective = unfinished[0] || currentObjects[0];
   const nextObjectiveLocation = nextObjective ? LOCATIONS.find(loc => loc.objects.some(obj => obj.id === nextObjective.id)) || location : location;
-  const ownedDogs = DOGS.filter(d => save.unlockedDogs.includes(d.id));
   const tForObject = (obj: MapObject) => ({ training: t("training"), puller: t("puller"), scent: t("scent"), care: t("care"), explore: t("exploreKind"), mission: t("missions") })[obj.kind];
 
   useEffect(() => {
@@ -240,11 +239,6 @@ export default function FarmGame() {
     if (unlocks.length) window.setTimeout(() => notify((save.language === "cs" ? "Odemčen nový pes: " : "New dog unlocked: ") + unlocks.map(d => d.name).join(", ")), 900);
   };
 
-  const restDog = () => {
-    updateSave({ dogStats: { ...save.dogStats, [activeDog.id]: { energy: Math.min(100, activeDogStats.energy + 35), bond: Math.min(100, activeDogStats.bond + 5), xp: activeDogStats.xp } } });
-    notify(save.language === "cs" ? "Paráda. Energie je doplněná, můžete pokračovat." : "Great. Energy restored — ready when you are.");
-  };
-
   const resetSave = () => {
     setSave(defaultSave);
     setLocationId("centre");
@@ -257,8 +251,8 @@ export default function FarmGame() {
   };
 
   const MapIcon = location.icon;
-  const totalDone = save.completed.length;
   const totalTasks = LOCATIONS.reduce((sum, loc) => sum + loc.objects.length, 0);
+  const totalDone = LOCATIONS.flatMap(loc => loc.objects).filter(obj => save.completed.includes(obj.id)).length;
 
   return (
     <main className="adventureApp">
