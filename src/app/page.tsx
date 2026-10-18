@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { PawPrint, Play, Trophy, GraduationCap, Map, Settings, Volume2, VolumeX, ChevronRight, CircleHelp, UserRound, Dog as DogIcon, CircleDollarSign, Target, LogOut, Save, RotateCcw } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { BREEDS, MISSIONS, scorePullerAttempt, type PullerMode } from "@/game/core/rules";
@@ -69,7 +69,7 @@ export default function Home() {
       if (data) { setDogName(data.name); setBreedId(data.breed_id); setDogSaved(true); }
     });
     return () => { cancelled = true; };
-  }, [supabase, user?.id]);
+  }, [supabase, user]);
 
   useEffect(() => {
     if (!supabase || !user) { setSettingsLoaded(false); return; }
@@ -94,21 +94,22 @@ export default function Home() {
     }).then(({ error }) => {
       if (error) setNotice("Nastavení se nepodařilo uložit do cloudu: " + error.message);
     });
-  }, [supabase, user?.id, settingsLoaded, camera, quality, muted]);
+  }, [supabase, user, settingsLoaded, camera, quality, muted]);
 
-  async function refreshShop() {
-    if (!supabase || !user) { setShopItems([]); setOwnedItems([]); setWalletCoins(null); return; }
+  const userId = user?.id;
+  const refreshShop = useCallback(async () => {
+    if (!supabase || !userId) { setShopItems([]); setOwnedItems([]); setWalletCoins(null); return; }
     const [catalog, wallet, inventory] = await Promise.all([
       supabase.from("inventory_items").select("id,name,description,category,price").eq("active", true).order("price"),
-      supabase.from("wallets").select("coins").eq("user_id", user.id).maybeSingle(),
-      supabase.from("player_inventory").select("item_id").eq("user_id", user.id)
+      supabase.from("wallets").select("coins").eq("user_id", userId).maybeSingle(),
+      supabase.from("player_inventory").select("item_id").eq("user_id", userId)
     ]);
     if (catalog.error) { setShopMessage("Katalog se nepodařilo načíst: " + catalog.error.message); return; }
     setShopItems((catalog.data ?? []) as ShopItem[]);
     setWalletCoins(wallet.data ? Number(wallet.data.coins) : 0);
     setOwnedItems((inventory.data ?? []).map(row => row.item_id));
     if (wallet.error) setShopMessage("Peněženku se nepodařilo načíst: " + wallet.error.message);
-  }
+  }, [supabase, userId]);
 
   async function buyItem(item: ShopItem) {
     if (!supabase || !user) { setShopMessage("Pro nákup se přihlas."); return; }
@@ -128,7 +129,7 @@ export default function Home() {
     } finally { setShopBusyItem(null); }
   }
 
-  useEffect(() => { void refreshShop(); }, [supabase, user?.id]);
+  useEffect(() => { void refreshShop(); }, [refreshShop]);
 
   useEffect(() => {
     const caught = (event: Event) => {
