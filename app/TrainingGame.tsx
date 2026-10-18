@@ -38,7 +38,7 @@ const quizQuestions=[
 const routes=[[0,1,2],[2,0,1],[0,0,3]];
 const directions=[{label:"Severozápad",dx:-1,dy:0},{label:"Severovýchod",dx:0,dy:-1},{label:"Jihozápad",dx:0,dy:1},{label:"Jihovýchod",dx:1,dy:0}];
 const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n));
-const iso=(x:number,y:number)=>({x:500+(x-y)*5.2,y:80+(x+y)*2.35});
+const iso=(x:number,y:number)=>({x:90+x*8.2,y:60+y*5.2});
 
 function Tree({x,y,tone=0}:{x:number;y:number;tone?:number}) {
  const p=iso(x,y); const colors=["#2f6344","#3e7750","#527f4d"];
@@ -56,13 +56,13 @@ function WorldMap({place,player,dog,onMove,onTask,activeTask}:{place:Place;playe
  const currentTasks=tasks.filter(t=>t.place.includes(place));
  const [minimap,setMinimap]=useState(true);
  return <div className={"hpWorld hpTerrain-"+current.terrain}>
-  <svg className="hpWorldSvg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid slice" role="img" aria-label={"Izometrická herní lokace: "+current.name} onClick={e=>{const r=e.currentTarget.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*1000,py=(e.clientY-r.top)/r.height*620;const x=(px-500)/10.4+(py-80)/4.7;const y=(py-80)/4.7-(px-500)/10.4;onMove({x:clamp(x,6,94),y:clamp(y,5,92)});}}>
+  <svg className="hpWorldSvg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid slice" role="img" aria-label={"Izometrická herní lokace: "+current.name} onClick={e=>{const r=e.currentTarget.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*1000,py=(e.clientY-r.top)/r.height*620;const x=(px-90)/8.2;const y=(py-60)/5.2;onMove({x:clamp(x,6,94),y:clamp(y,5,92)});}}>
    <defs><linearGradient id="hpGround" x1="0" y1="0" x2="1" y2="1"><stop stopColor={arena?"#ded5bd":forest?"#b8d0a1":"#cfe0b7"}/><stop offset="1" stopColor={arena?"#b9aa8b":forest?"#72966c":"#91b57e"}/></linearGradient><pattern id="hpGrass" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M5 22 l3 -5 m8 14 l2 -4 m12 -17 l2 -4" stroke="#ffffff" strokeOpacity=".13" strokeWidth="2"/></pattern></defs>
-   <path d="M500 24 L945 244 L500 594 L55 244 Z" fill="url(#hpGround)" stroke="#e9efd9" strokeWidth="3"/>
-   <path d="M500 24 L945 244 L500 594 L55 244 Z" fill="url(#hpGrass)"/>
-   <path d="M500 85 L812 244 L500 500 L188 244 Z" fill="none" stroke="#eff0d8" strokeOpacity=".25" strokeWidth="2" strokeDasharray="5 12"/>
-   <path d="M150 300 L500 130 L850 300" fill="none" stroke={arena?"#f7edda":"#ead9b4"} strokeWidth="48" strokeLinecap="round" opacity=".9"/>
-   <path d="M500 130 L500 390" fill="none" stroke={arena?"#f7edda":"#ead9b4"} strokeWidth="42" strokeLinecap="round" opacity=".9"/>
+   <rect x="0" y="0" width="1000" height="620" fill="url(#hpGround)"/>
+   <rect x="0" y="0" width="1000" height="620" fill="url(#hpGrass)"/>
+   <path d="M0 0 H1000 V620 H0Z" fill="none" stroke="#eff0d8" strokeOpacity=".25" strokeWidth="2"/>
+   <path d="M-30 410 C170 340 270 330 440 360 S760 410 1030 260" fill="none" stroke={arena?"#f7edda":"#ead9b4"} strokeWidth="54" strokeLinecap="round" opacity=".96"/>
+   <path d="M490 -20 C460 120 560 210 540 320 S450 500 470 650" fill="none" stroke={arena?"#f7edda":"#ead9b4"} strokeWidth="42" strokeLinecap="round" opacity=".94"/>
    {arena&&<g><path d="M350 215 L650 215 L715 320 L500 430 L285 320 Z" fill="#d2c4a5" stroke="#f9f1dc" strokeWidth="7"/>{[0,1,2,3].map(i=><g key={i} transform={"translate("+(375+i*82)+" 250)"}><rect width="43" height="14" rx="5" fill="#f7f1e2" stroke="#8d9b76" strokeWidth="3"/><path d="M5 14 L2 36 M38 14 L41 36" stroke="#6b805b" strokeWidth="4"/></g>)}</g>}
    {!arena&&<g><path d="M360 145 L500 75 L640 145 L500 215 Z" fill="#d7b987" stroke="#f8ecd0" strokeWidth="5"/><path d="M360 145 L360 210 L500 282 L500 215 Z" fill="#e9d8b8" stroke="#f8ecd0" strokeWidth="3"/><path d="M500 215 L640 145 L640 210 L500 282 Z" fill="#c7a875" stroke="#f8ecd0" strokeWidth="3"/><path d="M345 143 L500 64 L655 143 L500 222 Z" fill="#3d6c48" stroke="#f8ecd0" strokeWidth="5"/><path d="M420 150 L500 108 L580 150 L500 192 Z" fill="#e4e9d6" stroke="#f8ecd0" strokeWidth="3"/><rect x="478" y="178" width="44" height="75" rx="2" fill="#a67b4b" stroke="#f8ecd0" strokeWidth="3"/><circle cx="512" cy="217" r="3" fill="#f7e6ad"/></g>}
    {trees.filter(t=>forest||t.x<22||t.x>78||t.y<16||t.y>78).map((t,i)=><Tree key={i} x={t.x} y={t.y} tone={t.tone}/>)}
