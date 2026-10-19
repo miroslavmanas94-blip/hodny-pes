@@ -105,3 +105,107 @@ html,body{background:#dce8cf;color:var(--ink)}
 @media(max-width:900px){.hpTop.hpTopOverlay{top:8px;left:8px;right:8px;min-height:64px;padding:7px 9px;border-radius:18px;gap:8px}.hpNavToggle{width:40px;height:40px;flex-basis:40px}.hpLogo{width:39px;height:39px}.hpBrand{gap:7px}.hpBrand b{font-size:15px}.hpBrand small{font-size:7px}.hpProfileChip{padding:4px 8px 4px 4px;gap:6px}.hpProfileAvatar{width:34px;height:34px;flex-basis:34px}.hpProfileChip b{font-size:10px}.hpProfileChip small{max-width:125px;overflow:hidden;text-overflow:ellipsis;font-size:9px}.hpCurrencies{gap:4px}.hpCurrencies>span{padding:8px 9px;font-size:11px}.hpPauseButton{width:35px;height:35px}.hpWorldLabel{top:86px;left:10px;padding:9px 11px}.hpMapControls{top:87px;right:10px}.hpMinimap{top:139px;right:10px;width:140px}.hpWorldQuest{left:10px;bottom:10px;width:230px;padding:13px}.hpWorldControls.hpWorldControlsOverlay{bottom:12px;left:auto;right:50%;transform:translateX(50%)}.hpMoveHint{display:none}.hpWorldBottomHud{right:10px;bottom:10px;gap:6px;padding:7px}.hpBottomMeter{min-width:72px}.hpBottomMeter>span,.hpBottomMeter>b{font-size:9px}.hpWorldCaption{left:10px;bottom:116px;font-size:9px}}
 @media(max-width:560px){.hpTop.hpTopOverlay{gap:6px}.hpBrand small{display:none}.hpBrand b{font-size:13px}.hpLogo{width:35px;height:35px}.hpProfileChip{margin-left:auto;max-width:130px}.hpProfileChip .hpProfileAvatar{display:none}.hpProfileChip small{max-width:80px}.hpCurrencies>span{padding:7px;font-size:10px}.hpCurrencies>span svg{width:13px}.hpPauseButton{display:none}.hpWorldSection.hpWorldStage{min-height:570px}.hpWorldLabel{top:82px;max-width:calc(100% - 20px)}.hpMapControls{top:auto;bottom:170px;right:10px;padding:4px}.hpMapControls button{padding:6px;font-size:9px}.hpCoords,.hpMapDivider{display:none}.hpMinimap{top:auto;right:10px;bottom:215px;width:112px;padding:5px;border-width:2px}.hpMinimap>div{font-size:7px;gap:3px}.hpWorldQuest{left:10px;right:10px;bottom:10px;width:auto;max-width:calc(100% - 20px);padding:11px 12px;gap:4px;border-radius:17px}.hpWorldQuest>b{font-size:13px}.hpWorldQuest>span:not(.hpQuestEyebrow){font-size:10px}.hpWorldQuest button{padding:9px;font-size:10px}.hpWorldControls.hpWorldControlsOverlay{left:auto;right:10px;bottom:122px;transform:none}.hpDpad{grid-template-columns:repeat(3,31px);grid-template-rows:repeat(2,29px);padding:5px;gap:3px;border-radius:14px}.hpDpad button{font-size:15px;border-radius:8px}.hpWorldBottomHud{left:10px;right:auto;bottom:125px;display:flex;flex-direction:column;align-items:stretch;width:116px;padding:8px;border-radius:15px;gap:7px}.hpBottomMeter{min-width:0}.hpWorldBottomHud>button{justify-content:center;padding:7px;font-size:9px}.hpWorldCaption{display:none}.hpWorldSvg .hpStation rect{width:94px;x:-47}.hpWorldSvg .hpStation text:last-child{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* EXTREME REDESIGN · Hodný pes: Psí dobrodružství */
+:root{
+ --forest:#244a35;--forest2:#356b48;--leaf:#8ab66d;--cream:#fbf7ed;--paper:#fffdf7;
+ --ink:#243b2d;--muted:#758575;--line:#e0e7d8;--gold:#f0c66f;--shadow:0 18px 55px rgba(34,66,43,.16);
+}
+body{background:#dce8d2}
+.hpGame.hpFullScreenGame{min-height:100svh;background:#dce8d2;color:var(--ink)}
+.hpTop.hpTopOverlay{top:12px;left:12px;right:12px;min-height:72px;padding:10px 14px;gap:12px;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,253,246,.94);box-shadow:0 10px 32px rgba(37,67,43,.13);backdrop-filter:blur(18px)}
+.hpNavToggle{width:44px;height:44px;flex-basis:44px;border-radius:14px;background:var(--forest);box-shadow:none;transition:transform .18s,background .18s}
+.hpNavToggle:hover{background:#3b754d;transform:translateY(-2px)}
+.hpBrand{gap:10px}.hpLogo{width:43px;height:43px;border-radius:14px;background:#e6efdc;color:var(--forest2);box-shadow:none}
+.hpBrand b{font-size:17px;color:var(--forest);letter-spacing:-.7px}.hpBrand small{font-size:8px;letter-spacing:1.7px;color:#7b9076}
+.hpProfileChip{border:1px solid #e3e8db;background:#fff;border-radius:15px;padding:5px 11px 5px 5px}
+.hpProfileAvatar{border-radius:12px}.hpProfileChip b{color:#2d4b36;font-size:11px}.hpProfileChip small{font-size:9px}
+.hpCurrencies>span{border:1px solid #f0dfb6;background:#fff2ce;color:#896322;border-radius:12px;padding:10px 12px;box-shadow:0 3px 0 rgba(171,127,41,.08)}
+.hpCurrencies>span:nth-child(2){border-color:#dce8d5;background:#edf4e6;color:#3e6d48}
+.hpPauseButton,.hpKennelButton{height:40px;width:40px;border:1px solid #e0e7d8;border-radius:12px;background:#fff;color:var(--forest);display:grid;place-items:center}
+.hpKennelButton{width:auto;display:flex;gap:7px;padding:0 12px;font-size:10px;font-weight:900;white-space:nowrap}
+.hpPauseButton:hover,.hpKennelButton:hover{background:#edf4e7;transform:translateY(-1px)}
+.hpWorldSection.hpWorldStage{background:linear-gradient(180deg,#b9dbe9 0%,#d6e9d0 40%,#a9cb8c 100%);min-height:650px}
+.hpWorld{background:linear-gradient(180deg,#b8d9e9 0%,#d8e9d0 42%,#a4c783 100%)}
+.hpThreeCanvas{filter:saturate(1.08) contrast(1.02)}
+.hpWorldLabel{top:104px;left:20px;border:1px solid #fff;border-radius:16px;padding:11px 14px;background:rgba(255,253,245,.94);box-shadow:0 8px 25px rgba(34,65,39,.12)}
+.hpWorldLabel b{font-size:12px;letter-spacing:-.2px}.hpWorldLabel small{font-size:10px}
+.hpMapControls{top:104px;right:20px;border:1px solid #fff;border-radius:14px;box-shadow:0 8px 25px rgba(34,65,39,.1)}
+.hpMinimap{border:2px solid #fff;border-radius:17px;box-shadow:0 10px 30px rgba(34,65,39,.14)}
+.hpWorldQuest{left:20px;bottom:20px;width:310px;gap:9px;padding:19px;border:1px solid #fff;border-radius:22px;background:rgba(255,253,246,.96);box-shadow:0 12px 35px rgba(34,65,39,.15)}
+.hpQuestEyebrow{color:#81936e;font-size:9px;letter-spacing:1.7px}
+.hpWorldQuest>b{font-size:16px;letter-spacing:-.3px;color:#274b35}.hpWorldQuest>span:not(.hpQuestEyebrow){font-size:11px}
+.hpWorldQuest button{margin-top:4px;border-radius:12px;background:#2e6240;padding:12px 14px;font-size:11px;box-shadow:0 4px 0 #214a30}
+.hpWorldQuest button:hover{background:#3c7a4f;transform:translateY(-1px)}
+.hpWorldControls.hpWorldControlsOverlay{bottom:23px;gap:10px}
+.hpDpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(2,36px);gap:4px;padding:8px;border:1px solid #fff;border-radius:19px;background:rgba(255,253,246,.94);box-shadow:0 10px 28px rgba(34,65,39,.12)}
+.hpDpad button{background:#e9f1df;border:1px solid #dbe7d0;color:#315f3e;border-radius:11px;font-size:18px}
+.hpDpad button:hover{background:#d7e8ca;transform:scale(1.04)}
+.hpMoveHint{border:1px solid #fff;border-radius:14px;background:rgba(255,253,246,.91);padding:10px 12px;box-shadow:0 8px 20px rgba(34,65,39,.08)}
+.hpWorldBottomHud{right:20px;bottom:20px;border:1px solid #fff;border-radius:18px;padding:11px;background:rgba(255,253,246,.96);box-shadow:0 10px 30px rgba(34,65,39,.12)}
+.hpBottomMeter{min-width:88px}.hpBottomMeter>span{font-size:10px}.hpBottomMeter>i{height:7px;background:#e6eadf}.hpBottomMeter>i>u{background:linear-gradient(90deg,#6a9d5b,#a2c67c)}
+.hpWorldBottomHud>button{border-radius:11px;background:#e9f1df;padding:10px;color:#315f3e}
+.hpWorldCaption{bottom:105px;border-radius:12px;box-shadow:0 5px 16px rgba(34,65,39,.08)}
+.hpDrawerScrim{background:rgba(23,44,29,.38);backdrop-filter:blur(5px)}
+.hpNavDrawer{background:#fbf8ee;border-right:1px solid #fff;box-shadow:18px 0 60px rgba(23,44,29,.2)}
+.hpDrawerHeader{background:#eaf2df}.hpDrawerMark{border-radius:12px;background:#2f6741}
+.hpDrawerItem,.hpDrawerAction{padding:11px;border-radius:13px}.hpDrawerItem.active{background:#e8f1de;border-color:#d2e4c7}
+.hpDrawerPromotion{background:linear-gradient(145deg,#eaf3df,#fff8e9);border-color:#dce7d1}
+.hpNotice{border:1px solid rgba(255,255,255,.25);border-radius:14px;background:#244a35;box-shadow:0 12px 36px rgba(26,57,34,.25);font-size:12px}
+.hpModalBackdrop{background:rgba(21,42,28,.58);backdrop-filter:blur(10px)}
+.hpStoryModal,.hpGameModal,.hpStatsModal,.hpPauseModal{border:1px solid #fff;border-radius:25px;background:#fffaf0;box-shadow:0 20px 70px rgba(19,43,27,.25)}
+.hpGameModal>header,.hpStatsModal>header{padding:23px 25px}
+.hpGameModal header h2,.hpStatsModal header h2{font-size:25px}
+.hpMiniContent{padding:23px 25px 26px}
+.hpChoiceGrid button,.hpQuizAnswers button,.hpScentChoices button{border-radius:13px;padding:14px;border-color:#e0e7d8;background:#fffefa;transition:transform .16s,border-color .16s,background .16s}
+.hpChoiceGrid button:hover,.hpQuizAnswers button:hover,.hpScentChoices button:hover{transform:translateY(-2px);border-color:#8caf79;background:#f0f6e9}
+.hpPrimary,.hpWorldQuest button{background:#2e6240;box-shadow:0 4px 0 #214a30}
+.hpPrimary:hover{background:#3c7a4f;transform:translateY(-1px)}
+.hpSecondary{border-color:#dfe7d7;background:#fffefa;border-radius:12px}
+.hpFeedback{border:1px solid #dce9d2;border-radius:12px;background:#edf5e7;padding:12px 14px}
+.hpResultIcon{border-radius:20px;background:#e6f0dc;color:#3c7448}
+.hpStatsSummary article{border:1px solid #e1e8d9;border-radius:13px;background:#fffefa}
+.hpCareerBanner{border:1px solid #dce7d2;border-radius:15px;background:#edf4e5}
+.hpSkillRow{padding:11px 0}
+.hpPhotoMode{background:linear-gradient(135deg,#e6f0dc,#d4e7c7);color:#244a35}
+.hpPhotoMode>div{border:1px solid #fff;border-radius:25px;background:rgba(255,253,246,.95);box-shadow:0 18px 55px rgba(34,66,43,.16);padding:30px}
+.hpPhotoMode>div>button{border:1px solid #e0e7d8;border-radius:12px;background:#fffefa}
+.hpKennelModal{width:min(720px,100%);max-height:90svh;overflow:auto;padding:0;background:#fffaf0;border:1px solid #fff;border-radius:25px;box-shadow:0 20px 70px rgba(19,43,27,.25)}
+.hpKennelHeader{display:flex;align-items:center;gap:13px;padding:23px 25px;border-bottom:1px solid #e7e9dc}
+.hpKennelHeader>span:first-child{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#e7f0dd;color:#2f6741}
+.hpKennelHeader>div{flex:1}.hpKennelHeader small{display:block;color:#829578;font-size:9px;letter-spacing:1.6px;font-weight:900}.hpKennelHeader h2{margin:4px 0 0;color:#244a35;font:900 23px Manrope,Arial,sans-serif;letter-spacing:-.7px}
+.hpKennelHeader>button{width:36px;height:36px;border:1px solid #e0e7d8;border-radius:11px;background:#fff;color:#315f3e}
+.hpKennelGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:20px}
+.hpDogCard{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:16px;border:1px solid #e0e7d8;border-radius:17px;background:#fffefa;text-align:left;color:#2e4d36}
+.hpDogCard.selected{border-color:#74a16a;background:#edf5e7;box-shadow:inset 0 0 0 1px #74a16a}
+.hpDogArt{display:grid;place-items:center;width:100%;height:88px;margin-bottom:12px;border-radius:13px;background:linear-gradient(145deg,#e7f1df,#d2e6c5);font-size:44px}
+.hpDogCard b{font-size:13px;font-weight:900}.hpDogCard small{min-height:30px;margin-top:5px;color:#7b8b77;font-size:10px;line-height:1.5}
+.hpDogCard em{margin-top:12px;font-size:10px;font-style:normal;font-weight:900;color:#4c7b4e}
+.hpDogCard:disabled{opacity:.72;cursor:default}
+.hpKennelFooter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 20px 20px;color:#778674;font-size:10px}
+.hpKennelFooter b{color:#7d6027}
+@media(max-width:900px){
+ .hpTop.hpTopOverlay{left:8px;right:8px;top:8px;min-height:62px;padding:7px 9px;gap:7px}
+ .hpProfileChip{margin-left:auto}.hpKennelButton{height:35px;padding:0 8px;font-size:0;gap:0}.hpKennelButton svg{width:17px;height:17px}
+ .hpWorldQuest{left:12px;bottom:12px;width:260px;padding:15px}
+ .hpWorldControls.hpWorldControlsOverlay{bottom:14px}
+ .hpWorldBottomHud{right:12px;bottom:12px}
+}
+@media(max-width:560px){
+ .hpTop.hpTopOverlay{gap:5px}.hpBrand b{font-size:12px}.hpBrand small{display:none}
+ .hpProfileChip{max-width:112px;padding:4px 7px}.hpProfileChip .hpProfileAvatar{display:none}.hpProfileChip b{font-size:9px}.hpProfileChip small{max-width:75px;font-size:8px}
+ .hpCurrencies{gap:3px}.hpCurrencies>span{padding:7px;font-size:9px}.hpCurrencies>span svg{width:12px}
+ .hpKennelButton{width:32px;height:32px;padding:0;flex:0 0 32px}.hpPauseButton{display:none}
+ .hpWorldSection.hpWorldStage{min-height:590px}
+ .hpWorldQuest{left:9px;right:9px;bottom:9px;width:auto;max-width:calc(100% - 18px);padding:11px 12px;gap:5px}
+ .hpWorldControls.hpWorldControlsOverlay{left:auto;right:9px;bottom:128px;transform:none}
+ .hpWorldBottomHud{left:9px;right:auto;bottom:127px;width:112px;display:flex;flex-direction:column;align-items:stretch;padding:8px;gap:7px}
+ .hpBottomMeter{min-width:0}.hpBottomMeter>span,.hpBottomMeter>b{font-size:9px}
+ .hpWorldCaption{display:none}.hpMapControls{bottom:168px}.hpMinimap{bottom:212px}
+ .hpKennelGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:13px}
+ .hpDogCard{padding:11px}.hpDogArt{height:66px;font-size:35px}
+ .hpKennelHeader{padding:17px}.hpKennelHeader h2{font-size:20px}.hpKennelFooter{padding:0 13px 15px;align-items:flex-start;flex-direction:column}
+ .hpMiniContent{padding:18px}.hpGameModal>header,.hpStatsModal>header{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){.hpGame *, .hpGame *::before,.hpGame *::after{transition:none!important;animation:none!important}}
