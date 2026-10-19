@@ -1,7 +1,34 @@
-"use client";
+import Link from "next/link";
+import { ArrowRight, PawPrint, Heart, Map as MapIcon, Trophy, Sparkles, ShieldCheck, Leaf, BookOpen, Camera } from "lucide-react";
+import "./landing.css";
 
-import TrainingGame from "./TrainingGame";
-
+const features = [
+ { icon: MapIcon, title: "Objevuj psí svět", text: "Výcvikové centrum, park, lesní stezky i místa, která si postupně odemkneš." },
+ { icon: Heart, title: "Buduj důvěru", text: "Uč se v krátkých hravých aktivitách a posiluj vztah se svým psím parťákem." },
+ { icon: Trophy, title: "Plň mise a výzvy", text: "Získávej zkušenosti, odznaky a vybavení. Další obsah se otevírá postupně." },
+];
+const activities = [
+ { emoji: "🎯", title: "Škola povelů", text: "Poslušnost a soustředění" },
+ { emoji: "👃", title: "Pachová stopa", text: "Procvič nos a pozornost" },
+ { emoji: "🟣", title: "Dog Puller", text: "Hravá práce s hračkou" },
+ { emoji: "🧠", title: "Kvíz trenéra", text: "Poznej psí řeč a potřeby" },
+];
 export default function Home() {
-  return <TrainingGame />;
+ return <main className="landing">
+  <header className="landing-nav">
+   <a className="brand" href="#top" aria-label="Hodný pes – úvod"><span className="brand-mark"><PawPrint size={25}/></span><span><b>HODNÝ PES</b><small>PSÍ DOBRODRUŽSTVÍ</small></span></a>
+   <nav><a href="#o-hre">O hře</a><a href="#aktivity">Aktivity</a><a href="#hodny-pes">O Hodném psovi</a></nav>
+   <Link className="nav-login" href="/prihlaseni">Přihlásit se <ArrowRight size={16}/></Link>
+  </header>
+  <section className="hero" id="top">
+   <div className="hero-copy"><span className="eyebrow"><Sparkles size={15}/> HRAVÝ SVĚT PRO PSÍ TÝMY</span><h1>Každý den nové<br/><em>psí dobrodružství.</em></h1><p>Vydej se do barevného světa inspirovaného skutečným výcvikem. Objevuj lokace, plň mise a uč se rozumět svému psímu parťákovi — krok za krokem.</p><div className="hero-actions"><Link className="button-main" href="/prihlaseni">Vstoupit do hry <ArrowRight size={18}/></Link><a className="button-quiet" href="#o-hre">Jak to funguje <span>↓</span></a></div><div className="hero-note"><ShieldCheck size={17}/> Přehledný svět a postup po malých krocích.</div></div>
+   <div className="hero-art" aria-label="Ilustrační náhled psího herního světa"><div className="sun"></div><div className="cloud cloud-one"></div><div className="cloud cloud-two"></div><div className="hill hill-back"></div><div className="hill hill-front"></div><div className="path"></div><div className="pond"></div><div className="tree tree-one"><i/><b/></div><div className="tree tree-two"><i/><b/></div><div className="tree tree-three"><i/><b/></div><div className="house"><div className="roof"></div><div className="door"></div><div className="window"></div><div className="sign">VÝCVIK</div></div><div className="dog-hero"><span className="dog-ear"></span><span className="dog-face">•‿•</span><span className="dog-body"></span><span className="dog-tail"></span><span className="dog-leg leg-a"></span><span className="dog-leg leg-b"></span></div><div className="human-hero"><i></i><b></b><span></span></div><div className="float-card card-level"><span>⭐</span><div><b>Nová úroveň!</b><small>Čeká tě další výzva</small></div></div><div className="float-card card-bone"><span>🦴</span><div><b>+25 tlapkových bodů</b><small>Za skvěle splněnou misi</small></div></div><div className="art-caption"><span className="live-dot"></span> NÁHLED SVĚTA · ILUSTRACE</div></div>
+  </section>
+  <section className="feature-strip" id="o-hre">{features.map(f=><article key={f.title}><span className="feature-icon"><f.icon size={22}/></span><div><h3>{f.title}</h3><p>{f.text}</p></div></article>)}</section>
+  <section className="section activities-section" id="aktivity"><div className="section-heading"><div><span className="eyebrow">CO TĚ ČEKÁ</span><h2>Malé úkoly. Velké pokroky.</h2></div><p>Začni jednoduše a postupně objevuj další části hry. Vždy uvidíš, co můžeš dělat právě teď.</p></div><div className="activity-grid">{activities.map((a,i)=><article className="activity-card" key={a.title}><div className={"activity-art art-"+i}><span>{a.emoji}</span><i/><b/></div><div className="activity-copy"><h3>{a.title}</h3><p>{a.text}</p></div><span className="activity-number">0{i+1}</span></article>)}</div></section>
+  <section className="gallery-section"><div className="section-heading"><div><span className="eyebrow">PODÍVEJ SE BLÍŽ</span><h2>Skutečný svět i ten herní.</h2></div><p>Ukázky jsou přehledně rozdělené. Ilustrace níže nejsou vydávány za skutečné fotografie ani screenshoty z produkční hry.</p></div><div className="gallery-grid"><a className="gallery-card real-photo" href="https://www.hodnypes.cz/" target="_blank" rel="noreferrer"><div className="photo-placeholder"><span>🐕‍🦺</span><b>Skutečný Hodný pes</b><small>Výcvik a společné učení</small></div><div className="gallery-label"><span>WEB SKUTEČNÉHO CENTRA</span><ArrowRight size={17}/></div></a><Link className="gallery-card game-shot" href="/hra"><div className="game-shot-art"><div className="shot-sky"></div><div className="shot-hill"></div><div className="shot-building"></div><div className="shot-tree t1"></div><div className="shot-tree t2"></div><div className="shot-dog">🐕</div><div className="shot-hud"><span>ÚROVEŇ 1</span><span>🐾 100</span></div></div><div className="gallery-label"><span>UKÁZKA HERNÍHO SVĚTA · ILUSTRACE</span><ArrowRight size={17}/></div></Link><Link className="gallery-card game-shot second-shot" href="/hra"><div className="game-shot-art"><div className="shot-sky"></div><div className="shot-hill"></div><div className="shot-building training"></div><div className="shot-tree t1"></div><div className="shot-dog">🐕‍🦺</div><div className="shot-hud"><span>MISE: PŘIVOLÁNÍ</span><span>⭐ 0/3</span></div></div><div className="gallery-label"><span>HERNÍ MISE · ILUSTRACE</span><ArrowRight size={17}/></div></Link></div><p className="gallery-disclaimer"><Camera size={15}/> Skutečné fotografie a herní screenshoty doplníme z ověřených podkladů.</p></section>
+  <section className="about-section" id="hodny-pes"><div className="about-badge"><PawPrint size={29}/><span>HODNÝ PES</span></div><div className="about-copy"><span className="eyebrow">INSPIROVÁNO SKUTEČNÝM CENTREM</span><h2>Učení s respektem.<br/><em>Radost ze společného času.</em></h2><p>Hodný pes je tréninkové centrum, které se zaměřuje na pozitivní metody výcviku a individuální přístup ke psům i jejich lidem. Hra na tyto principy navazuje hravou formou — nenahrazuje skutečný výcvik ani radu trenéra.</p><a className="text-link" href="https://www.hodnypes.cz/" target="_blank" rel="noreferrer">Poznat skutečný Hodný pes <ArrowRight size={16}/></a></div><div className="about-points"><div><BookOpen/><span><b>Učení bez nátlaku</b><small>Krátké, srozumitelné aktivity</small></span></div><div><Leaf/><span><b>Postup vlastním tempem</b><small>Nové věci se otevírají postupně</small></span></div><div><Heart/><span><b>Vztah na prvním místě</b><small>Respekt k potřebám psa</small></span></div></div></section>
+  <section className="final-cta"><div><span className="eyebrow">TVŮJ PŘÍBĚH ZAČÍNÁ TADY</span><h2>Připravený vyrazit na první misi?</h2><p>Přihlas se a pokračuj ve svém dobrodružství.</p></div><Link className="button-main" href="/prihlaseni">Začít dobrodružství <ArrowRight size={18}/></Link></section>
+  <footer className="landing-footer"><a className="brand" href="#top"><span className="brand-mark"><PawPrint size={21}/></span><span><b>HODNÝ PES</b><small>PSÍ DOBRODRUŽSTVÍ</small></span></a><span>Hra inspirovaná pozitivním přístupem ke psům.</span><a href="https://www.hodnypes.cz/" target="_blank" rel="noreferrer">hodnypes.cz ↗</a></footer>
+ </main>;
 }
