@@ -1,0 +1,47 @@
+"use client";
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
+type Point={x:number;y:number};
+type Place="centrum"|"mesto"|"priroda"|"hala"|"domov";
+export default function ThreeWorld({place,player,dog}:{place:Place;player:Point;dog:Point}){
+ const canvas=useRef<HTMLCanvasElement>(null);
+ const actors=useRef<{person:THREE.Group|null;dog:THREE.Group|null}>({person:null,dog:null});
+ const draw=useRef<(()=>void)|null>(null);
+ useEffect(()=>{
+  if(!canvas.current)return;
+  const el=canvas.current,scene=new THREE.Scene();scene.background=new THREE.Color("#c9e2ef");scene.fog=new THREE.Fog("#c9e2ef",78,145);
+  const camera=new THREE.OrthographicCamera(-49,49,30.4,-30.4,.1,220);camera.position.set(32,42,34);camera.lookAt(0,0,0);
+  const renderer=new THREE.WebGLRenderer({canvas:el,antialias:true,alpha:false,powerPreference:"low-power"});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<700?1.15:1.5));renderer.shadowMap.enabled=window.innerWidth>700;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+  scene.add(new THREE.HemisphereLight("#fff7e5","#73885c",2.3));
+  const sun=new THREE.DirectionalLight("#fff0d0",3);sun.position.set(-25,45,-18);sun.castShadow=window.innerWidth>700;sun.shadow.mapSize.set(768,768);scene.add(sun);
+  const material=(c:string,r=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
+  const add=(geo:THREE.BufferGeometry,mat:THREE.Material,x:number,y:number,z:number,parent:THREE.Object3D=scene)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
+  const floor=add(new THREE.PlaneGeometry(88,70),material(place==="priroda"?"#83b776":place==="hala"?"#b7ad91":"#9bc77e"),0,-.12,0);floor.rotation.x=-Math.PI/2;
+  const pathPts=place==="hala"?[[-37,0,15],[-18,0,8],[0,0,2],[20,0,-10],[38,0,-18]]:[[-39,0,15],[-25,0,9],[-12,0,5],[3,0,7],[19,0,-5],[37,0,-18]];
+  const curve=new THREE.CatmullRomCurve3(pathPts.map(([x,y,z])=>new THREE.Vector3(x,y,z)));
+  add(new THREE.TubeGeometry(curve,72,2.8,8,false),material("#c9b894"),0,-.02,0).castShadow=false;
+  add(new THREE.TubeGeometry(curve,72,2.35,8,false),material("#e9d8b2"),0,.025,0).castShadow=false;
+  for(let i=0;i<44;i++){const x=((i*23)%77)-38,z=((i*31)%58)-29;if(Math.abs(z-(10-x*.48))<4)continue;const p=add(new THREE.DodecahedronGeometry(.4,0),material(i%2?"#d4d0b9":"#b6c69f"),x,.02,z);p.scale.set(.7,.24,.48);p.castShadow=false;}
+  const tree=(x:number,z:number,s=1,i=0)=>{const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);scene.add(g);add(new THREE.CylinderGeometry(.38,.52,2.5,7),material("#886143"),0,1.1,0,g);if(i%2===0){add(new THREE.ConeGeometry(2.1,3.8,7),material("#58884d"),0,3.6,0,g);add(new THREE.ConeGeometry(1.6,3.2,7),material("#7ca85e"),0,5.0,0,g);}else{add(new THREE.IcosahedronGeometry(2,1),material("#659753"),-.6,3.8,0,g);add(new THREE.IcosahedronGeometry(1.8,1),material("#80aa65"),.7,4.3,-.2,g);add(new THREE.IcosahedronGeometry(1.55,1),material("#568749"),0,5.2,.25,g);}add(new THREE.CylinderGeometry(1.8,1.8,.05,9),material("#83b46c"),0,.03,0,g).castShadow=false;};
+  const trees:[number,number,number,number][]=[[-37,-24,1.1,0],[-30,-29,.9,1],[-21,-27,1,0],[-9,-29,.8,1],[4,-29,1,0],[18,-28,.9,1],[30,-26,1.1,0],[39,-18,.9,1],[-39,-8,.85,1],[-38,4,1,0],[-35,25,1.15,1],[-23,29,.95,0],[-12,27,1.1,1],[4,29,.9,0],[20,27,1.1,1],[34,25,1.1,0],[40,12,.85,1],[39,0,1,0]];
+  if(place==="priroda")trees.push([-25,-16,1.2,0],[-17,-21,1.1,1],[21,-18,1.2,0],[28,-12,1.1,1],[-27,16,1.2,0],[26,17,1.2,1]);if(place!=="hala")trees.forEach(t=>tree(...t));
+  const building=(x:number,z:number,s=1,w="#f0dfbb",r="#6e98b8",sign=false)=>{const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);scene.add(g);const wall=material(w),roof=material(r),trim=material("#fff0d4"),wood=material("#8a6344"),glass=new THREE.MeshStandardMaterial({color:"#9ccbd7",roughness:.3});add(new THREE.BoxGeometry(11,5.5,8),wall,0,2.8,0,g);add(new THREE.BoxGeometry(11.5,.3,8.5),trim,0,5.6,0,g);const ra=add(new THREE.BoxGeometry(6.5,.55,9),roof,-2.8,7,0,g);ra.rotation.z=-.55;const rb=add(new THREE.BoxGeometry(6.5,.55,9),roof,2.8,7,0,g);rb.rotation.z=.55;add(new THREE.BoxGeometry(2,3,.18),wood,0,1.6,4.1,g);add(new THREE.BoxGeometry(.12,.12,.22),material("#f4d58b"),.6,1.8,4.2,g);for(const wx of [-3.5,3.5]){add(new THREE.BoxGeometry(1.6,1.5,.2),trim,wx,3.5,4.12,g);add(new THREE.BoxGeometry(1.3,1.25,.22),glass,wx,3.5,4.23,g);add(new THREE.BoxGeometry(.1,1.25,.05),trim,wx,3.5,4.36,g);}if(sign){const c=document.createElement("canvas");c.width=512;c.height=128;const ctx=c.getContext("2d");if(ctx){ctx.fillStyle="#edf3e7";ctx.fillRect(0,0,512,128);ctx.fillStyle="#315d49";ctx.font="bold 48px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("HODNÝ PES",256,64);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;add(new THREE.PlaneGeometry(6.3,1),new THREE.MeshBasicMaterial({map:tex}),0,5,4.45,g);}}};
+  if(place==="centrum"){building(-10,-8,1.12,"#f2e3c4","#6d98bb",true);building(21,-17,.62,"#e8d3ad","#88a16c");}
+  else if(place==="domov"){building(-5,-7,1.05,"#f2dfbc","#b98765");add(new THREE.BoxGeometry(7,.65,4),material("#b9d4a0"),7,.35,4);}
+  else if(place==="mesto"){building(-12,-9,1,"#f0dfbf","#c47c61");building(15,-19,.7,"#d8e5d6","#7d9bb9");}
+  else if(place==="priroda")building(16,-13,.58,"#e6d6b4","#7c9a65");
+  else {for(let i=0;i<9;i++){add(new THREE.BoxGeometry(.35,1.4,.35),material("#f1e8d1"),-20+i*5,.7,13);if(i<8)add(new THREE.BoxGeometry(5,.2,.2),material("#d8c9a8"),-17.5+i*5,1,13);}}
+  const jump=(x:number,z:number,c:string)=>{add(new THREE.BoxGeometry(.4,2,.4),material("#f5ead5"),x-2.3,1,z);add(new THREE.BoxGeometry(.4,2,.4),material("#f5ead5"),x+2.3,1,z);add(new THREE.CylinderGeometry(.22,.22,5,8),material(c),x,1.65,z).rotation.z=Math.PI/2;};if(place==="centrum"||place==="hala"){jump(-16,3,"#5c9fc0");jump(-3,10,"#d88b66");const hoop=add(new THREE.TorusGeometry(1.45,.2,10,24),material("#e2a85e"),10,2,10);hoop.rotation.x=Math.PI/2;add(new THREE.BoxGeometry(1,2.2,1),material("#f4ead2"),7.2,1.1,10);add(new THREE.BoxGeometry(1,2.2,1),material("#f4ead2"),12.8,1.1,10);}
+  if(place==="centrum"||place==="priroda")for(let i=0;i<3;i++){const b=add(new THREE.BoxGeometry(2.5,.65,2.1),material(["#d9b477","#90b4c7","#c6a8c6"][i]),-24+i*4,.36,-4+i*3);b.rotation.y=i*.14;}
+  for(let i=0;i<8;i++)add(new THREE.CylinderGeometry(.65,.72,.12,7),material("#c7c9b8"),-3+i*1.65,.05,17-Math.sin(i*.4)*1.8);
+  add(new THREE.CylinderGeometry(.8,.58,.42,12),material("#6eabc9"),4,.22,14);
+  const person=new THREE.Group(),shirt=material("#668eac"),skin=material("#dcae85"),pants=material("#475c66"),hair=material("#5b493a");
+  add(new THREE.CapsuleGeometry(.62,1.45,4,8),shirt,0,2.35,0,person);add(new THREE.SphereGeometry(.63,12,10),skin,0,3.75,0,person);add(new THREE.SphereGeometry(.66,10,8,0,Math.PI*2,0,Math.PI*.48),hair,0,4.05,-.04,person);add(new THREE.CapsuleGeometry(.2,1.05,3,6),pants,-.34,.85,0,person);add(new THREE.CapsuleGeometry(.2,1.05,3,6),pants,.34,.85,0,person);for(const x of [-.78,.78]){const a=add(new THREE.CapsuleGeometry(.16,.9,3,6),shirt,x,2.45,0,person);a.rotation.z=x<0?-.35:.35;}
+  const dogModel=new THREE.Group(),coat=material("#b78350"),cream=material("#f3e6d0"),dark=material("#67462f"),blue=material("#5d9fca");add(new THREE.CapsuleGeometry(.72,1.55,4,9),coat,0,1.15,0,dogModel).rotation.z=Math.PI/2;add(new THREE.SphereGeometry(.75,12,10),coat,.95,1.75,-.03,dogModel);add(new THREE.SphereGeometry(.48,10,8),cream,1.28,1.43,.34,dogModel);add(new THREE.ConeGeometry(.29,.85,5),dark,.62,2.38,-.42,dogModel).rotation.z=-.35;add(new THREE.ConeGeometry(.29,.85,5),dark,1.13,2.4,.28,dogModel).rotation.z=.25;add(new THREE.SphereGeometry(.09,8,8),material("#263b36"),1.5,1.85,.45,dogModel);add(new THREE.SphereGeometry(.13,8,8),material("#293b37"),1.6,1.52,.48,dogModel);add(new THREE.TorusGeometry(.28,.08,8,18),blue,.5,1.42,0,dogModel).rotation.x=Math.PI/2;for(const [x,z] of [[-.45,-.28],[.42,-.28],[-.45,.3],[.42,.3]] as [number,number][]){add(new THREE.CapsuleGeometry(.13,.55,3,6),dark,x,.42,z,dogModel);}const tail=add(new THREE.CapsuleGeometry(.12,.65,3,6),coat,-1,1.6,-.1,dogModel);tail.rotation.z=-.95;scene.add(person,dogModel);actors.current={person,dog:dogModel};
+  const resize=()=>{const w=el.clientWidth||1000,h=el.clientHeight||620,a=w/h,viewH=a<1.15?68:61;renderer.setSize(w,h,false);camera.left=-viewH*a/2;camera.right=viewH*a/2;camera.top=viewH/2;camera.bottom=-viewH/2;camera.updateProjectionMatrix();renderer.render(scene,camera);};const obs=new ResizeObserver(resize);obs.observe(el);draw.current=()=>renderer.render(scene,camera);resize();
+  return()=>{obs.disconnect();draw.current=null;renderer.dispose();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});actors.current={person:null,dog:null};};
+ },[place]);
+ useEffect(()=>{const map=(p:Point)=>({x:(p.x-50)*.68,z:(p.y-50)*.48});const p=map(player),d=map(dog);if(actors.current.person)actors.current.person.position.set(p.x,0,p.z);if(actors.current.dog)actors.current.dog.position.set(d.x,0,d.z);draw.current?.();},[player,dog,place]);
+ return <canvas ref={canvas} className="hpThreeCanvas" aria-label="3D izometrický areál Hodný pes"/>;
+}
