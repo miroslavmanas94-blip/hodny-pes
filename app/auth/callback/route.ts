@@ -5,7 +5,8 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
  const { searchParams, origin } = new URL(request.url);
  const code = searchParams.get("code");
- const next = searchParams.get("next") ?? "/hra";
+ const requestedNext = searchParams.get("next") ?? "/hra";
+ const next = requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/hra";
  if (code) {
   const cookieStore = await cookies();
   const supabase = createServerClient(
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
    }}
   );
   const { error } = await supabase.auth.exchangeCodeForSession(code);
-  if (!error) return NextResponse.redirect(new URL(next.startsWith("/") ? next : "/hra", origin));
+  if (!error) return NextResponse.redirect(new URL(next, origin));
  }
  return NextResponse.redirect(new URL("/prihlaseni?error=oauth", origin));
 }
