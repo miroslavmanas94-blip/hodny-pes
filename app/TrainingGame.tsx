@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Award, BookOpen, Check, ChevronRight, CircleHelp, Coins, Compass, Footprints, Heart, Map as MapIcon, MapPin, Menu, Pause, Play, RotateCcw, ShieldCheck, Sparkles, Star, Target, Trophy, X, Zap } from "lucide-react";
 import "./training-game.css";
+import ThreeWorld from "./ThreeWorld";
 
 type Place = "centrum" | "mesto" | "priroda" | "hala" | "domov";
 type Activity = "obedience" | "agility" | "nosework" | "quiz" | "recall" | "puller" | "tricks";
@@ -56,6 +57,7 @@ function WorldMap({place,player,dog,onMove,onTask,activeTask}:{place:Place;playe
  const currentTasks=tasks.filter(t=>t.place.includes(place));
  const [minimap,setMinimap]=useState(true);
  return <div className={"hpWorld hpTerrain-"+current.terrain}>
+  <ThreeWorld place={place} player={player} dog={dog} />
   <svg className="hpWorldSvg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid slice" role="img" aria-label={"Izometrická herní lokace: "+current.name} onClick={e=>{const r=e.currentTarget.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*1000,py=(e.clientY-r.top)/r.height*620;const x=(px-90)/8.2;const y=(py-60)/5.2;onMove({x:clamp(x,6,94),y:clamp(y,5,92)});}}>
    <defs><linearGradient id="hpGround" x1="0" y1="0" x2="1" y2="1"><stop stopColor={arena?"#ded5bd":forest?"#b8d0a1":"#cfe0b7"}/><stop offset="1" stopColor={arena?"#b9aa8b":forest?"#72966c":"#91b57e"}/></linearGradient><pattern id="hpGrass" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M5 22 l3 -5 m8 14 l2 -4 m12 -17 l2 -4" stroke="#ffffff" strokeOpacity=".13" strokeWidth="2"/></pattern></defs>
    <rect x="0" y="0" width="1000" height="620" fill="url(#hpGround)"/>
