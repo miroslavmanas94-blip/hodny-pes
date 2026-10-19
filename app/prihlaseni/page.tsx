@@ -19,7 +19,7 @@ export default function LoginPage() {
  const [client,setClient] = useState<ReturnType<typeof createBrowserClient>|null>(null);
  useEffect(()=> {
   const params = new URLSearchParams(window.location.search);
-  setNextPath(params.get("next") || "/hra");
+  const requested=params.get("next") || "/hra"; setNextPath(requested.startsWith("/") && !requested.startsWith("//") ? requested : "/hra");
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if(!url||!key){setConfigured(false);return;}
