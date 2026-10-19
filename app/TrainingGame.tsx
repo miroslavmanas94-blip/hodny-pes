@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Award, BookOpen, Check, ChevronRight, CircleHelp, Coins, Compass, Footprints, Heart, Map as MapIcon, MapPin, Menu, Pause, Play, RotateCcw, ShieldCheck, Sparkles, Star, Target, Trophy, X, Zap } from "lucide-react";
+import { Award, BookOpen, Check, ChevronRight, CircleHelp, Coins, Compass, Dog, Footprints, Heart, Map as MapIcon, MapPin, Menu, Pause, PawPrint, Play, RotateCcw, ShieldCheck, Sparkles, Star, Target, Trophy, X, Zap } from "lucide-react";
 import "./training-game.css";
+import "./extreme-redesign.css";
 import ThreeWorld from "./ThreeWorld";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -103,6 +104,7 @@ export default function TrainingGame(){
  const [notice,setNotice]=useState("");
  const [photoMode,setPhotoMode]=useState(false);
  const [showStats,setShowStats]=useState(false);
+ const [showKennel,setShowKennel]=useState(false);
  const [storyOpen,setStoryOpen]=useState(false);
  const [storyIndex,setStoryIndex]=useState(0);
  const [paused,setPaused]=useState(false);
@@ -129,11 +131,12 @@ export default function TrainingGame(){
  const rest=()=>{setSave(s=>({...s,energy:Math.min(100,s.energy+28),bond:Math.min(100,s.bond+1)}));setNotice("Pes si odpočinul. Energie obnovena.");};
  const reset=()=>{if(!window.confirm("Opravdu chceš smazat místní herní postup?"))return;setSave(initialSave);setPlayer({x:50,y:72});setDog({x:47,y:75});setNotice("Místní postup byl resetován.");setStoryOpen(true);};
  const activeTask=game?tasks.find(t=>t.id===game)||null:null;
+ const dogCatalog=[{name:"Monty",emoji:"🐕",cost:0,detail:"Tvůj věrný první parťák."},{name:"Bety",emoji:"🐶",cost:180,detail:"Hravá parťačka pro nové výzvy."},{name:"Rex",emoji:"🦮",cost:260,detail:"Odvážný objevitel a stopař."},{name:"Luna",emoji:"🐩",cost:340,detail:"Elegantní psí talent."},{name:"Ben",emoji:"🐕‍🦺",cost:420,detail:"Klidný týmový parťák."},{name:"Kira",emoji:"🐺",cost:520,detail:"Energická průzkumnice."}];
  const careerTitle=level>=8?"Mistr psí spolupráce":level>=5?"Pokročilý parťák":level>=3?"Pozorný trenér":"Začínající parťák";
  return <main className="hpGame hpFullScreenGame">
 <header className="hpTop hpTopOverlay"><button className="hpNavToggle" onClick={()=>setNavOpen(v=>!v)} aria-label={navOpen?"Zavřít navigaci":"Otevřít navigaci"} aria-expanded={navOpen}><Menu size={19}/></button>
 <a className="hpBrand" href="https://hodnypes.cz/" target="_blank" rel="noreferrer" aria-label="Hodný pes — web"><span className="hpLogo"><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 37 C16 31 6 27 7 18 C8 10 17 10 22 17 C27 10 36 10 37 18 C38 27 28 31 22 37Z" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round"/><circle cx="13" cy="8" r="3.2" fill="currentColor"/><circle cx="22" cy="5.5" r="3.2" fill="currentColor"/><circle cx="31" cy="8" r="3.2" fill="currentColor"/></svg></span><span><b>Hodný pes</b><small>PSÍ DOBRODRUŽSTVÍ</small></span></a>
-<div className="hpProfileChip"><span className="hpProfileAvatar"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d9e6c9"/><path d="M8 31 Q11 21 20 22 Q29 21 32 31" fill="#4b7350"/><circle cx="20" cy="14" r="7" fill="#d9ad7a"/><path d="M13 14 Q12 5 20 6 Q28 5 27 14 L24 12 L22 9 L17 12Z" fill="#4c4b3d"/></svg></span><span><b>Trenérský profil</b><small>{save.dog} · {careerTitle}</small></span></div>
+<button className="hpKennelButton" onClick={()=>setShowKennel(true)} aria-label="Psí parťáci"><PawPrint size={16}/> Psi</button><div className="hpProfileChip"><span className="hpProfileAvatar"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d9e6c9"/><path d="M8 31 Q11 21 20 22 Q29 21 32 31" fill="#4b7350"/><circle cx="20" cy="14" r="7" fill="#d9ad7a"/><path d="M13 14 Q12 5 20 6 Q28 5 27 14 L24 12 L22 9 L17 12Z" fill="#4c4b3d"/></svg></span><span><b>Trenérský profil</b><small>{save.dog} · {careerTitle}</small></span></div>
 <div className="hpCurrencies"><span title="Mince"><Coins size={15}/>{save.coins}</span><span title="Úroveň"><Star size={15}/>{level}</span><button className="hpPauseButton" aria-label="Pauza" onClick={()=>setPaused(true)}><Pause size={16}/></button></div></header>
 <section className="hpWorldSection hpWorldStage" aria-label="Herní svět">
 <WorldMap place={save.place} player={player} dog={dog} onMove={p=>{setDog(player);setPlayer(p)}} onTask={t=>startGame(t.id)} activeTask={activeTask}/>
@@ -163,6 +166,7 @@ export default function TrainingGame(){
    </div>}
   </section></div>}
   {showStats&&<div className="hpModalBackdrop"><section className="hpStatsModal" role="dialog" aria-modal="true"><header><div><small>KARIÉRNÍ KARTA</small><h2>Tvůj psí tým</h2></div><button onClick={()=>setShowStats(false)} aria-label="Zavřít"><X/></button></header><div className="hpStatsSummary"><article><b>{level}</b><small>Úroveň</small></article><article><b>{save.xp}</b><small>Zkušenosti</small></article><article><b>{save.completed}</b><small>Tréninky</small></article><article><b>{save.bond}%</b><small>Důvěra</small></article></div><div className="hpCareerBanner"><Award size={22}/><span><small>AKTUÁLNÍ TITUL</small><b>{careerTitle}</b></span><span className="hpLevel">LVL {level}</span></div>{tasks.map(t=><div className="hpSkillRow" key={t.id}><span>{t.title}</span><div className="hpProgress"><i style={{width:save.skills[t.id]+"%"}}/></div><b>{save.skills[t.id]}%</b></div>)}<div className="hpBadgeList"><b>Získané odznaky</b>{(save.badges||[]).length?(save.badges||[]).map(b=><span key={b}><Award size={14}/>{labels[b as Activity]||b}</span>):<small>Dokonči minihru s výsledkem alespoň 80 % a získáš odznak.</small>}</div><button className="hpSecondary full" onClick={()=>setShowStats(false)}>Zpět do světa</button></section></div>}
+  {showKennel&&<div className="hpModalBackdrop"><section className="hpKennelModal" role="dialog" aria-modal="true" aria-labelledby="hpKennelTitle"><header className="hpKennelHeader"><span><Dog size={22}/></span><div><small>TVŮJ PSÍ TÝM</small><h2 id="hpKennelTitle">Psí parťáci</h2></div><button onClick={()=>setShowKennel(false)} aria-label="Zavřít psí tým"><X size={18}/></button></header><div className="hpKennelGrid">{dogCatalog.map(d=>{const unlocked=(save.unlocked||["Monty"]).includes(d.name);const active=save.dog===d.name;return <button key={d.name} className={"hpDogCard"+(active?" selected":"")} disabled={!unlocked&&save.coins<d.cost} onClick={()=>{if(unlocked){setSave(s=>({...s,dog:d.name}));setNotice("Tvůj parťák: "+d.name);setShowKennel(false);}else{setSave(s=>({...s,coins:s.coins-d.cost,unlocked:[...(s.unlocked||["Monty"]),d.name]}));setNotice(d.name+" se přidal do tvého týmu!");}}}><span className="hpDogArt">{d.emoji}</span><b>{d.name}{active?" · Aktivní":""}</b><small>{d.detail}</small><em>{unlocked?(active?"Právě vybraný":"Vybrat parťáka"):"🪙 "+d.cost+" mincí · "+(save.coins>=d.cost?"Odemknout":"Chybí mince")}</em></button>})}</div><footer className="hpKennelFooter"><span>Odemčených parťáků: <b>{(save.unlocked||["Monty"]).length} / {dogCatalog.length}</b></span><span>Tvůj zůstatek: <b>🪙 {save.coins} mincí</b></span></footer></section></div>}
   {photoMode&&<div className="hpPhotoMode"><button onClick={()=>setPhotoMode(false)}><X size={16}/> Zavřít průzkum</button><div><Compass size={35}/><h2>Režim průzkumu</h2><p>Prohlédni si svět a vyber lokaci, kterou chceš navštívit.</p>{places.map(p=><button key={p.id} onClick={()=>{setPlace(p.id);setPhotoMode(false)}}>{p.name}<ChevronRight size={15}/></button>)}</div></div>}
  </main>;
 }
