@@ -1,14 +1,14 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { ArrowLeft, PawPrint, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import "./login.css";
 
 export default function LoginPage() {
  const router = useRouter();
- const params = useSearchParams();
+ const [nextPath,setNextPath] = useState("/hra");
  const [mode,setMode] = useState<"login"|"signup">("login");
  const [email,setEmail] = useState("");
  const [password,setPassword] = useState("");
@@ -18,12 +18,14 @@ export default function LoginPage() {
  const [configured,setConfigured] = useState(true);
  const [client,setClient] = useState<ReturnType<typeof createBrowserClient>|null>(null);
  useEffect(()=> {
+  const params = new URLSearchParams(window.location.search);
+  setNextPath(params.get("next") || "/hra");
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if(!url||!key){setConfigured(false);return;}
   const sb=createBrowserClient(url,key);setClient(sb);
-  sb.auth.getUser().then(({data})=>{if(data.user) router.replace(params.get("next")||"/hra");});
- },[router,params]);
+  sb.auth.getUser().then(({data})=>{if(data.user) router.replace(nextPath);});
+ },[router]);
  async function submit(e:FormEvent) {
   e.preventDefault(); if(!client)return;
   setBusy(true);setMessage("");
@@ -33,7 +35,7 @@ export default function LoginPage() {
   setBusy(false);
   if(result.error){setMessage(result.error.message);return;}
   if(mode==="signup"&&!result.data.session){setMessage("Účet je vytvořený. Potvrď e-mail a potom se přihlas.");return;}
-  router.replace(params.get("next")||"/hra");router.refresh();
+  router.replace(nextPath);router.refresh();
  }
  async function oauth(provider:"google"|"apple") {
   if(!client)return;setBusy(true);setMessage("");
