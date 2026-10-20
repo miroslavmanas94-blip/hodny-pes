@@ -3,11 +3,22 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 type Point={x:number;y:number};
 type Place="centrum"|"mesto"|"priroda"|"hala"|"domov"|"jezero"|"vesnice"|"hory";
-export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgrades=[]}:{place:Place;player:Point;dog:Point;academyLevel?:number;academyUpgrades?:string[]}){
+type Find={id:string;place:Place;x:number;y:number;kind:"leaf"|"shell"|"medal";};
+const finds:Find[]=[
+{id:"c_leaf",place:"centrum",x:36,y:38,kind:"leaf"},{id:"c_medal",place:"centrum",x:64,y:57,kind:"medal"},{id:"c_shell",place:"centrum",x:43,y:83,kind:"shell"},
+{id:"m_leaf",place:"mesto",x:29,y:31,kind:"leaf"},{id:"m_medal",place:"mesto",x:69,y:61,kind:"medal"},{id:"m_shell",place:"mesto",x:42,y:82,kind:"shell"},
+{id:"f_leaf",place:"priroda",x:31,y:29,kind:"leaf"},{id:"f_medal",place:"priroda",x:72,y:46,kind:"medal"},{id:"f_shell",place:"priroda",x:48,y:81,kind:"shell"},
+{id:"h_leaf",place:"hala",x:32,y:35,kind:"leaf"},{id:"h_medal",place:"hala",x:69,y:56,kind:"medal"},{id:"h_shell",place:"hala",x:46,y:81,kind:"shell"},
+{id:"d_leaf",place:"domov",x:34,y:36,kind:"leaf"},{id:"d_medal",place:"domov",x:70,y:56,kind:"medal"},{id:"d_shell",place:"domov",x:45,y:82,kind:"shell"},
+{id:"l_leaf",place:"jezero",x:33,y:30,kind:"leaf"},{id:"l_medal",place:"jezero",x:71,y:55,kind:"medal"},{id:"l_shell",place:"jezero",x:46,y:82,kind:"shell"},
+{id:"v_leaf",place:"vesnice",x:32,y:31,kind:"leaf"},{id:"v_medal",place:"vesnice",x:71,y:58,kind:"medal"},{id:"v_shell",place:"vesnice",x:46,y:82,kind:"shell"},
+{id:"mtn_leaf",place:"hory",x:32,y:30,kind:"leaf"},{id:"mtn_medal",place:"hory",x:70,y:55,kind:"medal"},{id:"mtn_shell",place:"hory",x:46,y:82,kind:"shell"}
+];
+export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgrades=[],collectedItems=[],onGroundClick}:{place:Place;player:Point;dog:Point;academyLevel?:number;academyUpgrades?:string[];collectedItems?:string[];onGroundClick?:(p:Point)=>void}){
  const canvas=useRef<HTMLCanvasElement>(null);
  const cameraRef=useRef<THREE.OrthographicCamera|null>(null);
  const actors=useRef<{person:THREE.Group|null;dog:THREE.Group|null}>({person:null,dog:null});
- const draw=useRef<(()=>void)|null>(null);
+ const draw=useRef<(()=>void)|null>(null);\n const collectMeshes=useRef<Array<{id:string;mesh:THREE.Group}>>([]);
  useEffect(()=>{
   if(!canvas.current)return;
   const el=canvas.current,scene=new THREE.Scene();scene.background=new THREE.Color(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef");scene.fog=new THREE.Fog(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef",95,185);
@@ -29,6 +40,16 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
   if(place==="priroda"||place==="jezero")trees.push([-42,-29,1.2,0],[-29,-40,1.1,1],[35,-35,1.2,0],[46,-22,1.1,1],[-44,28,1.2,0],[42,34,1.2,1]);
   if(place==="vesnice")trees.splice(0,trees.length,...trees.filter((_,i)=>i%3===0));
   if(place!=="hala")trees.forEach(t=>tree(...t));
+  const collectibleMaterials={leaf:material("#d8e7a4",.4),shell:material("#f0c78f",.35),medal:material("#f4d26d",.3)};
+  collectMeshes.current=[];
+  finds.filter(f=>f.place===place&&!collectedItems.includes(f.id)).forEach(f=>{
+   const g=new THREE.Group();const x=(f.x-50)*1.42,z=(f.y-50)*1.08;g.position.set(x,0,z);scene.add(g);
+   const base=add(new THREE.CylinderGeometry(.52,.68,.16,12),material("#f8f4dd"),0,.16,0,g);base.castShadow=false;
+   if(f.kind==="leaf"){const leaf=add(new THREE.SphereGeometry(.42,10,8),collectibleMaterials.leaf,0,.75,0,g);leaf.scale.set(.58,1.25,.28);leaf.rotation.z=-.45;}
+   else if(f.kind==="shell"){const shell=add(new THREE.SphereGeometry(.42,12,8,0,Math.PI*2,0,Math.PI*.65),collectibleMaterials.shell,0,.63,0,g);shell.scale.set(1,.7,.8);}
+   else{const medal=add(new THREE.TorusGeometry(.3,.1,8,16),collectibleMaterials.medal,0,.8,0,g);medal.rotation.x=Math.PI/2;add(new THREE.SphereGeometry(.15,10,8),collectibleMaterials.medal,0,.8,0,g);}
+   collectMeshes.current.push({id:f.id,mesh:g});
+  });
   const building=(x:number,z:number,s=1,w="#f0dfbb",r="#6e98b8",sign=false)=>{const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);scene.add(g);const wall=material(w),roof=material(r),trim=material("#fff0d4"),wood=material("#8a6344"),glass=new THREE.MeshStandardMaterial({color:"#9ccbd7",roughness:.3});add(new THREE.BoxGeometry(11,5.5,8),wall,0,2.8,0,g);add(new THREE.BoxGeometry(11.5,.3,8.5),trim,0,5.6,0,g);const ra=add(new THREE.BoxGeometry(6.5,.55,9),roof,-2.8,7,0,g);ra.rotation.z=-.55;const rb=add(new THREE.BoxGeometry(6.5,.55,9),roof,2.8,7,0,g);rb.rotation.z=.55;add(new THREE.BoxGeometry(2,3,.18),wood,0,1.6,4.1,g);add(new THREE.BoxGeometry(.12,.12,.22),material("#f4d58b"),.6,1.8,4.2,g);for(const wx of [-3.5,3.5]){add(new THREE.BoxGeometry(1.6,1.5,.2),trim,wx,3.5,4.12,g);add(new THREE.BoxGeometry(1.3,1.25,.22),glass,wx,3.5,4.23,g);add(new THREE.BoxGeometry(.1,1.25,.05),trim,wx,3.5,4.36,g);}if(sign){const c=document.createElement("canvas");c.width=512;c.height=128;const ctx=c.getContext("2d");if(ctx){ctx.fillStyle="#edf3e7";ctx.fillRect(0,0,512,128);ctx.fillStyle="#315d49";ctx.font="bold 48px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("HODNÝ PES",256,64);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;add(new THREE.PlaneGeometry(6.3,1),new THREE.MeshBasicMaterial({map:tex}),0,5,4.45,g);}}};
   if(place==="centrum"){building(-10,-8,1.12,"#f2e3c4","#6d98bb",true);building(21,-17,.62,"#e8d3ad","#88a16c");}
   else if(place==="domov"){building(-5,-7,1.05,"#f2dfbc","#b98765");add(new THREE.BoxGeometry(7,.65,4),material("#b9d4a0"),7,.35,4);}
@@ -49,12 +70,12 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
   const person=new THREE.Group(),shirt=material("#668eac"),skin=material("#dcae85"),pants=material("#475c66"),hair=material("#5b493a");
   add(new THREE.CapsuleGeometry(.62,1.45,4,8),shirt,0,2.35,0,person);add(new THREE.SphereGeometry(.63,12,10),skin,0,3.75,0,person);add(new THREE.SphereGeometry(.66,10,8,0,Math.PI*2,0,Math.PI*.48),hair,0,4.05,-.04,person);add(new THREE.CapsuleGeometry(.2,1.05,3,6),pants,-.34,.85,0,person);add(new THREE.CapsuleGeometry(.2,1.05,3,6),pants,.34,.85,0,person);for(const x of [-.78,.78]){const a=add(new THREE.CapsuleGeometry(.16,.9,3,6),shirt,x,2.45,0,person);a.rotation.z=x<0?-.35:.35;}
   const dogModel=new THREE.Group(),coat=material("#b78350"),cream=material("#f3e6d0"),dark=material("#67462f"),blue=material("#5d9fca");add(new THREE.CapsuleGeometry(.72,1.55,4,9),coat,0,1.15,0,dogModel).rotation.z=Math.PI/2;add(new THREE.SphereGeometry(.75,12,10),coat,.95,1.75,-.03,dogModel);add(new THREE.SphereGeometry(.48,10,8),cream,1.28,1.43,.34,dogModel);add(new THREE.ConeGeometry(.29,.85,5),dark,.62,2.38,-.42,dogModel).rotation.z=-.35;add(new THREE.ConeGeometry(.29,.85,5),dark,1.13,2.4,.28,dogModel).rotation.z=.25;add(new THREE.SphereGeometry(.09,8,8),material("#263b36"),1.5,1.85,.45,dogModel);add(new THREE.SphereGeometry(.13,8,8),material("#293b37"),1.6,1.52,.48,dogModel);add(new THREE.TorusGeometry(.28,.08,8,18),blue,.5,1.42,0,dogModel).rotation.x=Math.PI/2;for(const [x,z] of [[-.45,-.28],[.42,-.28],[-.45,.3],[.42,.3]] as [number,number][]){add(new THREE.CapsuleGeometry(.13,.55,3,6),dark,x,.42,z,dogModel);}const tail=add(new THREE.CapsuleGeometry(.12,.65,3,6),coat,-1,1.6,-.1,dogModel);tail.rotation.z=-.95;scene.add(person,dogModel);actors.current={person,dog:dogModel};
-  const resize=()=>{const w=el.clientWidth||1000,h=el.clientHeight||620,a=w/h,viewH=a<1.15?52:43;renderer.setSize(w,h,false);camera.left=-viewH*a/2;camera.right=viewH*a/2;camera.top=viewH/2;camera.bottom=-viewH/2;camera.updateProjectionMatrix();renderer.render(scene,camera);};const obs=new ResizeObserver(resize);obs.observe(el);draw.current=()=>renderer.render(scene,camera);resize();
-  return()=>{obs.disconnect();draw.current=null;cameraRef.current=null;renderer.dispose();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});actors.current={person:null,dog:null};};
- },[place,academyLevel,academyUpgrades]);
+  const raycaster=new THREE.Raycaster();const ndc=new THREE.Vector2();const ground=new THREE.Plane(new THREE.Vector3(0,1,0),0);const onCanvasClick=(event:MouseEvent)=>{if(!onGroundClick)return;const rect=el.getBoundingClientRect();ndc.x=((event.clientX-rect.left)/rect.width)*2-1;ndc.y=-((event.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(ndc,camera);const hit=new THREE.Vector3();if(raycaster.ray.intersectPlane(ground,hit)){onGroundClick({x:Math.max(6,Math.min(94,hit.x/1.42+50)),y:Math.max(5,Math.min(92,hit.z/1.08+50))});}};el.addEventListener("click",onCanvasClick);const resize=()=>{const w=el.clientWidth||1000,h=el.clientHeight||620,a=w/h,viewH=a<1.15?52:43;renderer.setSize(w,h,false);camera.left=-viewH*a/2;camera.right=viewH*a/2;camera.top=viewH/2;camera.bottom=-viewH/2;camera.updateProjectionMatrix();renderer.render(scene,camera);};const obs=new ResizeObserver(resize);obs.observe(el);draw.current=()=>renderer.render(scene,camera);resize();
+  return()=>{obs.disconnect();el.removeEventListener("click",onCanvasClick);draw.current=null;cameraRef.current=null;collectMeshes.current=[];renderer.dispose();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});actors.current={person:null,dog:null};};
+ },[place,academyLevel,academyUpgrades,collectedItems,onGroundClick]);
  useEffect(()=>{const map=(p:Point)=>({x:(p.x-50)*1.42,z:(p.y-50)*1.08});const p=map(player),d=map(dog);if(actors.current.person)actors.current.person.position.set(p.x,0,p.z);if(actors.current.dog)actors.current.dog.position.set(d.x,0,d.z);
   // Camera follows the player so the expanded world can be explored beyond the starting clearing.
-  const camera=cameraRef.current;if(camera){const focus=new THREE.Vector3(d.x,0,d.z);camera.position.set(focus.x+32,focus.y+42,focus.z+34);camera.lookAt(focus);}draw.current?.();
- },[player,dog,place]);
+  const camera=cameraRef.current;if(camera){const focus=new THREE.Vector3(d.x,0,d.z);camera.position.set(focus.x+32,focus.y+42,focus.z+34);camera.lookAt(focus);}const t=performance.now()*.002;collectMeshes.current.forEach(({mesh},i)=>{mesh.position.y=.08+Math.sin(t+i*1.7)*.13;mesh.rotation.y=t*.65+i;});draw.current?.();
+ },[player,dog,place,collectedItems]);
  return <canvas ref={canvas} className="hpThreeCanvas" aria-label="3D izometrický areál Hodný pes"/>;
 }
