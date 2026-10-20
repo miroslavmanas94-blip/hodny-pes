@@ -5,12 +5,13 @@ type Point={x:number;y:number};
 type Place="centrum"|"mesto"|"priroda"|"hala"|"domov"|"jezero"|"vesnice"|"hory";
 export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgrades=[]}:{place:Place;player:Point;dog:Point;academyLevel?:number;academyUpgrades?:string[]}){
  const canvas=useRef<HTMLCanvasElement>(null);
+ const cameraRef=useRef<THREE.OrthographicCamera|null>(null);
  const actors=useRef<{person:THREE.Group|null;dog:THREE.Group|null}>({person:null,dog:null});
  const draw=useRef<(()=>void)|null>(null);
  useEffect(()=>{
   if(!canvas.current)return;
   const el=canvas.current,scene=new THREE.Scene();scene.background=new THREE.Color(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef");scene.fog=new THREE.Fog(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef",95,185);
-  const camera=new THREE.OrthographicCamera(-28,28,17.4,-17.4,.1,360);camera.position.set(32,42,34);camera.lookAt(0,0,0);
+  const camera=new THREE.OrthographicCamera(-28,28,17.4,-17.4,.1,360);camera.position.set(32,42,34);camera.lookAt(0,0,0);cameraRef.current=camera;
   const renderer=new THREE.WebGLRenderer({canvas:el,antialias:true,alpha:false,powerPreference:"low-power"});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<700?1.15:1.5));renderer.shadowMap.enabled=window.innerWidth>700;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
   scene.add(new THREE.HemisphereLight("#fff7e5","#73885c",2.3));
@@ -49,11 +50,11 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
   add(new THREE.CapsuleGeometry(.62,1.45,4,8),shirt,0,2.35,0,person);add(new THREE.SphereGeometry(.63,12,10),skin,0,3.75,0,person);add(new THREE.SphereGeometry(.66,10,8,0,Math.PI*2,0,Math.PI*.48),hair,0,4.05,-.04,person);add(new THREE.CapsuleGeometry(.2,1.05,3,6),pants,-.34,.85,0,person);add(new THREE.CapsuleGeometry(.2,1.05,3,6),pants,.34,.85,0,person);for(const x of [-.78,.78]){const a=add(new THREE.CapsuleGeometry(.16,.9,3,6),shirt,x,2.45,0,person);a.rotation.z=x<0?-.35:.35;}
   const dogModel=new THREE.Group(),coat=material("#b78350"),cream=material("#f3e6d0"),dark=material("#67462f"),blue=material("#5d9fca");add(new THREE.CapsuleGeometry(.72,1.55,4,9),coat,0,1.15,0,dogModel).rotation.z=Math.PI/2;add(new THREE.SphereGeometry(.75,12,10),coat,.95,1.75,-.03,dogModel);add(new THREE.SphereGeometry(.48,10,8),cream,1.28,1.43,.34,dogModel);add(new THREE.ConeGeometry(.29,.85,5),dark,.62,2.38,-.42,dogModel).rotation.z=-.35;add(new THREE.ConeGeometry(.29,.85,5),dark,1.13,2.4,.28,dogModel).rotation.z=.25;add(new THREE.SphereGeometry(.09,8,8),material("#263b36"),1.5,1.85,.45,dogModel);add(new THREE.SphereGeometry(.13,8,8),material("#293b37"),1.6,1.52,.48,dogModel);add(new THREE.TorusGeometry(.28,.08,8,18),blue,.5,1.42,0,dogModel).rotation.x=Math.PI/2;for(const [x,z] of [[-.45,-.28],[.42,-.28],[-.45,.3],[.42,.3]] as [number,number][]){add(new THREE.CapsuleGeometry(.13,.55,3,6),dark,x,.42,z,dogModel);}const tail=add(new THREE.CapsuleGeometry(.12,.65,3,6),coat,-1,1.6,-.1,dogModel);tail.rotation.z=-.95;scene.add(person,dogModel);actors.current={person,dog:dogModel};
   const resize=()=>{const w=el.clientWidth||1000,h=el.clientHeight||620,a=w/h,viewH=a<1.15?52:43;renderer.setSize(w,h,false);camera.left=-viewH*a/2;camera.right=viewH*a/2;camera.top=viewH/2;camera.bottom=-viewH/2;camera.updateProjectionMatrix();renderer.render(scene,camera);};const obs=new ResizeObserver(resize);obs.observe(el);draw.current=()=>renderer.render(scene,camera);resize();
-  return()=>{obs.disconnect();draw.current=null;renderer.dispose();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});actors.current={person:null,dog:null};};
+  return()=>{obs.disconnect();draw.current=null;cameraRef.current=null;renderer.dispose();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});actors.current={person:null,dog:null};};
  },[place,academyLevel,academyUpgrades]);
  useEffect(()=>{const map=(p:Point)=>({x:(p.x-50)*1.42,z:(p.y-50)*1.08});const p=map(player),d=map(dog);if(actors.current.person)actors.current.person.position.set(p.x,0,p.z);if(actors.current.dog)actors.current.dog.position.set(d.x,0,d.z);
   // Camera follows the player so the expanded world can be explored beyond the starting clearing.
-  const focus=new THREE.Vector3(d.x,0,d.z);camera.position.set(focus.x+32,focus.y+42,focus.z+34);camera.lookAt(focus);draw.current?.();
+  const camera=cameraRef.current;if(camera){const focus=new THREE.Vector3(d.x,0,d.z);camera.position.set(focus.x+32,focus.y+42,focus.z+34);camera.lookAt(focus);}draw.current?.();
  },[player,dog,place]);
  return <canvas ref={canvas} className="hpThreeCanvas" aria-label="3D izometrický areál Hodný pes"/>;
 }
