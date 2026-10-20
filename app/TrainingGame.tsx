@@ -10,7 +10,7 @@ import ThreeWorld from "./ThreeWorld";
 import AcademyHub from "./AcademyHub";
 import { createBrowserClient } from "@supabase/ssr";
 
-type Place = "centrum" | "mesto" | "priroda" | "hala" | "domov";
+type Place = "centrum" | "mesto" | "priroda" | "hala" | "domov" | "jezero" | "vesnice" | "hory";
 type Activity = "obedience" | "agility" | "nosework" | "quiz" | "recall" | "puller" | "tricks";
 type SkillSet = Record<Activity, number>;
 type Save = { xp:number; coins:number; bond:number; energy:number; level:number; completed:number; attempts:number; correct:number; streak:number; skills:SkillSet; unlocked:string[]; dog:string; place:Place; dailyDone:boolean; storyStep?:number; badges?:string[]; decorations?:string[]; academyLevel?:number; academyUpgrades?:string[]; claimedGoals?:string[] };
@@ -23,15 +23,18 @@ const places:{id:Place;name:string;subtitle:string;terrain:string}[]=[
  {id:"mesto",name:"Městský park",subtitle:"Odvaha mezi rozptýleními",terrain:"park"},
  {id:"priroda",name:"Lesní stezka",subtitle:"Pachy, stopy a objevování",terrain:"forest"},
  {id:"hala",name:"Tréninková hala",subtitle:"Přesnost a rychlost",terrain:"arena"},
- {id:"domov",name:"Domov a zahrada",subtitle:"Odpočinek a nové triky",terrain:"home"}
+ {id:"domov",name:"Domov a zahrada",subtitle:"Odpočinek a nové triky",terrain:"home"},
+ {id:"jezero",name:"Jezerní údolí",subtitle:"Vodní stezky, sbírání a klid",terrain:"lake"},
+ {id:"vesnice",name:"Psí vesnička",subtitle:"Náměstí, obchůdky a sousedé",terrain:"village"},
+ {id:"hory",name:"Horská vyhlídka",subtitle:"Náročné výpravy a nové výzvy",terrain:"mountains"}
 ];
 const tasks:Task[]=[
  {id:"obedience",title:"Škola povelů",desc:"Sestav správnou posloupnost povelů.",x:31,y:34,symbol:"01",place:["centrum","domov"],reward:"Základy poslušnosti"},
- {id:"recall",title:"Přivolání",desc:"Vrať psa bezpečně k sobě.",x:70,y:28,symbol:"02",place:["centrum","mesto"],reward:"Spolehlivé přivolání"},
- {id:"nosework",title:"Pachová stopa",desc:"Najdi správnou stopu podle nápovědy.",x:26,y:67,symbol:"03",place:["priroda","centrum"],reward:"Psí detektiv"},
+ {id:"recall",title:"Přivolání",desc:"Vrať psa bezpečně k sobě.",x:70,y:28,symbol:"02",place:["centrum","mesto","vesnice","hory"],reward:"Spolehlivé přivolání"},
+ {id:"nosework",title:"Pachová stopa",desc:"Najdi správnou stopu podle nápovědy.",x:26,y:67,symbol:"03",place:["priroda","centrum","jezero","hory"],reward:"Psí detektiv"},
  {id:"agility",title:"Agility trasa",desc:"Zapamatuj si trasu a projdi ji.",x:73,y:65,symbol:"04",place:["hala","centrum"],reward:"Pohybová jistota"},
  {id:"puller",title:"Dog Puller",desc:"Vyber správný pohyb a přines kruh.",x:51,y:49,symbol:"05",place:["hala","priroda"],reward:"Hra s pravidly"},
- {id:"tricks",title:"Triky",desc:"Zopakuj krátkou pohybovou sekvenci.",x:48,y:25,symbol:"06",place:["domov","centrum"],reward:"Týmová souhra"},
+ {id:"tricks",title:"Triky",desc:"Zopakuj krátkou pohybovou sekvenci.",x:48,y:25,symbol:"06",place:["domov","centrum","vesnice"],reward:"Týmová souhra"},
  {id:"quiz",title:"Akademie trenéra",desc:"Rozhoduj férově a bezpečně.",x:51,y:76,symbol:"07",place:["centrum","mesto","priroda","hala","domov"],reward:"Znalostní odznak"}
 ];
 const labels:Record<Activity,string>={obedience:"Poslušnost",agility:"Agility",nosework:"Čichání",quiz:"Kvíz",recall:"Přivolání",puller:"Dog Puller",tricks:"Triky"};
@@ -164,7 +167,7 @@ export default function TrainingGame(){
  const move=useCallback((dx:number,dy:number)=>{const current=dogPositionRef.current;setMoveTarget({x:clamp(current.x+dx,6,94),y:clamp(current.y+dy,5,92)});},[]);
  const moveDogTo=useCallback((p:Point)=>{setMoveTarget({x:clamp(p.x,6,94),y:clamp(p.y,5,92)});},[]);
  useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(game||photoMode||showStats||storyOpen||paused)return;const map:Record<string,[number,number]>={arrowup:[0,-4],w:[0,-4],arrowdown:[0,4],s:[0,4],arrowleft:[-4,0],a:[-4,0],arrowright:[4,0],d:[4,0]};const d=map[e.key.toLowerCase()];if(!d)return;e.preventDefault();move(d[0],d[1]);};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[game,photoMode,showStats,storyOpen,paused,move]);
- const placeUnlockLevel:Record<Place,number>={centrum:1,domov:1,mesto:2,priroda:3,hala:4};
+ const placeUnlockLevel:Record<Place,number>={centrum:1,domov:1,mesto:2,priroda:3,hala:4,jezero:5,vesnice:6,hory:8};
  const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setMoveTarget(null);setPlayer({x:50,y:72});setDog({x:47,y:75});dogPositionRef.current={x:47,y:75};setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
  const startGame=(id:Activity)=>{if(save.energy<=0){setNotice("Pes potřebuje odpočinek před dalším tréninkem.");return;}setGame(id);setTimingStart(Date.now());setRound(0);setErrors(0);setStep(0);setFeedback("");setFinished(false);setQuizIndex(Math.floor(Math.random()*quizQuestions.length));setQuizScore(0);setScentTarget(Math.floor(Math.random()*3));setRecallReady(false);setSequence(()=>{const count=difficulty==="easy"?3:difficulty==="normal"?4:6;return Array.from({length:count},()=>Math.floor(Math.random()*4));});setObedienceSequence(()=>Array.from({length:challengeRounds},()=>Math.floor(Math.random()*3)));};
  const finishGame=(score:number,total:number)=>{if(finished)return;const pct=clamp(Math.round(score/Math.max(1,total)*100),0,100);const earned=Math.max(5,Math.round(pct/5));const coins=Math.max(3,Math.round(pct/10)+5);const skill=game!;const badges=Array.from(new Set([...(save.badges||[]),...(pct>=80?[skill]:[])]));setSave(s=>({...s,xp:s.xp+earned,coins:s.coins+coins,bond:Math.min(100,s.bond+(pct>=60?3:1)),energy:Math.max(0,s.energy-8),completed:s.completed+1,attempts:s.attempts+total,correct:s.correct+score,streak:pct>=70?s.streak+1:0,dailyDone:true,storyStep:Math.max(s.storyStep||0,1),badges,skills:{...s.skills,[skill]:Math.min(100,(s.skills[skill]||0)+Math.max(2,Math.round(pct/10)))}}));setFeedback("Výsledek "+pct+" % · +"+earned+" XP · +"+coins+" mincí");setFinished(true);};
