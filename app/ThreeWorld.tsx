@@ -18,7 +18,8 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
  const canvas=useRef<HTMLCanvasElement>(null);
  const cameraRef=useRef<THREE.OrthographicCamera|null>(null);
  const actors=useRef<{person:THREE.Group|null;dog:THREE.Group|null}>({person:null,dog:null});
- const draw=useRef<(()=>void)|null>(null);\n const collectMeshes=useRef<Array<{id:string;mesh:THREE.Group}>>([]);
+ const draw=useRef<(()=>void)|null>(null);
+ const collectMeshes=useRef<Array<{id:string;mesh:THREE.Group}>>([]);
  useEffect(()=>{
   if(!canvas.current)return;
   const el=canvas.current,scene=new THREE.Scene();scene.background=new THREE.Color(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef");scene.fog=new THREE.Fog(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef",95,185);
