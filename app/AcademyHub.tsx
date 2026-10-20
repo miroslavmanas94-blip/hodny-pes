@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Award, BookOpen, CalendarDays, CheckCircle2, ChevronRight, Coins, Dog,
   Fence, Flower2, Footprints, Hammer, Heart, House, LockKeyhole, MapPin,
@@ -59,6 +59,7 @@ function localDayKey() {
 
 export default function AcademyHub({ open, initialTab, save, onClose, onSave, onStartTraining, onOpenDogs, onOpenShop }: Props) {
   const [tab, setTab] = useState<HubTab>(initialTab);
+  useEffect(() => { if (open) setTab(initialTab); }, [open, initialTab]);
   if (!open) return null;
 
   const claimed = save.claimedGoals || [];
@@ -67,7 +68,7 @@ export default function AcademyHub({ open, initialTab, save, onClose, onSave, on
   const day = localDayKey();
   const claimReward = (id: string, reward: number, daily = false) => {
     const key = daily ? day + ":" + id : "event:" + id;
-    if (claimed.includes(key) || save.coins < 0) return;
+    if (claimed.includes(key)) return;
     onSave({ coins: save.coins + reward, claimedGoals: [...claimed, key] });
   };
   const buyUpgrade = (id: string, cost: number) => {
