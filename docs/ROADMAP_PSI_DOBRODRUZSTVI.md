@@ -1,58 +1,44 @@
 # Hodný pes: Psí dobrodružství — plán vývoje světa a hry
 
-## Princip
-Vývoj po ověřitelných fázích. Každá fáze má vlastní kontrolu na mobilu i počítači. Existující účty, uložené hry, Supabase schéma a klíč lokálního ukládání zůstávají zachované. Produkční změny se posílají na `main`; nasazení považujeme za hotové až po ověření buildu a URL.
+## Zásady
+- Hlavní vizuální styl: Hay Day s realističtějšími detaily, pevná izometrická kamera.
+- Zachovat účty, stávající Supabase schéma, lokální klíč `hodny-pes-training-save-v3`, uložené mince, zkušenosti, úrovně, odznaky a historii GitHubu.
+- Převádět staré ID lokací na nové místo bez mazání uloženého postupu.
+- Produkční změny posílat na `main`; nasazení považovat za hotové až po ověření buildu a produkční URL.
+- Multiplayer až po stabilním singleplayeru.
 
-## Fáze 1 — Pohyb a základ velkého světa
-- Rozšířit 3D terén a rozestupy krajiny.
-- Kamera izometricky sleduje hráče při průzkumu.
-- Kliknutí do terénu a klávesy WASD/šipky vedou postavu plynulým pohybem místo okamžitého teleportu.
-- Zachovat ovládání dotykem a rozložení HUD pro malé obrazovky.
-- Kontrola: typy, build, ovládání na desktopu i mobilu.
+## Nová mapa
+- Teleportovací náměstí (hlavní rozcestník s viditelnými 3D portály).
+- Psí park.
+- Výcvikové centrum Hodný pes.
+- Město.
+- Dog Puller cvičiště.
+- Nosework areál.
+- Dogfrisbee park.
+- Rozšiřující oblasti: Soutěžní stadion, Tajná dobrodružná oblast, Péče o psa a salon.
+- Původní lokace domov, lesní stezka, hala, jezero, vesnice a hory už nejsou samostatnými položkami nové mapy; jejich stará uložená ID se převádějí na odpovídající novou oblast.
 
-## Fáze 2 — Odemykatelné oblasti
-- Výcvikové centrum a domov od začátku.
-- Městský park: úroveň 2.
-- Lesní stezka: úroveň 3.
-- Tréninková hala: úroveň 4.
-- Jezerní údolí: úroveň 5.
-- Psí vesnička: úroveň 6.
-- Horská vyhlídka: úroveň 8.
-- Každá oblast má vlastní barevnost, orientační body a vhodné mise.
-- Zamčené oblasti zobrazují požadovanou úroveň a nelze do nich vstoupit předčasně.
+## Fáze
+1. Stabilizovat 3D vykreslování, pevnou kameru a klikací portály.
+2. Dokončit jednotlivé mapy a vizuálně odlišit každou disciplínu.
+3. Doplnit skutečné minihry pro Dog Puller, Nosework a Dogfrisbee.
+4. Příběhové kapitoly, denní program, postavy a dialogy.
+5. Vylepšování pevných budov a volné umisťování dekorací s mřížkou a kontrolou kolizí.
+6. Mobilní ovládání: joystick, klepnutí pro pohyb a přehledné ovládací prvky.
+7. Testy: přihlášení, migrace starých uložených her, odemykání map, sbírky, mobilní rozložení, build a skutečné Cloudflare nasazení.
+8. Multiplayer až po ověření stabilního singleplayeru.
 
-## Fáze 3 — Obsah a objevování
-- [x] Přidat 24 sběratelských nálezů rozdělených do osmi oblastí; předměty se v 3D světě jemně vznášejí.
-- [x] Sbírání se aktivuje přiblížením psa k nálezu a ukládá se do stávajícího save objektu.
-- [x] Každý nález dává 12 XP a 20 mincí; každý třetí nález přidá tematickou dekoraci do sbírky.
-- [x] Zobrazit průběžný počet nalezených předmětů v herním HUD.
-- [x] Kliknutí do terénu převést raycastingem na skutečný bod v 3D světě, ne odhad z překryvné 2D mapy.
-- [ ] Rozšířit krátké výpravy a jedinečné úkoly každé oblasti v další iteraci.
+## Průběžný stav
+- [x] Přidán nový seznam deseti oblastí a migrace starých ID lokací při načtení uloženého postupu.
+- [x] Zavedeno odemykání podle úrovně, počtu dokončených tréninků a mincí.
+- [x] Zvýšeny odměny za trénink.
+- [x] Přidán výběr psa při prvním spuštění bez staršího uloženého postupu.
+- [x] Nová izometrická 3D scéna, oddělené vizuály oblastí a klikací portály na teleportovacím náměstí.
+- [x] Přidáno dotykové směrové ovládání a tlačítko návratu na teleportovací náměstí.
+- [x] Dogfrisbee výzva používá načasovací minihru jako první hratelný základ.
+- [ ] Volné umisťování dekorací a ukládání jejich pozic.
+- [ ] Příběhové kapitoly rozšířit o NPC dialogy a navázané odemykání.
+- [ ] Spustit typecheck/build, opravit případné chyby a ověřit produkční Cloudflare nasazení.
+- [ ] Multiplayer znovu zapnout až po stabilizaci singleplayeru.
 
-## Fáze 4 — Stavba a vylepšování
-- Stavět a vylepšovat budovy, cesty, zahradu a tréninková stanoviště.
-- Náklady a odměny musí být viditelné před potvrzením.
-- Vizuální změny se projeví přímo ve světě.
-- Ukládání postupu musí fungovat po obnovení stránky.
-
-## Fáze 5 — Mise, příběh a dlouhodobý postup
-- Kapitoly příběhu, denní a týdenní cíle, sbírka odznaků a úrovně dovedností.
-- Odemknutí nového obsahu navázat na postup, ne na placení.
-- Vyvážit obtížnost a odměny tak, aby se dalo postupovat běžným hraním.
-
-## Fáze 6 — Online svět
-- Nejdřív spolehlivá přítomnost přátel a návštěvy oblastí.
-- Potom společné výzvy a soutěže.
-- Synchronizovaný pohyb a sdílené objekty až po návrhu bezpečného datového modelu a testech souběžného hraní.
-
-## Fáze 7 — Dokončení a kvalita
-- Vyladit světla, stíny, vegetaci, cesty, zvuky a animace podle výkonu zařízení.
-- Otestovat ukládání, přihlášení, uzamčení oblastí, návrat do hry a mobilní ovládání.
-- Ověřit produkční build Cloudflare a otevřít nasazenou URL; samotný push nestačí.
-
-## Stav implementace
-- Základní rozšíření 3D prostoru a sledování hráče: implementováno.
-- Plynulý pohyb na kliknutí a z kláves: implementováno; kliknutí se převádí průsečíkem paprsku s rovinou 3D terénu.
-- Fáze 3 — sbírání a odměny: implementováno v základu (24 nálezů, ukládání, XP/mince/dekorace).
-- Tři nové odemykatelné oblasti (jezero, vesnice, hory) s odlišnými 3D prvky: implementováno.
-- Další fáze jsou plánované; nepovažují se za hotové, dokud nejsou samostatně implementované a ověřené.
+Položky označené jako hotové znamenají provedené změny v repozitáři; automatické testy a produkční nasazení zatím nejsou potvrzené.
