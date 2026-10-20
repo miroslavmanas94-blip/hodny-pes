@@ -85,7 +85,7 @@ export default function TrainingGame(){
  const [player,setPlayer]=useState<Point>({x:50,y:72});
  const [dog,setDog]=useState<Point>({x:47,y:75});
  const [moveTarget,setMoveTarget]=useState<Point|null>(null);
- const dogPositionRef=useRef<Point>({x:47,y:75});
+ const dogPositionRef=useRef<Point>({x:47,y:75});\n const playerPositionRef=useRef<Point>({x:50,y:72});
  const [game,setGame]=useState<Activity|null>(null);
  const [round,setRound]=useState(0);
  const [timingStart,setTimingStart]=useState(0);
@@ -127,7 +127,7 @@ export default function TrainingGame(){
  useEffect(()=>{if(!loaded)return;const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key){setOnlineReady(false);return;}const supabase=createBrowserClient(url,key);let channel:any=null;let cancelled=false;(async()=>{const {data}=await supabase.auth.getUser();if(cancelled||!data.user)return;channel=supabase.channel("hodny-pes-academy-world",{config:{presence:{key:data.user.id}}});onlineChannel.current=channel;channel.on("presence",{event:"sync"},()=>{if(!cancelled){const state=channel.presenceState() as Record<string,Array<{dog?:string;place?:Place;level?:number}>>;const players=Object.values(state).flat().map(p=>({dog:typeof p.dog==="string"?p.dog:"Psí parťák",place:places.some(x=>x.id===p.place)?p.place as Place:"centrum",level:typeof p.level==="number"?p.level:1}));setOnlinePlayers(players);setOnlineCount(Object.keys(state).length);}});channel.subscribe((status:string)=>{if(status==="SUBSCRIBED"&&!cancelled){setOnlineReady(true);channel.track({user_id:data.user.id,dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});}else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){setOnlineReady(false);}});})();return()=>{cancelled=true;setOnlineReady(false);onlineChannel.current=null;if(channel)supabase.removeChannel(channel).catch(()=>{});};},[loaded]);
  useEffect(()=>{if(!onlineChannel.current||!onlineReady)return;onlineChannel.current.track({dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});},[save.dog,save.place,save.xp,onlineReady]);
  const heldKeys=useRef<Set<string>>(new Set());
- useEffect(()=>{dogPositionRef.current=dog;},[dog]);
+ useEffect(()=>{dogPositionRef.current=dog;},[dog]);\n useEffect(()=>{playerPositionRef.current=player;},[player]);
  useEffect(()=>{
   let frame=0;let previous=0;let lastPaint=0;
   const keyMap:Record<string,string>={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
@@ -138,10 +138,10 @@ export default function TrainingGame(){
   const tick=(now:number)=>{frame=requestAnimationFrame(tick);if(!previous)previous=now;const dt=Math.min((now-previous)/1000,.04);previous=now;if(isBlocked()){heldKeys.current.clear();return;}
    let dx=(heldKeys.current.has("right")?1:0)-(heldKeys.current.has("left")?1:0);
    let dy=(heldKeys.current.has("down")?1:0)-(heldKeys.current.has("up")?1:0);
-   const current=dogPositionRef.current;let next=current;
+   const current=playerPositionRef.current;let next=current;
    if(dx||dy){const len=Math.hypot(dx,dy);dx/=len;dy/=len;const speed=13.5;next={x:clamp(current.x+dx*speed*dt,6,94),y:clamp(current.y+dy*speed*dt,5,92)};setMoveTarget(null);}
    else if(moveTarget){const tx=moveTarget.x-current.x,ty=moveTarget.y-current.y,dist=Math.hypot(tx,ty);if(dist<.2){next=moveTarget;setMoveTarget(null);}else{const step=Math.min(dist,11.5*dt);next={x:current.x+tx/dist*step,y:current.y+ty/dist*step};}}
-   if(next!==current){dogPositionRef.current=next;if(now-lastPaint>=30){lastPaint=now;setDog(next);setPlayer(next);}}
+   if(next!==current){playerPositionRef.current=next;const companion={x:clamp(next.x-3,6,94),y:clamp(next.y+3,5,92)};dogPositionRef.current=companion;if(now-lastPaint>=30){lastPaint=now;setPlayer(next);setDog(companion);}}
   };
   window.addEventListener("keydown",onDown);window.addEventListener("keyup",onUp);window.addEventListener("blur",clear);frame=requestAnimationFrame(tick);
   return()=>{cancelAnimationFrame(frame);window.removeEventListener("keydown",onDown);window.removeEventListener("keyup",onUp);window.removeEventListener("blur",clear);};
@@ -160,7 +160,7 @@ export default function TrainingGame(){
  useEffect(()=>{if(!loaded)return;const already=new Set(save.collectedItems||[]);const found=collectibleSpots.find(item=>item.place===save.place&&!already.has(item.id)&&Math.hypot(dog.x-item.x,dog.y-item.y)<4.2);if(!found)return;setSave(prev=>{const ids=prev.collectedItems||[];if(ids.includes(found.id))return prev;const nextIds=[...ids,found.id];const rewardDecorations=nextIds.length%3===0?[...(prev.decorations||[]),found.reward]:prev.decorations||[];return {...prev,collectedItems:nextIds,xp:prev.xp+12,coins:prev.coins+20,decorations:rewardDecorations};});setNotice("Nalezeno: "+found.name+" · +12 XP · +20 mincí");},[dog,save.place,save.collectedItems,loaded]);
 
  const placeUnlockLevel:Record<Place,number>={centrum:1,domov:1,mesto:2,priroda:3,hala:4,jezero:5,vesnice:6,hory:8};
- const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setMoveTarget(null);setPlayer({x:50,y:72});setDog({x:47,y:75});dogPositionRef.current={x:47,y:75};setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
+ const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setMoveTarget(null);setPlayer({x:50,y:72});setDog({x:47,y:75});playerPositionRef.current={x:50,y:72};dogPositionRef.current={x:47,y:75};setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
  const startGame=(id:Activity)=>{if(save.energy<=0){setNotice("Pes potřebuje odpočinek před dalším tréninkem.");return;}setGame(id);setTimingStart(Date.now());setRound(0);setErrors(0);setStep(0);setFeedback("");setFinished(false);setQuizIndex(Math.floor(Math.random()*quizQuestions.length));setQuizScore(0);setScentTarget(Math.floor(Math.random()*3));setRecallReady(false);setSequence(()=>{const count=difficulty==="easy"?3:difficulty==="normal"?4:6;return Array.from({length:count},()=>Math.floor(Math.random()*4));});setObedienceSequence(()=>Array.from({length:challengeRounds},()=>Math.floor(Math.random()*3)));};
  const finishGame=(score:number,total:number)=>{if(finished)return;const pct=clamp(Math.round(score/Math.max(1,total)*100),0,100);const earned=Math.max(5,Math.round(pct/5));const coins=Math.max(3,Math.round(pct/10)+5);const skill=game!;const badges=Array.from(new Set([...(save.badges||[]),...(pct>=80?[skill]:[])]));setSave(s=>({...s,xp:s.xp+earned,coins:s.coins+coins,bond:Math.min(100,s.bond+(pct>=60?3:1)),energy:Math.max(0,s.energy-8),completed:s.completed+1,attempts:s.attempts+total,correct:s.correct+score,streak:pct>=70?s.streak+1:0,dailyDone:true,storyStep:Math.max(s.storyStep||0,1),badges,skills:{...s.skills,[skill]:Math.min(100,(s.skills[skill]||0)+Math.max(2,Math.round(pct/10)))}}));setFeedback("Výsledek "+pct+" % · +"+earned+" XP · +"+coins+" mincí");setFinished(true);};
  const answerRoute=(direction:number)=>{const correct=direction===sequence[step];const next=step+1;if(!correct)setErrors(e=>e+1);else setFeedback("Správně. Pes bezpečně pokračuje.");if(next>=sequence.length)finishGame(correct?sequence.length-errors:Math.max(0,sequence.length-errors-1),sequence.length);else setStep(next);};
@@ -168,7 +168,7 @@ export default function TrainingGame(){
  const chooseDifficulty=(value:"easy"|"normal"|"hard")=>{setDifficulty(value);setRound(0);setStep(0);setErrors(0);setFeedback("");setTimingStart(Date.now());setSequence(Array.from({length:value==="easy"?3:value==="normal"?4:6},()=>Math.floor(Math.random()*4)));setObedienceSequence(Array.from({length:value==="easy"?2:value==="normal"?3:5},()=>Math.floor(Math.random()*3)));};
  const closeGame=()=>{setGame(null);setFeedback("");setFinished(false);};
  const rest=()=>{setSave(s=>({...s,energy:Math.min(100,s.energy+28),bond:Math.min(100,s.bond+1)}));setNotice("Pes si odpočinul. Energie obnovena.");};
- const reset=()=>{if(!window.confirm("Opravdu chceš smazat místní herní postup?"))return;setSave(initialSave);setPlayer({x:50,y:72});setDog({x:47,y:75});setNotice("Místní postup byl resetován.");setStoryOpen(true);};
+ const reset=()=>{if(!window.confirm("Opravdu chceš smazat místní herní postup?"))return;setSave(initialSave);setPlayer({x:50,y:72});setDog({x:47,y:75});playerPositionRef.current={x:50,y:72};dogPositionRef.current={x:47,y:75};setNotice("Místní postup byl resetován.");setStoryOpen(true);};
  const activeTask=game?tasks.find(t=>t.id===game)||null:null;
  const openHub=(tab:"missions"|"academy"|"collection"|"events")=>{setHubInitialTab(tab);setShowHub(true);};
  const shopItems=[{id:"ball",name:"Barevný míček",cost:45,detail:"Nová hračka na aportování."},{id:"bed",name:"Měkký pelíšek",cost:90,detail:"Útulné místo pro odpočinek."},{id:"bowl",name:"Miska s tlapkami",cost:65,detail:"Malý detail pro tvůj psí koutek."},{id:"flowers",name:"Záhon květin",cost:120,detail:"Zútulni svůj areál."}];
