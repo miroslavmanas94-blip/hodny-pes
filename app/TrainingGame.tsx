@@ -98,6 +98,8 @@ export default function TrainingGame(){
  const onlineChannel=useRef<any>(null);
  const [player,setPlayer]=useState<Point>({x:50,y:72});
  const [dog,setDog]=useState<Point>({x:47,y:75});
+ const [moveTarget,setMoveTarget]=useState<Point|null>(null);
+ const dogPositionRef=useRef<Point>({x:47,y:75});
  const [game,setGame]=useState<Activity|null>(null);
  const [round,setRound]=useState(0);
  const [timingStart,setTimingStart]=useState(0);
@@ -138,11 +140,32 @@ export default function TrainingGame(){
  useEffect(()=>{if(!loaded)return;try{localStorage.setItem("hodny-pes-training-save-v3",JSON.stringify(save))}catch{}const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return;const timer=window.setTimeout(()=>{const supabase=createBrowserClient(url,key);supabase.auth.getUser().then(({data})=>{if(data.user)return supabase.auth.updateUser({data:{hodny_pes_save:save}})}).catch(()=>{});},1200);return()=>window.clearTimeout(timer)},[save,loaded]);
  useEffect(()=>{if(!loaded)return;const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key){setOnlineReady(false);return;}const supabase=createBrowserClient(url,key);let channel:any=null;let cancelled=false;(async()=>{const {data}=await supabase.auth.getUser();if(cancelled||!data.user)return;channel=supabase.channel("hodny-pes-academy-world",{config:{presence:{key:data.user.id}}});onlineChannel.current=channel;channel.on("presence",{event:"sync"},()=>{if(!cancelled){const state=channel.presenceState() as Record<string,Array<{dog?:string;place?:Place;level?:number}>>;const players=Object.values(state).flat().map(p=>({dog:typeof p.dog==="string"?p.dog:"Psí parťák",place:places.some(x=>x.id===p.place)?p.place as Place:"centrum",level:typeof p.level==="number"?p.level:1}));setOnlinePlayers(players);setOnlineCount(Object.keys(state).length);}});channel.subscribe((status:string)=>{if(status==="SUBSCRIBED"&&!cancelled){setOnlineReady(true);channel.track({user_id:data.user.id,dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});}else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){setOnlineReady(false);}});})();return()=>{cancelled=true;setOnlineReady(false);onlineChannel.current=null;if(channel)supabase.removeChannel(channel).catch(()=>{});};},[loaded]);
  useEffect(()=>{if(!onlineChannel.current||!onlineReady)return;onlineChannel.current.track({dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});},[save.dog,save.place,save.xp,onlineReady]);
- const move=useCallback((dx:number,dy:number)=>{setPlayer(dog);setDog(p=>({x:clamp(p.x+dx,6,94),y:clamp(p.y+dy,5,92)}));},[dog]);
- const moveDogTo=useCallback((p:Point)=>{setPlayer(dog);setDog({x:clamp(p.x,6,94),y:clamp(p.y,5,92)});},[dog]);
+ useEffect(()=>{dogPositionRef.current=dog;},[dog]);
+ useEffect(()=>{
+  if(!moveTarget)return;
+  const timer=window.setInterval(()=>{
+   const current=dogPositionRef.current;
+   const dx=moveTarget.x-current.x,dy=moveTarget.y-current.y;
+   const distance=Math.hypot(dx,dy);
+   setPlayer(current);
+   if(distance<=1.15){
+    const finalPoint={x:moveTarget.x,y:moveTarget.y};
+    dogPositionRef.current=finalPoint;
+    setDog(finalPoint);
+    setMoveTarget(null);
+    return;
+   }
+   const next={x:current.x+dx/distance*Math.min(1.15,distance),y:current.y+dy/distance*Math.min(1.15,distance)};
+   dogPositionRef.current=next;
+   setDog(next);
+  },35);
+  return()=>window.clearInterval(timer);
+ },[moveTarget]);
+ const move=useCallback((dx:number,dy:number)=>{const current=dogPositionRef.current;setMoveTarget({x:clamp(current.x+dx,6,94),y:clamp(current.y+dy,5,92)});},[]);
+ const moveDogTo=useCallback((p:Point)=>{setMoveTarget({x:clamp(p.x,6,94),y:clamp(p.y,5,92)});},[]);
  useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(game||photoMode||showStats||storyOpen||paused)return;const map:Record<string,[number,number]>={arrowup:[0,-4],w:[0,-4],arrowdown:[0,4],s:[0,4],arrowleft:[-4,0],a:[-4,0],arrowright:[4,0],d:[4,0]};const d=map[e.key.toLowerCase()];if(!d)return;e.preventDefault();move(d[0],d[1]);};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[game,photoMode,showStats,storyOpen,paused,move]);
  const placeUnlockLevel:Record<Place,number>={centrum:1,domov:1,mesto:2,priroda:3,hala:4};
- const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setPlayer({x:50,y:72});setDog({x:47,y:75});setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
+ const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setMoveTarget(null);setPlayer({x:50,y:72});setDog({x:47,y:75});dogPositionRef.current={x:47,y:75};setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
  const startGame=(id:Activity)=>{if(save.energy<=0){setNotice("Pes potřebuje odpočinek před dalším tréninkem.");return;}setGame(id);setTimingStart(Date.now());setRound(0);setErrors(0);setStep(0);setFeedback("");setFinished(false);setQuizIndex(Math.floor(Math.random()*quizQuestions.length));setQuizScore(0);setScentTarget(Math.floor(Math.random()*3));setRecallReady(false);setSequence(()=>{const count=difficulty==="easy"?3:difficulty==="normal"?4:6;return Array.from({length:count},()=>Math.floor(Math.random()*4));});setObedienceSequence(()=>Array.from({length:challengeRounds},()=>Math.floor(Math.random()*3)));};
  const finishGame=(score:number,total:number)=>{if(finished)return;const pct=clamp(Math.round(score/Math.max(1,total)*100),0,100);const earned=Math.max(5,Math.round(pct/5));const coins=Math.max(3,Math.round(pct/10)+5);const skill=game!;const badges=Array.from(new Set([...(save.badges||[]),...(pct>=80?[skill]:[])]));setSave(s=>({...s,xp:s.xp+earned,coins:s.coins+coins,bond:Math.min(100,s.bond+(pct>=60?3:1)),energy:Math.max(0,s.energy-8),completed:s.completed+1,attempts:s.attempts+total,correct:s.correct+score,streak:pct>=70?s.streak+1:0,dailyDone:true,storyStep:Math.max(s.storyStep||0,1),badges,skills:{...s.skills,[skill]:Math.min(100,(s.skills[skill]||0)+Math.max(2,Math.round(pct/10)))}}));setFeedback("Výsledek "+pct+" % · +"+earned+" XP · +"+coins+" mincí");setFinished(true);};
  const answerRoute=(direction:number)=>{const correct=direction===sequence[step];const next=step+1;if(!correct)setErrors(e=>e+1);else setFeedback("Správně. Pes bezpečně pokračuje.");if(next>=sequence.length)finishGame(correct?sequence.length-errors:Math.max(0,sequence.length-errors-1),sequence.length);else setStep(next);};
