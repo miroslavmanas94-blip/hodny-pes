@@ -40,7 +40,7 @@ const collectibles=useRef<THREE.Group[]>([]),stationHits=useRef<Array<{id:string
 const groundClick=useRef(onGroundClick);groundClick.current=onGroundClick;const stationClick=useRef(onStationClick);stationClick.current=onStationClick;const portalClick=useRef(onPortalClick);portalClick.current=onPortalClick;
 const upgradesKey=academyUpgrades.join("|"),collectedKey=collectedItems.join("|");
 useEffect(()=>{
-if(!canvas.current)return;const el=canvas.current,scene=new THREE.Scene(),colors=palette[place];scene.background=new THREE.Color(place==="tajemstvi"?"#c8d8c4":place==="mesto"?"#c9e0e8":"#d2e6ed");scene.fog=new THREE.Fog(scene.background,100,180);
+if(!canvas.current)return;const el=canvas.current,scene=new THREE.Scene(),colors=palette[place];const sky=place==="tajemstvi"?"#c8d8c4":place==="mesto"?"#c9e0e8":"#d2e6ed";scene.background=new THREE.Color(sky);scene.fog=new THREE.Fog(sky,100,180);
 const camera=new THREE.OrthographicCamera(-29,29,18,-18,.1,320);camera.position.set(34,42,34);camera.lookAt(0,0,0);cameraRef.current=camera;
 const renderer=new THREE.WebGLRenderer({canvas:el,antialias:true,alpha:false,powerPreference:"low-power"});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<700?1.1:1.5));renderer.shadowMap.enabled=window.innerWidth>700;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
 scene.add(new THREE.HemisphereLight("#fff7e5","#71835e",2.25));const sun=new THREE.DirectionalLight("#fff0d0",2.8);sun.position.set(-25,45,-18);sun.castShadow=window.innerWidth>700;sun.shadow.mapSize.set(768,768);scene.add(sun);
