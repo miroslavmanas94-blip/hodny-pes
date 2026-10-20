@@ -143,30 +143,29 @@ export default function TrainingGame(){
  useEffect(()=>{if(!loaded)return;try{localStorage.setItem("hodny-pes-training-save-v3",JSON.stringify(save))}catch{}const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return;const timer=window.setTimeout(()=>{const supabase=createBrowserClient(url,key);supabase.auth.getUser().then(({data})=>{if(data.user)return supabase.auth.updateUser({data:{hodny_pes_save:save}})}).catch(()=>{});},1200);return()=>window.clearTimeout(timer)},[save,loaded]);
  useEffect(()=>{if(!loaded)return;const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key){setOnlineReady(false);return;}const supabase=createBrowserClient(url,key);let channel:any=null;let cancelled=false;(async()=>{const {data}=await supabase.auth.getUser();if(cancelled||!data.user)return;channel=supabase.channel("hodny-pes-academy-world",{config:{presence:{key:data.user.id}}});onlineChannel.current=channel;channel.on("presence",{event:"sync"},()=>{if(!cancelled){const state=channel.presenceState() as Record<string,Array<{dog?:string;place?:Place;level?:number}>>;const players=Object.values(state).flat().map(p=>({dog:typeof p.dog==="string"?p.dog:"Psí parťák",place:places.some(x=>x.id===p.place)?p.place as Place:"centrum",level:typeof p.level==="number"?p.level:1}));setOnlinePlayers(players);setOnlineCount(Object.keys(state).length);}});channel.subscribe((status:string)=>{if(status==="SUBSCRIBED"&&!cancelled){setOnlineReady(true);channel.track({user_id:data.user.id,dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});}else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){setOnlineReady(false);}});})();return()=>{cancelled=true;setOnlineReady(false);onlineChannel.current=null;if(channel)supabase.removeChannel(channel).catch(()=>{});};},[loaded]);
  useEffect(()=>{if(!onlineChannel.current||!onlineReady)return;onlineChannel.current.track({dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});},[save.dog,save.place,save.xp,onlineReady]);
+ const heldKeys=useRef<Set<string>>(new Set());
+ const movementBlocked=useRef(false);
  useEffect(()=>{dogPositionRef.current=dog;},[dog]);
  useEffect(()=>{
-  if(!moveTarget)return;
-  const timer=window.setInterval(()=>{
-   const current=dogPositionRef.current;
-   const dx=moveTarget.x-current.x,dy=moveTarget.y-current.y;
-   const distance=Math.hypot(dx,dy);
-   setPlayer(current);
-   if(distance<=1.15){
-    const finalPoint={x:moveTarget.x,y:moveTarget.y};
-    dogPositionRef.current=finalPoint;
-    setDog(finalPoint);
-    setMoveTarget(null);
-    return;
-   }
-   const next={x:current.x+dx/distance*Math.min(1.15,distance),y:current.y+dy/distance*Math.min(1.15,distance)};
-   dogPositionRef.current=next;
-   setDog(next);
-  },35);
-  return()=>window.clearInterval(timer);
- },[moveTarget]);
+  let frame=0;let previous=0;let lastPaint=0;
+  const keyMap:Record<string,string>={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
+  const isBlocked=()=>Boolean(game||photoMode||showStats||storyOpen||paused);
+  const onDown=(e:KeyboardEvent)=>{const key=e.key.toLowerCase();const dir=keyMap[key];if(!dir||isBlocked())return;const target=e.target as HTMLElement|null;if(target&&(target.isContentEditable||["INPUT","TEXTAREA","SELECT","BUTTON"].includes(target.tagName)))return;e.preventDefault();heldKeys.current.add(dir);setMoveTarget(null);};
+  const onUp=(e:KeyboardEvent)=>{const dir=keyMap[e.key.toLowerCase()];if(dir)heldKeys.current.delete(dir);};
+  const clear=()=>heldKeys.current.clear();
+  const tick=(now:number)=>{frame=requestAnimationFrame(tick);if(!previous)previous=now;const dt=Math.min((now-previous)/1000,.04);previous=now;if(isBlocked()){heldKeys.current.clear();return;}
+   let dx=(heldKeys.current.has("right")?1:0)-(heldKeys.current.has("left")?1:0);
+   let dy=(heldKeys.current.has("down")?1:0)-(heldKeys.current.has("up")?1:0);
+   const current=dogPositionRef.current;let next=current;
+   if(dx||dy){const len=Math.hypot(dx,dy);dx/=len;dy/=len;const speed=13.5;next={x:clamp(current.x+dx*speed*dt,6,94),y:clamp(current.y+dy*speed*dt,5,92)};setMoveTarget(null);}
+   else if(moveTarget){const tx=moveTarget.x-current.x,ty=moveTarget.y-current.y,dist=Math.hypot(tx,ty);if(dist<.2){next=moveTarget;setMoveTarget(null);}else{const step=Math.min(dist,11.5*dt);next={x:current.x+tx/dist*step,y:current.y+ty/dist*step};}}
+   if(next!==current){dogPositionRef.current=next;if(now-lastPaint>=30){lastPaint=now;setDog(next);setPlayer(next);}}
+  };
+  window.addEventListener("keydown",onDown);window.addEventListener("keyup",onUp);window.addEventListener("blur",clear);frame=requestAnimationFrame(tick);
+  return()=>{cancelAnimationFrame(frame);window.removeEventListener("keydown",onDown);window.removeEventListener("keyup",onUp);window.removeEventListener("blur",clear);};
+ },[moveTarget,game,photoMode,showStats,storyOpen,paused]);
  const move=useCallback((dx:number,dy:number)=>{const current=dogPositionRef.current;setMoveTarget({x:clamp(current.x+dx,6,94),y:clamp(current.y+dy,5,92)});},[]);
  const moveDogTo=useCallback((p:Point)=>{setMoveTarget({x:clamp(p.x,6,94),y:clamp(p.y,5,92)});},[]);
- useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(game||photoMode||showStats||storyOpen||paused)return;const map:Record<string,[number,number]>={arrowup:[0,-4],w:[0,-4],arrowdown:[0,4],s:[0,4],arrowleft:[-4,0],a:[-4,0],arrowright:[4,0],d:[4,0]};const d=map[e.key.toLowerCase()];if(!d)return;e.preventDefault();move(d[0],d[1]);};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[game,photoMode,showStats,storyOpen,paused,move]);
  const placeUnlockLevel:Record<Place,number>={centrum:1,domov:1,mesto:2,priroda:3,hala:4,jezero:5,vesnice:6,hory:8};
  const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setMoveTarget(null);setPlayer({x:50,y:72});setDog({x:47,y:75});dogPositionRef.current={x:47,y:75};setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
  const startGame=(id:Activity)=>{if(save.energy<=0){setNotice("Pes potřebuje odpočinek před dalším tréninkem.");return;}setGame(id);setTimingStart(Date.now());setRound(0);setErrors(0);setStep(0);setFeedback("");setFinished(false);setQuizIndex(Math.floor(Math.random()*quizQuestions.length));setQuizScore(0);setScentTarget(Math.floor(Math.random()*3));setRecallReady(false);setSequence(()=>{const count=difficulty==="easy"?3:difficulty==="normal"?4:6;return Array.from({length:count},()=>Math.floor(Math.random()*4));});setObedienceSequence(()=>Array.from({length:challengeRounds},()=>Math.floor(Math.random()*3)));};
@@ -192,7 +191,7 @@ export default function TrainingGame(){
 <WorldMap place={save.place} player={player} dog={dog} onMove={moveDogTo} onTask={t=>startGame(t.id)} activeTask={activeTask} academyLevel={save.academyLevel||1} academyUpgrades={save.academyUpgrades||[]}/>
 <div className="hpWorldTopline"><span className="hpWorldStatus"><span className="hpLiveDot"/><span><b>{place.name}</b><small>{place.subtitle}</small></span></span><button type="button" className={"hpOnlinePill"+(onlineReady?" is-connected":"")} title={onlineReady?"Zobrazit hráče v online světě":"Online kanál se připojuje"} onClick={()=>setOnlineOpen(v=>!v)} aria-expanded={onlineOpen}>{onlineReady?<Wifi size={14}/>:<WifiOff size={14}/>}<b>{onlineReady?onlineCount:"—"}</b><small>online</small></button>{onlineOpen&&<div className="hpOnlineRoster"><div><Users size={14}/><b>Hráči v akademii</b></div>{!onlineReady?<p>Online svět čeká na připojení účtu.</p>:onlinePlayers.length===0?<p>Zatím tu nikdo není.</p>:onlinePlayers.map((p,i)=><section key={p.dog+"-"+i}><span className="hpOnlineAvatar"><Dog size={15}/></span><span><b>{p.dog}</b><small>{places.find(x=>x.id===p.place)?.name||"Akademie"} · úroveň {p.level}</small></span><i/></section>)}</div>}<button className="hpWorldTool" onClick={()=>setPhotoMode(true)}><Compass size={16}/> Průzkum</button></div>
 <div className="hpWorldQuest"><span className="hpQuestEyebrow"><PawPrint size={13}/> TVŮJ DALŠÍ ÚKOL</span><b>{save.dailyDone?"Další dobrodružství čeká!":"První společná mise"}</b><span>{visibleTasks[0]?.title||"Prozkoumej okolí"} · odměna za každé dokončení</span><button onClick={()=>startGame(visibleTasks[0]?.id||"obedience")}>{save.dailyDone?"Vyrazit na misi":"Začít dobrodružství"} <ChevronRight size={15}/></button></div>
-<div className="hpWorldControls hpWorldControlsOverlay"><div className="hpTapHint"><MapPin size={17}/><span><b>Klepni a vydej se na cestu</b><small>Klepnutím na svět se pes přesune. Stanoviště spustí aktivitu.</small></span></div></div>
+<div className="hpWorldControls hpWorldControlsOverlay"><div className="hpTapHint"><MapPin size={17}/><span><b>Klepni a vydej se na cestu</b><small>Klikni na místo a pes tam plynule dojde. Pohyb: WASD nebo šipky.</small></span></div></div>
 <div className="hpWorldBottomHud"><div className="hpBottomMeter"><span><Heart size={14}/> Důvěra</span><b>{save.bond}%</b><i><u style={{width:save.bond+"%"}}/></i></div><div className="hpBottomMeter"><span><Zap size={14}/> Energie</span><b>{save.energy}%</b><i><u style={{width:save.energy+"%"}}/></i></div><button onClick={rest}><RotateCcw size={14}/> Odpočinek</button></div></section>
 <section className="hpHayDock" aria-label="Herní nabídka"><button className="hpDockItem hpDockQuest" onClick={()=>openHub("missions")}><span><ClipboardList size={21}/></span><b>Mise</b><small>Dnešní cíle</small></button><button className="hpDockItem" onClick={()=>openHub("academy")}><span><House size={21}/></span><b>Akademie</b><small>Vylepšování</small></button><button className="hpDockItem" onClick={()=>setShowKennel(true)}><span><Dog size={21}/></span><b>Psí tým</b><small>{(save.unlocked||["Monty"]).length} parťáků</small></button><button className="hpDockItem" onClick={()=>openHub("collection")}><span><Medal size={21}/></span><b>Sbírka</b><small>{(save.badges||[]).length} odznaků</small></button><button className="hpDockItem" onClick={rest}><span><HandHeart size={21}/></span><b>Péče</b><small>Odpočinek</small></button></section>
 {navOpen&&<div className="hpDrawerScrim" onClick={()=>setNavOpen(false)} aria-hidden="true"/>}
