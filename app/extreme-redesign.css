@@ -221,3 +221,33 @@ body{background:#dce8d2}
  .hpDockItem>small{display:none}
 }
 @media(prefers-reduced-motion:reduce){.hpTimingRunner,.hpActivityEmoji,.hpPullerRing,.hpPullerDog{animation:none!important}}
+
+/* Final spacing and depth pass for phone screens */
+.hpWorldSection.hpWorldStage:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;background:linear-gradient(180deg,#f9f5d51c 0%,transparent 28%,transparent 70%,#26462b14 100%);box-shadow:inset 0 0 0 1px #ffffff55,inset 0 0 45px #3156320b}
+.hpWorldTopline,.hpWorldQuest,.hpWorldControls,.hpWorldBottomHud{z-index:5}
+.hpWorldQuest{z-index:13}
+.hpWorldControls.hpWorldControlsOverlay{z-index:15}
+.hpWorldBottomHud{z-index:14}
+.hpHayDock{box-shadow:0 9px 0 #d7cba9,0 12px 28px #25462c30,inset 0 1px 0 #fff}
+.hpDockItem>span{box-shadow:inset 0 -3px 0 #dfd0a8,0 2px 3px #9a956a18}
+.hpDockItem:active>span{transform:translateY(2px);box-shadow:inset 0 -1px 0 #dfd0a8}
+.hpDifficultyBar button:active{transform:translateY(1px)}
+.hpGameModal{scrollbar-width:thin;scrollbar-color:#c7d6b8 #f8f4e7}
+.hpTimingTrack{isolation:isolate}
+.hpTimingRunner{z-index:2}
+.hpTimingSafe{z-index:1}
+@media(max-width:760px){
+ .hpWorldControls.hpWorldControlsOverlay{bottom:225px!important;left:10px!important}
+ .hpWorldBottomHud{bottom:225px!important;right:10px!important}
+ .hpWorldQuest{bottom:98px!important}
+ .hpWorldStatus{max-width:calc(100% - 88px)}
+ .hpWorldSection.hpWorldStage{height:calc(100svh - 158px);min-height:430px}
+ .hpFullScreenGame{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+}
+@media(max-width:380px){
+ .hpWorldControls.hpWorldControlsOverlay{bottom:216px!important;left:7px!important}
+ .hpWorldBottomHud{bottom:216px!important;right:7px!important}
+ .hpWorldQuest{bottom:94px!important}
+ .hpWorldSection.hpWorldStage{height:calc(100svh - 151px);min-height:405px}
+ .hpWorldStatus{max-width:calc(100% - 74px)}
+}
