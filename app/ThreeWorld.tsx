@@ -20,7 +20,11 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
  const cameraRef=useRef<THREE.OrthographicCamera|null>(null);
  const actors=useRef<{person:THREE.Group|null;dog:THREE.Group|null}>({person:null,dog:null});
  const draw=useRef<(()=>void)|null>(null);
- const collectMeshes=useRef<Array<{id:string;mesh:THREE.Group}>>([]);\n const stationHits=useRef<Array<{id:string;object:THREE.Object3D}>>([]);\n const stationDataRef=useRef(stations);stationDataRef.current=stations;\n const groundClickRef=useRef(onGroundClick);groundClickRef.current=onGroundClick;\n const stationClickRef=useRef(onStationClick);stationClickRef.current=onStationClick;
+ const collectMeshes=useRef<Array<{id:string;mesh:THREE.Group}>>([]);
+ const stationHits=useRef<Array<{id:string;object:THREE.Object3D}>>([]);
+ const stationDataRef=useRef(stations);stationDataRef.current=stations;
+ const groundClickRef=useRef(onGroundClick);groundClickRef.current=onGroundClick;
+ const stationClickRef=useRef(onStationClick);stationClickRef.current=onStationClick;
  useEffect(()=>{
   if(!canvas.current)return;
   const el=canvas.current,scene=new THREE.Scene();scene.background=new THREE.Color(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef");scene.fog=new THREE.Fog(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef",95,185);
