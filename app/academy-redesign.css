@@ -1,11 +1,11 @@
-/* Hodný pes Academy — clean blue/graphite redesign layer */
+/* Hodný pes Academy — warm Hay Day-inspired academy redesign */
 :root{
- --academy-blue:#3d78b8;--academy-blue-deep:#285783;--academy-blue-soft:#eaf2fa;
- --academy-ink:#253344;--academy-muted:#718094;--academy-line:#dbe3eb;
- --academy-paper:#fff;--academy-canvas:#eef2f6;--academy-shadow:0 16px 44px rgba(32,52,75,.12);
+ --academy-blue:#5f8b4c;--academy-blue-deep:#3e6338;--academy-blue-soft:#e8f0dc;
+ --academy-ink:#344532;--academy-muted:#78856d;--academy-line:#d8dfc9;
+ --academy-paper:#fffaf0;--academy-canvas:#f3f0df;--academy-shadow:0 16px 44px rgba(55,78,43,.14);
 }
 body:has(.hpFullScreenGame){background:var(--academy-canvas);color:var(--academy-ink)}
-.hpGame.hpFullScreenGame{background:linear-gradient(180deg,#e9eef4 0%,#f6f8fa 100%);color:var(--academy-ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.hpGame.hpFullScreenGame{background:linear-gradient(180deg,#f1f0df 0%,#faf7e9 100%);color:var(--academy-ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .hpFullScreenGame .hpTop.hpTopOverlay{background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.96);border-radius:18px;box-shadow:0 8px 28px rgba(35,53,72,.11);backdrop-filter:blur(20px);color:var(--academy-ink)}
 .hpFullScreenGame .hpLogo{background:var(--academy-blue-soft);color:var(--academy-blue);border-radius:12px}
 .hpFullScreenGame .hpBrand b{color:#27374a;letter-spacing:-.35px}
@@ -19,7 +19,7 @@ body:has(.hpFullScreenGame){background:var(--academy-canvas);color:var(--academy
 .hpFullScreenGame .hpCurrencies>span svg{color:var(--academy-blue)}
 .hpFullScreenGame .hpKennelButton{background:#f1f6fb!important;border:1px solid #d9e6f2!important;color:#386b9e!important;border-radius:10px!important}
 .hpFullScreenGame .hpWorldSection.hpWorldStage{min-height:calc(100svh - 24px);padding:0 14px 116px;background:transparent}
-.hpFullScreenGame .hpWorld{height:calc(100svh - 132px);min-height:520px;max-height:900px;border:1px solid #d5dee7;border-radius:24px;background:#c8d5df;box-shadow:0 18px 55px rgba(35,52,70,.13);overflow:hidden}
+.hpFullScreenGame .hpWorld{height:calc(100svh - 132px);min-height:520px;max-height:900px;border:1px solid #d5dee7;border-radius:24px;background:#b9d3a6;box-shadow:0 18px 55px rgba(55,78,43,.15);overflow:hidden}
 .hpFullScreenGame .hpWorld:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(25,43,63,.05),transparent 28%,transparent 78%,rgba(25,43,63,.08));z-index:1}
 .hpFullScreenGame .hpThreeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .hpFullScreenGame .hpWorldSvg{position:absolute;inset:0;z-index:2;opacity:.16;mix-blend-mode:multiply}
