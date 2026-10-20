@@ -138,3 +138,86 @@ body{background:#dce8d2}
 @media(prefers-reduced-motion:reduce){.hpActivityEmoji,.hpPullerRing,.hpPullerDog,.hpTimingRunner{animation:none!important}}
 
 @media(max-width:760px){.hpWorldBottomHud{left:auto!important;right:9px!important;bottom:196px!important;width:112px}.hpWorldQuest{left:9px!important;right:9px!important;bottom:99px!important}.hpWorldControls.hpWorldControlsOverlay{bottom:98px!important}}
+
+/* Mobile-first cozy world and game controls */
+.hpFullScreenGame{min-height:100svh;padding-bottom:calc(96px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#e7f0d8 0%,#f8f4e7 58%,#eee4c9 100%)}
+.hpTopOverlay{position:sticky;top:0;z-index:35;display:flex;gap:8px;min-height:64px;padding:8px clamp(10px,2vw,22px);align-items:center;background:rgba(255,250,235,.94);border-bottom:1px solid #dfe6d2;box-shadow:0 5px 18px #3553370c;backdrop-filter:blur(16px)}
+.hpBrand{min-width:0;gap:8px}.hpBrand>span:last-child{min-width:0}.hpBrand b{font-size:13px}.hpBrand small{font-size:7px;letter-spacing:1px}
+.hpProfileChip{min-width:0;flex:1}.hpProfileChip>span:last-child{min-width:0}.hpProfileChip b,.hpProfileChip small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hpCurrencies{gap:6px}.hpCurrencies>span{padding:8px 9px;border-radius:12px;background:#fff4d7;border:1px solid #e9d9ad;font-size:11px}
+.hpKennelButton,.hpNavToggle,.hpPauseButton{min-height:42px;min-width:42px;border-radius:13px}
+.hpWorldSection.hpWorldStage{position:relative;height:calc(100svh - 168px);min-height:450px;max-height:860px;margin:10px 10px 0;border:2px solid #fff;border-radius:25px;overflow:hidden;background:#b7d59c;box-shadow:0 12px 32px #36563820}
+.hpWorldSection .hpWorld{position:absolute;inset:0;width:100%;height:100%;min-height:0;border:0;border-radius:0;box-shadow:none}
+.hpWorldSvg{touch-action:pan-y;cursor:pointer}
+.hpWorldTopline{top:12px;left:12px;right:12px;z-index:7;gap:8px;align-items:center}
+.hpWorldStatus{padding:8px 11px;max-width:calc(100% - 80px);border:1px solid #fff;background:#fff9ebed;border-radius:15px;box-shadow:0 4px 14px #2d53301b}
+.hpWorldStatus b{font-size:11px}.hpWorldStatus small{font-size:9px}
+.hpWorldTool{min-height:39px;padding:8px 10px;border:1px solid #fff;border-radius:13px;background:#fff8e9;color:#31573b;font-size:10px;box-shadow:0 4px 12px #2d53301b}
+.hpWorldQuest{z-index:12;bottom:100px!important;left:12px!important;right:12px!important;width:auto!important;max-width:none!important;padding:13px 14px;border:1px solid #fff;border-radius:18px;background:linear-gradient(120deg,#fffaf0f5,#eff5e7f5);box-shadow:0 8px 25px #27452c24}
+.hpWorldQuest .hpQuestEyebrow{font-size:8px;letter-spacing:1px}.hpWorldQuest>b{font-size:14px;line-height:1.3;margin:4px 0}.hpWorldQuest>span:not(.hpQuestEyebrow){font-size:10px;line-height:1.4}.hpWorldQuest>button{display:flex;width:100%;min-height:43px;align-items:center;justify-content:center;gap:6px;margin-top:9px;border:0;border-radius:13px;background:linear-gradient(#78a957,#4c803d);color:white;font-size:11px;font-weight:900;box-shadow:0 4px 0 #3e6c32}
+.hpWorldControls.hpWorldControlsOverlay{z-index:11;left:10px!important;right:auto!important;bottom:101px!important;transform:none!important}
+.hpDpad{display:grid;grid-template-columns:repeat(3,38px);grid-template-rows:repeat(2,35px);gap:3px;padding:6px;border:1px solid #fff;border-radius:17px;background:#fff8e9eF;box-shadow:0 5px 18px #24462a25}
+.hpDpad button{min-width:0;min-height:0;border:1px solid #dce5d2;border-radius:10px;background:#fff;color:#355c3b;font-size:17px;font-weight:900;touch-action:manipulation}
+.hpDpad button:nth-child(1){grid-column:1;grid-row:2}.hpDpad button:nth-child(2){grid-column:2;grid-row:1}.hpDpad button:nth-child(3){grid-column:2;grid-row:2}.hpDpad button:nth-child(4){grid-column:3;grid-row:2}
+.hpMoveHint{display:none}
+.hpWorldBottomHud{z-index:10;left:auto!important;right:10px!important;bottom:197px!important;width:104px!important;padding:7px!important;gap:6px!important;border:1px solid #fff!important;border-radius:15px!important;background:#fff8e9ed!important;box-shadow:0 5px 18px #24462a25!important}
+.hpBottomMeter span{font-size:8px!important}.hpBottomMeter b{font-size:9px!important}.hpBottomMeter i{height:5px!important}.hpWorldBottomHud>button{min-height:32px;border-radius:9px;background:#e8f0dd;color:#41613b;font-size:8px}
+.hpHayDock{position:fixed;z-index:40;bottom:calc(7px + env(safe-area-inset-bottom));width:calc(100% - 14px);max-width:600px;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding:6px;border:1px solid #fff;border-radius:20px;background:rgba(255,250,236,.97);box-shadow:0 8px 28px #26472c32}
+.hpDockItem{min-height:62px;padding:5px 1px;gap:3px}.hpDockItem>span{width:31px;height:29px;font-size:19px;border-radius:10px}.hpDockItem>b{font-size:9px}.hpDockItem>small{font-size:7px}
+.hpModalBackdrop{z-index:100;padding:0!important;place-items:stretch!important;background:#1c3025c9!important;backdrop-filter:blur(8px)}
+.hpGameModal,.hpStatsModal,.hpStoryModal,.hpPauseModal,.hpShopModal{width:100%!important;max-width:none!important;max-height:100svh!important;height:100svh!important;overflow-x:hidden!important;overflow-y:auto!important;border-radius:0!important;padding-bottom:calc(16px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.hpGameModal>header,.hpStatsModal>header{position:sticky;top:0;z-index:8;padding:13px 16px!important;background:#fffaf0f5;backdrop-filter:blur(12px)}
+.hpGameHeader h2{font-size:20px!important;line-height:1.15}.hpGameHeader small{font-size:8px!important;letter-spacing:1px}
+.hpDifficultyBar{position:sticky;top:66px;z-index:7;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px 12px;background:#f8f4e7;border-bottom:1px solid #e7e4d7}
+.hpDifficultyBar>span{grid-column:1/-1;font-size:9px;font-weight:900;letter-spacing:.8px;color:#74866c;text-transform:uppercase}
+.hpDifficultyBar button{min-height:42px;padding:8px 4px;border:1px solid #dfe6d5;border-radius:12px;background:#fffdf5;color:#4d6845;font-size:10px;font-weight:900;touch-action:manipulation}
+.hpDifficultyBar button.active{border-color:#5d8c4a;background:#e3f0d6;color:#2d5a35;box-shadow:inset 0 -3px 0 #c2ddb2}
+.hpActivityScene{margin:12px 12px 0!important;padding:12px!important;gap:10px!important;min-height:82px!important;border-radius:18px!important}
+.hpActivityEmoji{flex-basis:51px!important;height:51px!important;font-size:29px!important;border-radius:16px!important}
+.hpActivitySceneCopy b{font-size:12px!important}.hpActivitySceneCopy small{font-size:7px!important}.hpActivitySceneCopy>span{font-size:9px!important}
+.hpMiniContent{padding:16px 14px 28px!important}
+.hpInstruction{font-size:12px!important;line-height:1.65!important;margin-bottom:14px!important}
+.hpChoiceGrid{gap:9px!important}.hpChoiceGrid button,.hpQuizAnswers button,.hpScentChoices button{min-height:56px!important;padding:12px!important;border-radius:15px!important;font-size:12px!important;touch-action:manipulation}
+.hpChoiceGrid button:active,.hpQuizAnswers button:active{transform:scale(.98)}
+.hpArrows{grid-template-columns:repeat(2,minmax(0,1fr))!important}.hpArrows button{min-height:68px!important;font-size:25px!important}
+.hpSequence span,.hpRoute span{min-width:0;flex:1;min-height:57px;border-radius:14px}
+.hpRoute-hard span{min-width:calc(33.333% - 10px);min-height:49px}
+.hpTimingTrack{height:30px!important;margin:22px 2px 14px!important}
+.hpTimingSafe{left:40%;width:22%}
+.hpTimingTrack.easy .hpTimingSafe{left:28%;width:44%}
+.hpTimingTrack.normal .hpTimingSafe{left:40%;width:22%}
+.hpTimingTrack.hard .hpTimingSafe{left:47%;width:6%}
+.hpTimingTrack.easy .hpTimingRunner{animation-duration:2.4s}
+.hpTimingTrack.normal .hpTimingRunner{animation-duration:1.8s}
+.hpTimingTrack.hard .hpTimingRunner{animation-duration:1.25s}
+.hpTimingButton{min-height:58px!important;font-size:13px!important;border-radius:16px!important}
+.hpFeedback{padding:11px 12px;border-radius:13px;background:#edf4e4;font-size:11px;line-height:1.5}
+.hpResult{padding:25px 17px!important}.hpResult h3{font-size:23px}.hpResultStats{gap:7px}.hpResultStats span{padding:10px 7px;font-size:9px}
+.hpPrimary,.hpSecondary{min-height:48px!important;touch-action:manipulation}
+.hpShopGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.hpNavDrawer{width:min(88vw,360px)!important}.hpDrawerScroll{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+.hpNotice{z-index:60;bottom:calc(94px + env(safe-area-inset-bottom))!important;max-width:calc(100vw - 24px)!important;line-height:1.5}
+@media(min-width:761px){
+ .hpFullScreenGame{padding-bottom:0}
+ .hpWorldSection.hpWorldStage{height:min(76vh,780px);min-height:540px;margin:18px clamp(18px,3vw,44px) 0}
+ .hpHayDock{bottom:16px;width:min(660px,calc(100vw - 40px))}
+ .hpModalBackdrop{place-items:center!important;padding:20px!important}
+ .hpGameModal,.hpStatsModal,.hpStoryModal,.hpPauseModal,.hpShopModal{width:min(680px,calc(100vw - 40px))!important;max-height:90vh!important;height:auto!important;border-radius:24px!important}
+ .hpGameModal>header{position:static}
+ .hpDifficultyBar{position:static;grid-template-columns:repeat(3,minmax(0,1fr));margin:0 20px;border:0;border-radius:15px}
+ .hpDifficultyBar>span{grid-column:1/-1}
+ .hpActivityScene{margin:14px 24px 0!important}
+ .hpMiniContent{padding:22px 24px 28px!important}
+ .hpWorldQuest{right:18px!important;left:auto!important;bottom:120px!important;width:280px!important}
+ .hpWorldControls.hpWorldControlsOverlay{left:auto!important;right:18px!important;bottom:120px!important}
+ .hpWorldBottomHud{right:18px!important;bottom:250px!important}
+}
+@media(max-width:380px){
+ .hpBrand b{font-size:11px}.hpBrand small{font-size:6px}.hpProfileChip{display:none}.hpCurrencies>span{font-size:10px;padding:7px}
+ .hpWorldSection.hpWorldStage{height:calc(100svh - 153px);min-height:410px;margin:7px 6px 0;border-radius:20px}
+ .hpWorldQuest{bottom:94px!important;left:8px!important;right:8px!important;padding:11px!important}
+ .hpWorldControls.hpWorldControlsOverlay{bottom:96px!important;left:7px!important}
+ .hpWorldBottomHud{right:7px!important;bottom:190px!important;width:91px!important}
+ .hpDockItem>small{display:none}
+}
+@media(prefers-reduced-motion:reduce){.hpTimingRunner,.hpActivityEmoji,.hpPullerRing,.hpPullerDog{animation:none!important}}
