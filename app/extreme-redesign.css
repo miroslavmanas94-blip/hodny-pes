@@ -365,3 +365,12 @@ body{background:#dce8d2}
  .hpDockItem>span{width:42px!important;height:37px!important}
  .hpDockItem>b{font-size:11px!important}
 }
+
+.hpProgressDot{display:block;width:7px;height:7px;margin:auto;border-radius:50%;background:#c8d2be;box-shadow:none}
+.hpTimingProgress>span.done .hpProgressDot{background:#4e7750}
+.hpTimingProgress>span.current .hpProgressDot{width:9px;height:9px;background:#d7a85c;box-shadow:0 0 0 3px #d7a85c22}
+.hpTimingProgress>span{display:grid;place-items:center}
+.hpShopEmoji,.hpDogArt{display:grid!important;place-items:center!important;background:#edf1e7!important;color:#4c704f!important;border:1px solid #e0e6d8!important;border-radius:14px!important}
+.hpShopEmoji svg,.hpDogArt svg{stroke-width:1.7}
+.hpShopBalance{display:flex;align-items:center;gap:5px}
+.hpKennelFooter>span,.hpShopFooter{display:flex;align-items:center;gap:5px}
