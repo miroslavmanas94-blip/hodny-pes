@@ -56,15 +56,73 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
    else{const medal=add(new THREE.TorusGeometry(.3,.1,8,16),collectibleMaterials.medal,0,.8,0,g);medal.rotation.x=Math.PI/2;add(new THREE.SphereGeometry(.15,10,8),collectibleMaterials.medal,0,.8,0,g);}
    collectMeshes.current.push({id:f.id,mesh:g});
   });
-  const building=(x:number,z:number,s=1,w="#f0dfbb",r="#6e98b8",sign=false)=>{const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);scene.add(g);const wall=material(w),roof=material(r),trim=material("#fff0d4"),wood=material("#8a6344"),glass=new THREE.MeshStandardMaterial({color:"#9ccbd7",roughness:.3});add(new THREE.BoxGeometry(11,5.5,8),wall,0,2.8,0,g);add(new THREE.BoxGeometry(11.5,.3,8.5),trim,0,5.6,0,g);const ra=add(new THREE.BoxGeometry(6.5,.55,9),roof,-2.8,7,0,g);ra.rotation.z=-.55;const rb=add(new THREE.BoxGeometry(6.5,.55,9),roof,2.8,7,0,g);rb.rotation.z=.55;add(new THREE.BoxGeometry(2,3,.18),wood,0,1.6,4.1,g);add(new THREE.BoxGeometry(.12,.12,.22),material("#f4d58b"),.6,1.8,4.2,g);for(const wx of [-3.5,3.5]){add(new THREE.BoxGeometry(1.6,1.5,.2),trim,wx,3.5,4.12,g);add(new THREE.BoxGeometry(1.3,1.25,.22),glass,wx,3.5,4.23,g);add(new THREE.BoxGeometry(.1,1.25,.05),trim,wx,3.5,4.36,g);}if(sign){const c=document.createElement("canvas");c.width=512;c.height=128;const ctx=c.getContext("2d");if(ctx){ctx.fillStyle="#edf3e7";ctx.fillRect(0,0,512,128);ctx.fillStyle="#315d49";ctx.font="bold 48px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("HODNÝ PES",256,64);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;add(new THREE.PlaneGeometry(6.3,1),new THREE.MeshBasicMaterial({map:tex}),0,5,4.45,g);}}};
-  if(place==="centrum"){building(-10,-8,1.12,"#f2e3c4","#6d98bb",true);building(21,-17,.62,"#e8d3ad","#88a16c");}
-  else if(place==="domov"){building(-5,-7,1.05,"#f2dfbc","#b98765");add(new THREE.BoxGeometry(7,.65,4),material("#b9d4a0"),7,.35,4);}
-  else if(place==="mesto"){building(-12,-9,1,"#f0dfbf","#c47c61");building(15,-19,.7,"#d8e5d6","#7d9bb9");}
-  else if(place==="priroda")building(16,-13,.58,"#e6d6b4","#7c9a65");
-  else if(place==="jezero"){building(-28,-15,.62,"#f0dfbc","#6e9e9b");const water=add(new THREE.CircleGeometry(17,48),new THREE.MeshStandardMaterial({color:"#70b8d0",roughness:.24,metalness:.08}),23,-.04,-9);water.rotation.x=-Math.PI/2;const shore=add(new THREE.TorusGeometry(17,.65,8,64),material("#d7c39a"),23,.02,-9);shore.rotation.x=Math.PI/2;for(let i=0;i<7;i++){const reed=add(new THREE.CylinderGeometry(.09,.13,1.1,6),material("#799b61"),8+i*2,.5,-25+(i%3)*2);reed.rotation.z=.12;}}
-  else if(place==="vesnice"){building(-25,-14,.72,"#f1dfbf","#c47c61");building(2,-28,.6,"#e6d7b9","#83a66d");building(26,-13,.66,"#e2e7dc","#7899b8");const plaza=add(new THREE.CylinderGeometry(9,9,.18,8),material("#d8c7a7"),7,.02,5);plaza.rotation.x=0;add(new THREE.CylinderGeometry(1.2,1.5,1.4,8),material("#7da8bb"),7,.8,5);add(new THREE.CylinderGeometry(1.8,1.8,.15,8),material("#e6dfc9"),7,1.55,5);}
-  else if(place==="hory"){for(let i=0;i<9;i++){const x=-67+i*16,z=-43+(i%3)*5;const mountain=add(new THREE.ConeGeometry(10+(i%3)*3,25+(i%4)*5,7),material(i%2?"#8da7ae":"#718f83"),x,11,z);mountain.position.y=12+(i%3)*2;}building(23,-12,.58,"#e6d6b4","#6e8da1");}
-  else {for(let i=0;i<9;i++){add(new THREE.BoxGeometry(.35,1.4,.35),material("#f1e8d1"),-20+i*5,.7,13);if(i<8)add(new THREE.BoxGeometry(5,.2,.2),material("#d8c9a8"),-17.5+i*5,1,13);}}
+  const building=(x:number,z:number,scale=1,wallColor="#f0dfbb",roofColor="#6e98b8",label="HODNÝ PES",taskId="quiz")=>{
+   const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(scale);scene.add(g);
+   const wall=material(wallColor),roof=material(roofColor),trim=material("#fff0d4"),wood=material("#8a6344"),glass=new THREE.MeshStandardMaterial({color:"#9ccbd7",roughness:.3});
+   add(new THREE.BoxGeometry(11,5.5,8),wall,0,2.8,0,g);
+   add(new THREE.BoxGeometry(11.5,.3,8.5),trim,0,5.6,0,g);
+   const ra=add(new THREE.BoxGeometry(6.5,.55,9),roof,-2.8,7,0,g);ra.rotation.z=-.55;
+   const rb=add(new THREE.BoxGeometry(6.5,.55,9),roof,2.8,7,0,g);rb.rotation.z=.55;
+   add(new THREE.BoxGeometry(2,3,.18),wood,0,1.6,4.1,g);
+   add(new THREE.BoxGeometry(.12,.12,.22),material("#f4d58b"),.6,1.8,4.2,g);
+   for(const wx of [-3.5,3.5]){
+    add(new THREE.BoxGeometry(1.6,1.5,.2),trim,wx,3.5,4.12,g);
+    add(new THREE.BoxGeometry(1.3,1.25,.22),glass,wx,3.5,4.23,g);
+    add(new THREE.BoxGeometry(.1,1.25,.05),trim,wx,3.5,4.36,g);
+   }
+   // A readable facade plaque makes every building identifiable from the isometric camera.
+   const c=document.createElement("canvas");c.width=512;c.height=128;const ctx=c.getContext("2d");
+   if(ctx){ctx.fillStyle="#f8f1df";ctx.fillRect(0,0,512,128);ctx.fillStyle="#315d49";ctx.font="bold 34px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(label,256,64);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;add(new THREE.PlaneGeometry(7.2,1.8),new THREE.MeshBasicMaterial({map:tex,transparent:true}),0,4.8,4.28,g);}
+   // Invisible raycast target: building clicks are handled by the same stable hit-testing path as activities.
+   const hitMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,colorWrite:false,depthWrite:false});
+   const hit=add(new THREE.BoxGeometry(12,10,10),hitMat,0,4.8,0,g);stationHits.current.push({id:taskId,object:hit});
+  };
+  stationHits.current=[];
+  if(place==="centrum"){
+   // The academy is the hub. All ten buildings are placed in the initial camera view,
+   // around the player's starting area; they are not HTML/SVG overlays.
+   const academyBuildings=[
+    {x:-21,z:9,label:"HLAVNÍ DŮM",wall:"#f1dfbb",roof:"#b98765",task:"tricks"},
+    {x:-10.5,z:9,label:"RECEPCE",wall:"#f3e4c7",roof:"#6d98bb",task:"quiz"},
+    {x:0,z:9,label:"CVIČIŠTĚ",wall:"#e7d7b5",roof:"#7c9a65",task:"obedience"},
+    {x:10.5,z:9,label:"VÝCVIKOVÁ HALA",wall:"#d8e5d6",roof:"#7d9bb9",task:"agility"},
+    {x:21,z:9,label:"PSÍ KOTCE",wall:"#e9d8bd",roof:"#a87952",task:"recall"},
+    {x:-21,z:25,label:"OBCHOD",wall:"#f0dfbf",roof:"#c47c61",task:"quiz"},
+    {x:-10.5,z:25,label:"PSÍ SALON",wall:"#f1d9d1",roof:"#c78d9d",task:"tricks"},
+    {x:0,z:25,label:"DOG PULLER",wall:"#e4e2c9",roof:"#7ca6bd",task:"puller"},
+    {x:10.5,z:25,label:"SKLAD ODMĚN",wall:"#e8d3ad",roof:"#88a16c",task:"nosework"},
+    {x:21,z:25,label:"JEZÍRKO",wall:"#d9e9df",roof:"#6e9e9b",task:"nosework"}
+   ];
+   academyBuildings.forEach(b=>building(b.x,b.z,.48,b.wall,b.roof,b.label,b.task));
+   // A small central paved courtyard and planted edges tie the buildings together.
+   const plaza=add(new THREE.CylinderGeometry(8,8,.16,8),material("#d9c7a5"),0,.02,17);plaza.rotation.y=Math.PI/8;
+   for(let i=0;i<14;i++){const x=-27+(i%7)*9,z=2+Math.floor(i/7)*31;const flower=add(new THREE.SphereGeometry(.22,7,6),material(["#e7b2a7","#f1d27a","#d7c0e3"][i%3]),x,.32,z);flower.scale.set(1,.55,1);}
+  } else if(place==="domov"){
+   building(-5,-7,1.05,"#f2dfbc","#b98765","MŮJ DŮM","tricks");
+   add(new THREE.BoxGeometry(7,.65,4),material("#b9d4a0"),7,.35,4);
+  } else if(place==="mesto"){
+   building(-12,-9,.7,"#f0dfbf","#c47c61","OBCHOD","quiz");
+   building(15,-19,.55,"#d8e5d6","#7d9bb9","KLUB","recall");
+  } else if(place==="priroda"){
+   building(16,-13,.58,"#e6d6b4","#7c9a65","ODPOČINEK","nosework");
+  } else if(place==="jezero"){
+   building(-28,-15,.62,"#f0dfbc","#6e9e9b","PŘÍSTŘEŠEK","nosework");
+   const water=add(new THREE.CircleGeometry(17,48),new THREE.MeshStandardMaterial({color:"#70b8d0",roughness:.24,metalness:.08}),23,-.04,-9);water.rotation.x=-Math.PI/2;
+   const shore=add(new THREE.TorusGeometry(17,.65,8,64),material("#d7c39a"),23,.02,-9);shore.rotation.x=Math.PI/2;
+   for(let i=0;i<7;i++){const reed=add(new THREE.CylinderGeometry(.09,.13,1.1,6),material("#799b61"),8+i*2,.5,-25+(i%3)*2);reed.rotation.z=.12;}
+  } else if(place==="vesnice"){
+   building(-25,-14,.72,"#f1dfbf","#c47c61","VESNICKÝ DŮM","quiz");
+   building(2,-28,.6,"#e6d7b9","#83a66d","ZAHRADA","tricks");
+   building(26,-13,.66,"#e2e7dc","#7899b8","KLUB","recall");
+   const plaza=add(new THREE.CylinderGeometry(9,9,.18,8),material("#d8c7a7"),7,.02,5);
+   add(new THREE.CylinderGeometry(1.2,1.5,1.4,8),material("#7da8bb"),7,.8,5);
+   add(new THREE.CylinderGeometry(1.8,1.8,.15,8),material("#e6dfc9"),7,1.55,5);
+  } else if(place==="hory"){
+   for(let i=0;i<9;i++){const x=-67+i*16,z=-43+(i%3)*5;const mountain=add(new THREE.ConeGeometry(10+(i%3)*3,25+(i%4)*5,7),material(i%2?"#8da7ae":"#718f83"),x,11,z);mountain.position.y=12+(i%3)*2;}
+   building(23,-12,.58,"#e6d6b4","#6e8da1","HORSKÁ CHATA","recall");
+  } else {
+   for(let i=0;i<9;i++){add(new THREE.BoxGeometry(.35,1.4,.35),material("#f1e8d1"),-20+i*5,.7,13);if(i<8)add(new THREE.BoxGeometry(5,.2,.2),material("#d8c9a8"),-17.5+i*5,1,13);}
+  }
   const jump=(x:number,z:number,c:string)=>{add(new THREE.BoxGeometry(.4,2,.4),material("#f5ead5"),x-2.3,1,z);add(new THREE.BoxGeometry(.4,2,.4),material("#f5ead5"),x+2.3,1,z);add(new THREE.CylinderGeometry(.22,.22,5,8),material(c),x,1.65,z).rotation.z=Math.PI/2;};if(place==="centrum"||place==="hala"){jump(-16,3,"#5c9fc0");jump(-3,10,"#d88b66");const hoop=add(new THREE.TorusGeometry(1.45,.2,10,24),material("#e2a85e"),10,2,10);hoop.rotation.x=Math.PI/2;add(new THREE.BoxGeometry(1,2.2,1),material("#f4ead2"),7.2,1.1,10);add(new THREE.BoxGeometry(1,2.2,1),material("#f4ead2"),12.8,1.1,10);}
   if(academyUpgrades.includes("course")&&(place==="centrum"||place==="hala")){const colors=["#d98b70","#d4ad55","#79a9c4"];for(let i=0;i<3;i++){const x=-14+i*8,z=5+(i%2)*3;add(new THREE.BoxGeometry(.3,1.25,.3),material("#f3ead8"),x-.9,.62,z);add(new THREE.BoxGeometry(.3,1.25,.3),material("#f3ead8"),x+.9,.62,z);add(new THREE.CylinderGeometry(.14,.14,2.1,8),material(colors[i]),x,1.1,z).rotation.z=Math.PI/2;}}
   if(academyUpgrades.includes("garden")&&(place==="centrum"||place==="domov")){const soil=material("#8eaa70"),stem=material("#5d8b54"),petals=[material("#e6a1a0"),material("#e9c96f"),material("#d9b8dc")];add(new THREE.BoxGeometry(10,.12,4),soil,-23,.05,10);for(let i=0;i<12;i++){const x=-27+(i%6)*1.6,z=8+Math.floor(i/6)*2;add(new THREE.CylinderGeometry(.045,.06,.5,5),stem,x,.28,z);add(new THREE.SphereGeometry(.22,8,6),petals[i%petals.length],x,.58,z);}}
