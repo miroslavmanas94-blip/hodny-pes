@@ -81,3 +81,9 @@
  .hpHubFooter{gap:7px;padding:11px 13px;font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.hpHubTabs button,.hpHubProgress i,.hpHubPrimary{transition:none;transform:none}}
+
+.hpFullScreenGame .hpTapHint{display:flex;align-items:center;gap:10px;max-width:290px;padding:12px 14px;border:1px solid rgba(255,255,255,.96);border-radius:15px;background:rgba(255,255,255,.92);box-shadow:0 9px 25px rgba(29,49,71,.12);backdrop-filter:blur(16px);color:#557f65}
+.hpFullScreenGame .hpTapHint>svg{flex-shrink:0}
+.hpFullScreenGame .hpTapHint b{display:block;color:#344e40;font-size:11px;font-weight:800}
+.hpFullScreenGame .hpTapHint small{display:block;margin-top:3px;color:#788b7e;font-size:10px;line-height:1.4}
+@media(max-width:600px){.hpFullScreenGame .hpWorldControlsOverlay{left:10px;bottom:94px}.hpFullScreenGame .hpTapHint{max-width:235px;padding:10px 11px}.hpFullScreenGame .hpTapHint b{font-size:10px}.hpFullScreenGame .hpTapHint small{font-size:9px}}
