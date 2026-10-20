@@ -22,10 +22,12 @@ Vývoj po ověřitelných fázích. Každá fáze má vlastní kontrolu na mobil
 - Zamčené oblasti zobrazují požadovanou úroveň a nelze do nich vstoupit předčasně.
 
 ## Fáze 3 — Obsah a objevování
-- Rozšířit mapu o vedlejší cesty, místa k prozkoumání, sběratelské předměty a krátké výpravy.
-- Přidat jasné cíle, které se odhalují postupně; žádné dlouhé povinné čekání.
-- Odměny za průzkum: zkušenosti, mince, kosmetika a dekorace.
-- Každá oblast získá několik jedinečných úkolů.
+- [x] Přidat 24 sběratelských nálezů rozdělených do osmi oblastí; předměty se v 3D světě jemně vznášejí.
+- [x] Sbírání se aktivuje přiblížením psa k nálezu a ukládá se do stávajícího save objektu.
+- [x] Každý nález dává 12 XP a 20 mincí; každý třetí nález přidá tematickou dekoraci do sbírky.
+- [x] Zobrazit průběžný počet nalezených předmětů v herním HUD.
+- [x] Kliknutí do terénu převést raycastingem na skutečný bod v 3D světě, ne odhad z překryvné 2D mapy.
+- [ ] Rozšířit krátké výpravy a jedinečné úkoly každé oblasti v další iteraci.
 
 ## Fáze 4 — Stavba a vylepšování
 - Stavět a vylepšovat budovy, cesty, zahradu a tréninková stanoviště.
@@ -50,6 +52,7 @@ Vývoj po ověřitelných fázích. Každá fáze má vlastní kontrolu na mobil
 
 ## Stav implementace
 - Základní rozšíření 3D prostoru a sledování hráče: implementováno.
-- Plynulý pohyb na kliknutí a z kláves: implementováno.
+- Plynulý pohyb na kliknutí a z kláves: implementováno; kliknutí se převádí průsečíkem paprsku s rovinou 3D terénu.
+- Fáze 3 — sbírání a odměny: implementováno v základu (24 nálezů, ukládání, XP/mince/dekorace).
 - Tři nové odemykatelné oblasti (jezero, vesnice, hory) s odlišnými 3D prvky: implementováno.
 - Další fáze jsou plánované; nepovažují se za hotové, dokud nejsou samostatně implementované a ověřené.
