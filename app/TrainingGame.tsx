@@ -118,7 +118,7 @@ export default function TrainingGame(){
  const [showHub,setShowHub]=useState(false);
  const [hubInitialTab,setHubInitialTab]=useState<"missions"|"academy"|"collection"|"events">("missions");
  const challengeRounds=difficulty==="easy"?2:difficulty==="normal"?3:5;
- const currentRounds=game==="agility"||game==="frisbee"||game==="puller"||game==="quiz"||game==="nosework||(game==="recall"&&difficulty!=="easy")?challengeRounds:game==="tricks"?sequence.length:game==="obedience"?obedienceSequence.length:1;
+ const currentRounds=game==="agility"||game==="frisbee"||game==="puller"||game==="quiz"||game==="nosework"||(game==="recall"&&difficulty!=="easy")?challengeRounds:game==="tricks"?sequence.length:game==="obedience"?obedienceSequence.length:1;
  const level=Math.floor(save.xp/100)+1;
  const place=places.find(p=>p.id===save.place)!;
  const visibleTasks=tasks.filter(t=>t.place.includes(save.place));
