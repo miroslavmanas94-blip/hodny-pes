@@ -47,6 +47,14 @@ scene.add(new THREE.HemisphereLight("#fff7e5","#71835e",2.25));const sun=new THR
 const mat=(color:string,roughness=.88)=>new THREE.MeshStandardMaterial({color,roughness});
 const add=(geo:THREE.BufferGeometry,material:THREE.Material,x:number,y:number,z:number,parent:THREE.Object3D=scene)=>{const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
 const floor=add(new THREE.PlaneGeometry(154,120),mat(colors.ground),0,-.14,0);floor.rotation.x=-Math.PI/2;floor.castShadow=false;
+/* Layered meadow pass: soft ground variation, planted borders and fine grass clumps. */
+const meadowPatch=(x:number,z:number,sx:number,sz:number,color:string,opacity=.2)=>{const m=add(new THREE.CircleGeometry(1,24),new THREE.MeshBasicMaterial({color,transparent:true,opacity,depthWrite:false}),x,-.115,z);m.rotation.x=-Math.PI/2;m.scale.set(sx,sz,1);m.castShadow=false;return m;};
+for(let i=0;i<34;i++){const x=((i*47)%132)-66,z=((i*31)%96)-48;if(Math.abs(z-(10-x*.48))<5)continue;meadowPatch(x,z,2.2+(i%4)*.7,1.25+(i%3)*.45,i%3===0?"#d4dca4":i%3===1?"#6f9e62":"#b5cf8c",.13);}
+const grassMatA=mat("#6d9d59"),grassMatB=mat("#91b96c"),soilMat=mat("#a58a64");
+for(let i=0;i<180;i++){const x=((i*53)%142)-71,z=((i*37)%104)-52;if(Math.abs(z-(10-x*.48))<3.8)continue;const g=new THREE.Group();g.position.set(x,.01,z);g.rotation.y=(i*1.71)%Math.PI;const h=.16+(i%5)*.035;add(new THREE.ConeGeometry(.055,h,4),i%2?grassMatA:grassMatB,0,h*.5,0,g);if(i%3===0)add(new THREE.ConeGeometry(.045,h*.72,4),grassMatB,.09,h*.36,.04,g);g.scale.setScalar(.7+(i%4)*.12);g.traverse(o=>{if(o instanceof THREE.Mesh)o.castShadow=false;});scene.add(g);}
+const borderMat=mat("#e5d4ad");
+for(const [x,z,rot] of [[-33,-8,.15],[31,15,-.22],[-7,-30,.08],[8,31,-.12]] as Array<[number,number,number]>){const edge=add(new THREE.BoxGeometry(12,.09,.38),borderMat,x,.02,z);edge.rotation.y=rot;edge.castShadow=false;for(let j=0;j<7;j++){const fx=x-5.2+j*1.7,fz=z+Math.sin(rot)*j*.3;const flower=add(new THREE.SphereGeometry(.13,7,6),mat(["#e8b1a2","#e8d17c","#d6b7df","#f5eee0"][j%4]),fx,.22,fz);flower.castShadow=false;}}
+
 const road=new THREE.CatmullRomCurve3([[-69,0,32],[-42,0,18],[-20,0,8],[0,0,11],[23,0,-7],[47,0,-22],[69,0,-35]].map(([x,y,z])=>new THREE.Vector3(x,y,z)));
 add(new THREE.TubeGeometry(road,64,2.7,8,false),mat("#b6a27d"),0,-.02,0).castShadow=false;add(new THREE.TubeGeometry(road,64,2.25,8,false),mat(colors.path),0,.025,0).castShadow=false;
 for(let i=0;i<90;i++){const x=((i*37)%140)-70,z=((i*29)%106)-53;if(Math.abs(z-(10-x*.48))<4)continue;const pebble=add(new THREE.DodecahedronGeometry(.32,0),mat(i%2?"#d4d0b9":"#c3d0ad"),x,.015,z);pebble.scale.set(.8,.2,.5);pebble.castShadow=false;}
