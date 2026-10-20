@@ -168,3 +168,71 @@ body:has(.hpFullScreenGame){background:var(--academy-canvas);color:var(--academy
 .hpFullScreenGame .hpOnlineRoster section small{margin-top:3px;font-size:9px;color:#8291a2}
 .hpFullScreenGame .hpOnlineRoster section i{width:7px;height:7px;flex-shrink:0;border-radius:50%;background:#56a47b;box-shadow:0 0 0 3px #e7f5ec}
 @media(max-width:760px){.hpFullScreenGame .hpOnlineRoster{top:42px;right:0;width:min(250px,calc(100vw - 24px))}}
+
+
+/* Final polish: declutter the world view and make the controls feel like one game UI. */
+.hpFullScreenGame{background:#eaf0e2!important;color:#294535!important}
+.hpFullScreenGame .hpWorldSection.hpWorldStage{padding:0 18px 112px!important;background:linear-gradient(180deg,#d9e9ef 0%,#eaf0e2 36%,#d5e4c8 100%)!important}
+.hpFullScreenGame .hpWorld{height:calc(100svh - 150px)!important;min-height:470px!important;max-height:920px!important;border:1px solid rgba(255,255,255,.94)!important;border-radius:25px!important;background:#b9d3a6!important;box-shadow:0 22px 60px rgba(43,72,43,.16)!important}
+.hpFullScreenGame .hpWorld:after{z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(25,55,38,.02),transparent 25%,transparent 76%,rgba(25,55,38,.09))!important}
+.hpFullScreenGame .hpThreeCanvas{z-index:0!important}
+.hpFullScreenGame .hpWorldSvg{z-index:2!important;opacity:1!important;mix-blend-mode:normal!important}
+.hpFullScreenGame .hpWorldSvg>:not(.hpStation){visibility:hidden!important}
+.hpFullScreenGame .hpWorldSvg .hpStation{visibility:visible!important;cursor:pointer;filter:drop-shadow(0 5px 8px rgba(30,58,37,.2))}
+.hpFullScreenGame .hpWorldSvg .hpStation circle:first-of-type{fill:#fffdf3;stroke:#fff;stroke-width:3}
+.hpFullScreenGame .hpWorldSvg .hpStation rect{fill:#fffdf2;stroke:#fff;stroke-width:1.5}
+.hpFullScreenGame .hpWorldSvg .hpStation text{font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:750}
+.hpFullScreenGame .hpWorldTopline{top:16px!important;left:16px!important;right:16px!important;z-index:7!important}
+.hpFullScreenGame .hpWorldQuest{top:76px!important;right:16px!important;bottom:auto!important;left:auto!important;width:min(275px,31%)!important;padding:15px!important;border:1px solid rgba(255,255,255,.94)!important;border-radius:18px!important;background:rgba(255,253,246,.94)!important;box-shadow:0 12px 32px rgba(39,65,42,.12)!important}
+.hpFullScreenGame .hpWorldQuest>b{font-size:15px!important}
+.hpFullScreenGame .hpWorldQuest>span:not(.hpQuestEyebrow){line-height:1.45!important}
+.hpFullScreenGame .hpWorldControlsOverlay{top:76px!important;left:16px!important;bottom:auto!important;z-index:6!important;pointer-events:none}
+.hpFullScreenGame .hpTapHint{pointer-events:none;max-width:260px!important;padding:11px 13px!important;border:1px solid rgba(255,255,255,.92)!important;border-radius:15px!important;background:rgba(255,253,246,.92)!important;box-shadow:0 9px 24px rgba(39,65,42,.1)!important}
+.hpFullScreenGame .hpTapHint b{font-size:11px!important;color:#34543a!important}
+.hpFullScreenGame .hpTapHint small{font-size:10px!important;color:#73836d!important}
+.hpFullScreenGame .hpWorldBottomHud{left:16px!important;right:auto!important;bottom:16px!important;z-index:6!important;gap:7px!important}
+.hpFullScreenGame .hpBottomMeter{min-width:105px!important;padding:9px 11px!important;border-radius:13px!important;background:rgba(255,253,246,.94)!important;border-color:rgba(255,255,255,.98)!important;box-shadow:0 8px 20px rgba(39,65,42,.1)!important}
+.hpFullScreenGame .hpBottomMeter>span{font-size:9px!important}
+.hpFullScreenGame .hpBottomMeter>b{font-size:11px!important}
+.hpFullScreenGame .hpWorldBottomHud>button{padding:10px 12px!important;border-radius:12px!important;background:#fffdf5!important;border-color:#e1e8d8!important;color:#456c48!important}
+.hpFullScreenGame .hpHayDock{bottom:12px!important;width:min(650px,calc(100% - 36px))!important;padding:7px!important;gap:5px!important;border:1px solid rgba(255,255,255,.96)!important;border-radius:18px!important;background:rgba(255,253,247,.96)!important;box-shadow:0 12px 32px rgba(39,65,42,.15)!important}
+.hpFullScreenGame .hpDockItem{min-height:57px!important;gap:3px!important;border-radius:12px!important}
+.hpFullScreenGame .hpDockItem>span{width:27px!important;height:27px!important;border-radius:9px!important;background:#edf3e5!important;color:#5c8553!important}
+.hpFullScreenGame .hpDockItem>b{font-size:10px!important;color:#35513b!important}
+.hpFullScreenGame .hpDockItem>small{font-size:8px!important;color:#82907a!important}
+.hpFullScreenGame .hpDockItem:hover,.hpFullScreenGame .hpDockItem:focus-visible{background:#edf4e6!important;border-color:#dce8d4!important}
+.hpFullScreenGame .hpWorldQuest button,.hpFullScreenGame .hpPrimary{background:#356b45!important;border-color:#356b45!important;box-shadow:0 4px 0 #244d31!important}
+.hpFullScreenGame .hpWorldQuest button:hover,.hpFullScreenGame .hpPrimary:hover{background:#417c50!important}
+@media(max-width:760px){
+ .hpFullScreenGame .hpWorldSection.hpWorldStage{padding:0 8px 94px!important}
+ .hpFullScreenGame .hpWorld{height:calc(100svh - 132px)!important;min-height:430px!important;border-radius:18px!important}
+ .hpFullScreenGame .hpWorldTopline{top:10px!important;left:10px!important;right:10px!important}
+ .hpFullScreenGame .hpWorldQuest{top:65px!important;right:9px!important;width:min(215px,53%)!important;padding:11px!important;border-radius:14px!important}
+ .hpFullScreenGame .hpWorldQuest>b{font-size:12px!important}
+ .hpFullScreenGame .hpWorldQuest>span:not(.hpQuestEyebrow){font-size:9px!important}
+ .hpFullScreenGame .hpWorldQuest button{padding:9px 10px!important;font-size:10px!important}
+ .hpFullScreenGame .hpWorldControlsOverlay{top:auto!important;left:9px!important;bottom:12px!important}
+ .hpFullScreenGame .hpTapHint{max-width:155px!important;padding:9px!important}
+ .hpFullScreenGame .hpTapHint>svg{width:14px!important}
+ .hpFullScreenGame .hpTapHint b{font-size:9px!important}
+ .hpFullScreenGame .hpTapHint small{font-size:8px!important}
+ .hpFullScreenGame .hpWorldBottomHud{left:8px!important;bottom:8px!important;gap:5px!important}
+ .hpFullScreenGame .hpBottomMeter{min-width:82px!important;padding:7px 8px!important}
+ .hpFullScreenGame .hpBottomMeter>span{font-size:8px!important}
+ .hpFullScreenGame .hpWorldBottomHud>button{font-size:9px!important;padding:8px!important}
+ .hpFullScreenGame .hpHayDock{bottom:7px!important;width:calc(100% - 16px)!important;padding:5px!important;gap:2px!important;border-radius:15px!important}
+ .hpFullScreenGame .hpDockItem{min-height:49px!important;padding:4px 2px!important;gap:2px!important}
+ .hpFullScreenGame .hpDockItem>span{width:23px!important;height:23px!important}
+ .hpFullScreenGame .hpDockItem>span svg{width:16px!important;height:16px!important}
+ .hpFullScreenGame .hpDockItem>b{font-size:9px!important}
+ .hpFullScreenGame .hpDockItem>small{display:none!important}
+}
+@media(max-width:420px){
+ .hpFullScreenGame .hpWorldQuest{top:62px!important;width:48%!important;padding:9px!important}
+ .hpFullScreenGame .hpQuestEyebrow{font-size:7px!important;letter-spacing:.6px!important}
+ .hpFullScreenGame .hpWorldQuest>b{font-size:11px!important}
+ .hpFullScreenGame .hpWorldQuest>span:not(.hpQuestEyebrow){font-size:8px!important}
+ .hpFullScreenGame .hpWorldBottomHud{bottom:66px!important}
+ .hpFullScreenGame .hpWorldControlsOverlay{bottom:10px!important}
+ .hpFullScreenGame .hpTapHint{max-width:145px!important}
+}
