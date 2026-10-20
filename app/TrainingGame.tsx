@@ -64,7 +64,7 @@ function DogModel({x,y}:{x:number;y:number}) {
  const p=iso(x,y); return <g transform={"translate("+p.x+" "+p.y+")"}><ellipse cy="11" rx="20" ry="7" fill="#203a2a" opacity=".2"/><path d="M-13 -3 L-15 8 M8 -3 L12 8" stroke="#7a5639" strokeWidth="5" strokeLinecap="round"/><path d="M-17 -13 Q-13 -21 0 -19 L9 -13 L17 -10 L15 -3 L-8 0 L-18 -4 Z" fill="#b78351" stroke="#f5e2c7" strokeWidth="1.5"/><path d="M-14 -16 L-24 -24 L-22 -10 Z" fill="#765037"/><path d="M9 -15 L14 -25 L18 -12 Z" fill="#765037"/><path d="M-2 -17 Q7 -21 13 -14 L11 -7 L3 -7 Z" fill="#f6eee0"/><circle cx="12" cy="-13" r="1.8" fill="#243d2d"/><path d="M17 -8 L21 -8" stroke="#243d2d" strokeWidth="2" strokeLinecap="round"/><path d="M-17 -10 Q-27 -5 -23 -1" stroke="#765037" strokeWidth="3" fill="none" strokeLinecap="round"/></g>;
 }
 function WorldMap({place,player,dog,onMove,onTask,onPortal,activeTask,academyLevel,academyUpgrades,collectedItems}:{place:Place;player:Point;dog:Point;onMove:(p:Point)=>void;onTask:(t:Task)=>void;onPortal:(p:Place)=>void;activeTask:Task|null;academyLevel:number;academyUpgrades:string[];collectedItems:string[]}) {
- const current=places.find(p=>p.id===place)!; const forest=place==="priroda"; const arena=place==="hala";
+ const current=places.find(p=>p.id===place)!;
  const trees=useMemo(()=>Array.from({length:20},(_,i)=>({x:8+(i*37)%84,y:7+(i*23)%80,tone:i%3})),[]);
  const currentTasks=tasks.filter(t=>t.place.includes(place));
  const [minimap,setMinimap]=useState(true);
