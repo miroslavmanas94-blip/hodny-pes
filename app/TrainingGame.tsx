@@ -85,7 +85,8 @@ export default function TrainingGame(){
  const [player,setPlayer]=useState<Point>({x:50,y:72});
  const [dog,setDog]=useState<Point>({x:47,y:75});
  const [moveTarget,setMoveTarget]=useState<Point|null>(null);
- const dogPositionRef=useRef<Point>({x:47,y:75});\n const playerPositionRef=useRef<Point>({x:50,y:72});
+ const dogPositionRef=useRef<Point>({x:47,y:75});
+ const playerPositionRef=useRef<Point>({x:50,y:72});
  const [game,setGame]=useState<Activity|null>(null);
  const [round,setRound]=useState(0);
  const [timingStart,setTimingStart]=useState(0);
@@ -127,7 +128,8 @@ export default function TrainingGame(){
  useEffect(()=>{if(!loaded)return;const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key){setOnlineReady(false);return;}const supabase=createBrowserClient(url,key);let channel:any=null;let cancelled=false;(async()=>{const {data}=await supabase.auth.getUser();if(cancelled||!data.user)return;channel=supabase.channel("hodny-pes-academy-world",{config:{presence:{key:data.user.id}}});onlineChannel.current=channel;channel.on("presence",{event:"sync"},()=>{if(!cancelled){const state=channel.presenceState() as Record<string,Array<{dog?:string;place?:Place;level?:number}>>;const players=Object.values(state).flat().map(p=>({dog:typeof p.dog==="string"?p.dog:"Psí parťák",place:places.some(x=>x.id===p.place)?p.place as Place:"centrum",level:typeof p.level==="number"?p.level:1}));setOnlinePlayers(players);setOnlineCount(Object.keys(state).length);}});channel.subscribe((status:string)=>{if(status==="SUBSCRIBED"&&!cancelled){setOnlineReady(true);channel.track({user_id:data.user.id,dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});}else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){setOnlineReady(false);}});})();return()=>{cancelled=true;setOnlineReady(false);onlineChannel.current=null;if(channel)supabase.removeChannel(channel).catch(()=>{});};},[loaded]);
  useEffect(()=>{if(!onlineChannel.current||!onlineReady)return;onlineChannel.current.track({dog:save.dog,place:save.place,level:Math.floor(save.xp/100)+1,updated_at:new Date().toISOString()}).catch(()=>{});},[save.dog,save.place,save.xp,onlineReady]);
  const heldKeys=useRef<Set<string>>(new Set());
- useEffect(()=>{dogPositionRef.current=dog;},[dog]);\n useEffect(()=>{playerPositionRef.current=player;},[player]);
+ useEffect(()=>{dogPositionRef.current=dog;},[dog]);
+ useEffect(()=>{playerPositionRef.current=player;},[player]);
  useEffect(()=>{
   let frame=0;let previous=0;let lastPaint=0;
   const keyMap:Record<string,string>={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
