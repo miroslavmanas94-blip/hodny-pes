@@ -33,7 +33,7 @@ const tasks:Task[]=[
  {id:"recall",title:"Přivolání",desc:"Vrať psa bezpečně k sobě.",x:70,y:28,symbol:"02",place:["centrum","mesto","vesnice","hory"],reward:"Spolehlivé přivolání"},
  {id:"nosework",title:"Pachová stopa",desc:"Najdi správnou stopu podle nápovědy.",x:26,y:67,symbol:"03",place:["priroda","centrum","jezero","hory"],reward:"Psí detektiv"},
  {id:"agility",title:"Agility trasa",desc:"Zapamatuj si trasu a projdi ji.",x:73,y:65,symbol:"04",place:["hala","centrum"],reward:"Pohybová jistota"},
- {id:"puller",title:"Dog Puller",desc:"Vyber správný pohyb a přines kruh.",x:51,y:49,symbol:"05",place:["hala","priroda"],reward:"Hra s pravidly"},
+ {id:"puller",title:"Dog Puller",desc:"Vyber správný pohyb a přines kruh.",x:51,y:49,symbol:"05",place:["centrum","hala","priroda"],reward:"Hra s pravidly"},
  {id:"tricks",title:"Triky",desc:"Zopakuj krátkou pohybovou sekvenci.",x:48,y:25,symbol:"06",place:["domov","centrum","vesnice"],reward:"Týmová souhra"},
  {id:"quiz",title:"Akademie trenéra",desc:"Rozhoduj férově a bezpečně.",x:51,y:76,symbol:"07",place:["centrum","mesto","priroda","hala","domov"],reward:"Znalostní odznak"}
 ];
