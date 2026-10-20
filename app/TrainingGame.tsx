@@ -5,6 +5,7 @@ import { Award, BookOpen, Check, ChevronRight, CircleHelp, Coins, Compass, Dog, 
 import "./training-game.css";
 import "./extreme-redesign.css";
 import "./academy-redesign.css";
+import "./hub-redesign.css";
 import ThreeWorld from "./ThreeWorld";
 import AcademyHub from "./AcademyHub";
 import { createBrowserClient } from "@supabase/ssr";
