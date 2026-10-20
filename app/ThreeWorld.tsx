@@ -17,7 +17,7 @@ export default function ThreeWorld({place,player,dog}:{place:Place;player:Point;
   const sun=new THREE.DirectionalLight("#fff0d0",3);sun.position.set(-25,45,-18);sun.castShadow=window.innerWidth>700;sun.shadow.mapSize.set(768,768);scene.add(sun);
   const material=(c:string,r=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
   const add=(geo:THREE.BufferGeometry,mat:THREE.Material,x:number,y:number,z:number,parent:THREE.Object3D=scene)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
-  const floor=add(new THREE.PlaneGeometry(88,70),material(place==="priroda"?"#83b776":place==="hala"?"#b7ad91":"#9bc77e"),0,-.12,0);floor.rotation.x=-Math.PI/2;
+  const floor=add(new THREE.PlaneGeometry(88,70),material(place==="priroda"?"#83b776":place==="hala"?"#b8bec6":place==="mesto"?"#a8c6a5":place==="domov"?"#c9d2c4":"#a9c1d2"),0,-.12,0);floor.rotation.x=-Math.PI/2;
   const pathPts=place==="hala"?[[-37,0,15],[-18,0,8],[0,0,2],[20,0,-10],[38,0,-18]]:[[-39,0,15],[-25,0,9],[-12,0,5],[3,0,7],[19,0,-5],[37,0,-18]];
   const curve=new THREE.CatmullRomCurve3(pathPts.map(([x,y,z])=>new THREE.Vector3(x,y,z)));
   add(new THREE.TubeGeometry(curve,72,2.8,8,false),material("#c9b894"),0,-.02,0).castShadow=false;
