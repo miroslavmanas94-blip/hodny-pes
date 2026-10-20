@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "rebuild/**"
+      - "redesign/**"
   pull_request:
     branches:
       - main
