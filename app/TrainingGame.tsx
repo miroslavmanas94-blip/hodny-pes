@@ -163,7 +163,6 @@ export default function TrainingGame(){
   window.addEventListener("keydown",onDown);window.addEventListener("keyup",onUp);window.addEventListener("blur",clear);frame=requestAnimationFrame(tick);
   return()=>{cancelAnimationFrame(frame);window.removeEventListener("keydown",onDown);window.removeEventListener("keyup",onUp);window.removeEventListener("blur",clear);};
  },[moveTarget,game,photoMode,showStats,storyOpen,paused]);
- const move=useCallback((dx:number,dy:number)=>{const current=dogPositionRef.current;setMoveTarget({x:clamp(current.x+dx,6,94),y:clamp(current.y+dy,5,92)});},[]);
  const moveDogTo=useCallback((p:Point)=>{setMoveTarget({x:clamp(p.x,6,94),y:clamp(p.y,5,92)});},[]);
  const placeUnlockLevel:Record<Place,number>={centrum:1,domov:1,mesto:2,priroda:3,hala:4,jezero:5,vesnice:6,hory:8};
  const setPlace=(p:Place)=>{if(level<placeUnlockLevel[p]){setNotice("Tahle lokace se odemkne na "+placeUnlockLevel[p]+". úrovni. Ještě pár společných misí!");return;}setSave(s=>({...s,place:p}));setMoveTarget(null);setPlayer({x:50,y:72});setDog({x:47,y:75});dogPositionRef.current={x:47,y:75};setNotice("Vyrazil/a jsi do lokace: "+places.find(x=>x.id===p)?.name);};
