@@ -1,0 +1,154 @@
+/* Hodný pes Academy — clean blue/graphite redesign layer */
+:root{
+ --academy-blue:#3d78b8;--academy-blue-deep:#285783;--academy-blue-soft:#eaf2fa;
+ --academy-ink:#253344;--academy-muted:#718094;--academy-line:#dbe3eb;
+ --academy-paper:#fff;--academy-canvas:#eef2f6;--academy-shadow:0 16px 44px rgba(32,52,75,.12);
+}
+body:has(.hpFullScreenGame){background:var(--academy-canvas);color:var(--academy-ink)}
+.hpGame.hpFullScreenGame{background:linear-gradient(180deg,#e9eef4 0%,#f6f8fa 100%);color:var(--academy-ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.hpFullScreenGame .hpTop.hpTopOverlay{background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.96);border-radius:18px;box-shadow:0 8px 28px rgba(35,53,72,.11);backdrop-filter:blur(20px);color:var(--academy-ink)}
+.hpFullScreenGame .hpLogo{background:var(--academy-blue-soft);color:var(--academy-blue);border-radius:12px}
+.hpFullScreenGame .hpBrand b{color:#27374a;letter-spacing:-.35px}
+.hpFullScreenGame .hpBrand small{color:#7a8a9d;letter-spacing:1.2px}
+.hpFullScreenGame .hpNavToggle,.hpFullScreenGame .hpPauseButton{border:1px solid var(--academy-line);background:#fff;color:#52657b;border-radius:11px}
+.hpFullScreenGame .hpNavToggle:hover,.hpFullScreenGame .hpPauseButton:hover{background:var(--academy-blue-soft);color:var(--academy-blue)}
+.hpFullScreenGame .hpProfileChip{background:#f4f7fa;border:1px solid #e4eaf0;border-radius:13px}
+.hpFullScreenGame .hpProfileChip b{color:#34455a}
+.hpFullScreenGame .hpProfileChip small{color:#8190a1}
+.hpFullScreenGame .hpCurrencies>span{background:#f1f5f9;border:1px solid #e4eaf0;color:#455c73;border-radius:10px}
+.hpFullScreenGame .hpCurrencies>span svg{color:var(--academy-blue)}
+.hpFullScreenGame .hpKennelButton{background:#f1f6fb!important;border:1px solid #d9e6f2!important;color:#386b9e!important;border-radius:10px!important}
+.hpFullScreenGame .hpWorldSection.hpWorldStage{min-height:calc(100svh - 24px);padding:0 14px 116px;background:transparent}
+.hpFullScreenGame .hpWorld{height:calc(100svh - 132px);min-height:520px;max-height:900px;border:1px solid #d5dee7;border-radius:24px;background:#c8d5df;box-shadow:0 18px 55px rgba(35,52,70,.13);overflow:hidden}
+.hpFullScreenGame .hpWorld:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(25,43,63,.05),transparent 28%,transparent 78%,rgba(25,43,63,.08));z-index:1}
+.hpFullScreenGame .hpThreeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hpFullScreenGame .hpWorldSvg{position:absolute;inset:0;z-index:2;opacity:.16;mix-blend-mode:multiply}
+.hpFullScreenGame .hpWorldLabel,.hpFullScreenGame .hpMapControls,.hpFullScreenGame .hpMinimap,.hpFullScreenGame .hpWorldCaption{z-index:4;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.96);box-shadow:0 7px 24px rgba(29,49,71,.12);backdrop-filter:blur(16px);color:#40536a}
+.hpFullScreenGame .hpWorldLabel{top:18px;left:18px;padding:12px 15px;border-radius:14px}
+.hpFullScreenGame .hpWorldLabel b{font-size:12px;color:#26384d}
+.hpFullScreenGame .hpWorldLabel small{font-size:10px;color:#71849a}
+.hpFullScreenGame .hpLiveDot{background:#56a47b;box-shadow:0 0 0 4px rgba(86,164,123,.13)}
+.hpFullScreenGame .hpMapControls{top:18px;right:18px;border-radius:13px;padding:6px}
+.hpFullScreenGame .hpMapControls button{color:#526b84}
+.hpFullScreenGame .hpMapControls button.selected{background:#eaf2fa;color:var(--academy-blue)}
+.hpFullScreenGame .hpMinimap{top:78px;right:18px;width:142px;border-radius:15px}
+.hpFullScreenGame .hpWorldTopline{top:18px;left:18px;right:18px;z-index:6;display:flex;align-items:flex-start;gap:8px;pointer-events:none}
+.hpFullScreenGame .hpWorldTopline>*{pointer-events:auto}
+.hpFullScreenGame .hpWorldTopline .hpWorldStatus{display:none}
+.hpOnlinePill{display:flex;align-items:center;gap:7px;margin-left:auto;padding:10px 12px;border-radius:13px;background:rgba(255,255,255,.94);border:1px solid #fff;box-shadow:0 7px 24px rgba(29,49,71,.12);color:#8492a2;font-size:10px;backdrop-filter:blur(16px)}
+.hpOnlinePill svg{color:#8796a6}
+.hpOnlinePill b{font-size:12px;color:#42566d;font-variant-numeric:tabular-nums}
+.hpOnlinePill small{font-size:9px;color:#8090a1}
+.hpOnlinePill.is-connected svg{color:#39976b}
+.hpOnlinePill.is-connected{border-color:#d7eadf}
+.hpFullScreenGame .hpWorldQuest{z-index:5;right:18px;bottom:18px;left:auto;width:min(300px,34%);padding:18px;border:1px solid rgba(255,255,255,.95);border-radius:18px;background:rgba(255,255,255,.94);box-shadow:0 14px 36px rgba(29,49,71,.15);backdrop-filter:blur(18px);color:var(--academy-ink)}
+.hpFullScreenGame .hpQuestEyebrow{font-size:9px;letter-spacing:1.25px;color:#6886a4}
+.hpFullScreenGame .hpWorldQuest>b{font-size:17px;line-height:1.25;letter-spacing:-.35px;color:#26384d}
+.hpFullScreenGame .hpWorldQuest>span:not(.hpQuestEyebrow){font-size:11px;line-height:1.5;color:#78899c}
+.hpFullScreenGame .hpWorldQuest button,.hpFullScreenGame .hpPrimary{background:var(--academy-blue);border:1px solid var(--academy-blue);border-radius:11px;color:#fff;box-shadow:0 6px 16px rgba(61,120,184,.18)}
+.hpFullScreenGame .hpWorldQuest button:hover,.hpFullScreenGame .hpPrimary:hover{background:var(--academy-blue-deep);transform:translateY(-1px)}
+.hpFullScreenGame .hpWorldControlsOverlay{z-index:5;left:18px;bottom:18px;padding:0;align-items:flex-end}
+.hpFullScreenGame .hpDpad{display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,40px);gap:5px;padding:8px;border:1px solid rgba(255,255,255,.95);border-radius:17px;background:rgba(255,255,255,.9);box-shadow:0 10px 28px rgba(29,49,71,.12);backdrop-filter:blur(18px)}
+.hpFullScreenGame .hpDpad button{width:42px;height:40px;border:1px solid #dce5ed;border-radius:11px;background:#fff;color:#486783;font-size:17px;box-shadow:none}
+.hpFullScreenGame .hpDpad button:nth-child(1){grid-column:1;grid-row:2}
+.hpFullScreenGame .hpDpad button:nth-child(2){grid-column:2;grid-row:1}
+.hpFullScreenGame .hpDpad button:nth-child(3){grid-column:2;grid-row:2}
+.hpFullScreenGame .hpDpad button:nth-child(4){grid-column:3;grid-row:2}
+.hpFullScreenGame .hpDpad button:hover{background:var(--academy-blue-soft);border-color:#b6cfe7;color:var(--academy-blue)}
+.hpFullScreenGame .hpMoveHint{padding:0 0 9px 12px;color:#405b75}
+.hpFullScreenGame .hpMoveHint b{font-size:11px;color:#2e455e}
+.hpFullScreenGame .hpMoveHint small{font-size:10px;color:#7b8da0}
+.hpFullScreenGame .hpWorldBottomHud{z-index:5;left:18px;bottom:115px;gap:8px;flex-wrap:wrap}
+.hpFullScreenGame .hpBottomMeter{min-width:124px;padding:10px 12px;border:1px solid rgba(255,255,255,.96);border-radius:13px;background:rgba(255,255,255,.9);box-shadow:0 7px 20px rgba(29,49,71,.09);backdrop-filter:blur(16px)}
+.hpFullScreenGame .hpBottomMeter>span{color:#71849a;font-size:9px}
+.hpFullScreenGame .hpBottomMeter>b{color:#344b63;font-size:11px}
+.hpFullScreenGame .hpBottomMeter>i{background:#e4ebf1}
+.hpFullScreenGame .hpBottomMeter>i>u{background:var(--academy-blue)}
+.hpFullScreenGame .hpWorldBottomHud>button{background:#fff;border:1px solid #dce5ed;color:#516c86;border-radius:10px}
+.hpFullScreenGame .hpHayDock{z-index:30;left:50%;bottom:12px;transform:translateX(-50%);width:min(680px,calc(100% - 28px));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:9px;border:1px solid rgba(255,255,255,.98);border-radius:19px;background:rgba(255,255,255,.94);box-shadow:0 12px 36px rgba(34,52,73,.14);backdrop-filter:blur(22px)}
+.hpFullScreenGame .hpDockItem{min-width:0;min-height:64px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:8px 5px;border:1px solid transparent;border-radius:13px;background:transparent;color:#718196}
+.hpFullScreenGame .hpDockItem>span{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:#edf3f8;color:#567da3}
+.hpFullScreenGame .hpDockItem>b{font-size:10px;color:#364a60}
+.hpFullScreenGame .hpDockItem>small{font-size:8px;color:#8290a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.hpFullScreenGame .hpDockItem:hover,.hpFullScreenGame .hpDockItem:focus-visible{background:#f0f6fb;border-color:#dbe9f5}
+.hpFullScreenGame .hpDockQuest>span{background:#dfeefa;color:var(--academy-blue)}
+.hpFullScreenGame .hpNavDrawer{background:#fff;border:1px solid #e0e7ee;box-shadow:0 20px 60px rgba(30,46,65,.22);color:var(--academy-ink)}
+.hpFullScreenGame .hpDrawerHeader,.hpFullScreenGame .hpDrawerProfile{border-color:#e5ebf1}
+.hpFullScreenGame .hpDrawerMark,.hpFullScreenGame .hpDrawerIndex,.hpFullScreenGame .hpTaskNumber{background:#edf4fa;color:#4e7eaa}
+.hpFullScreenGame .hpDrawerLabel{color:#8090a2}
+.hpFullScreenGame .hpDrawerItem{border-color:#edf1f5;color:#34485f}
+.hpFullScreenGame .hpDrawerItem:hover,.hpFullScreenGame .hpDrawerItem.active{background:#f0f6fb;border-color:#d7e7f5}
+.hpFullScreenGame .hpDrawerItem small,.hpFullScreenGame .hpDrawerAction small{color:#8190a0}
+.hpFullScreenGame .hpDrawerPromotion{background:#f0f6fb;border:1px solid #dce9f5;border-radius:15px}
+.hpFullScreenGame .hpModalBackdrop{background:rgba(25,39,55,.58);backdrop-filter:blur(10px)}
+.hpFullScreenGame .hpGameModal,.hpFullScreenGame .hpStatsModal,.hpFullScreenGame .hpStoryModal,.hpFullScreenGame .hpPauseModal{border:1px solid rgba(255,255,255,.9);border-radius:22px;background:#fff;box-shadow:0 25px 90px rgba(18,34,51,.28);color:#2c3f54}
+.hpFullScreenGame .hpGameModal>header,.hpFullScreenGame .hpStatsModal>header{border-color:#e5ebf1}
+.hpFullScreenGame .hpGameModal header h2,.hpFullScreenGame .hpStatsModal header h2,.hpFullScreenGame .hpStoryModal h2{color:#25374b}
+.hpFullScreenGame .hpGameModal header small,.hpFullScreenGame .hpStatsModal header small{color:#6e8eac}
+.hpFullScreenGame .hpGameModal header>button,.hpFullScreenGame .hpStatsModal header>button{border-color:#dce5ed;background:#f8fafc;color:#5a7088}
+.hpFullScreenGame .hpInstruction,.hpFullScreenGame .hpStoryModal>p,.hpFullScreenGame .hpPauseModal p{color:#74869a}
+.hpFullScreenGame .hpChoiceGrid button,.hpFullScreenGame .hpQuizAnswers button,.hpFullScreenGame .hpScentChoices button{border-color:#dce5ed;background:#f9fbfd;color:#3c536b;border-radius:12px}
+.hpFullScreenGame .hpChoiceGrid button:hover,.hpFullScreenGame .hpQuizAnswers button:hover,.hpFullScreenGame .hpScentChoices button:hover{border-color:#a9c7e3;background:#eff6fc}
+.hpFullScreenGame .hpResultIcon,.hpFullScreenGame .hpPauseMark{background:#e7f1fa;color:var(--academy-blue)}
+.hpFullScreenGame .hpResult h3{color:#2c4158}
+.hpFullScreenGame .hpResult p,.hpFullScreenGame .hpResultStats span{color:#73859a}
+.hpFullScreenGame .hpResultStats span,.hpFullScreenGame .hpStatsSummary article,.hpFullScreenGame .hpCareerStats>div{background:#f1f5f8}
+.hpFullScreenGame .hpResultStats b,.hpFullScreenGame .hpStatsSummary b,.hpFullScreenGame .hpCareerStats b{color:#344c64}
+.hpFullScreenGame .hpCareerBanner,.hpFullScreenGame .hpFeedback,.hpFullScreenGame .hpBadgeEarned{background:#edf5fb;color:#4f7ca5}
+.hpFullScreenGame .hpCareerBanner b{color:#2c4862}
+.hpFullScreenGame .hpProgress{background:#e6edf3}
+.hpFullScreenGame .hpProgress i{background:var(--academy-blue)}
+.hpFullScreenGame .hpStoryScene{background:#dce8f1}
+.hpFullScreenGame .hpStoryDots i.active{background:var(--academy-blue)}
+.hpFullScreenGame .hpNotice{background:#263f58;color:#fff;border-radius:13px;box-shadow:0 12px 32px rgba(29,49,71,.22)}
+.hpFullScreenGame .hpShopModal{background:#fff;border:1px solid #e2e9f0;border-radius:22px;color:#2c4056}
+.hpFullScreenGame .hpShopItem{border-color:#e0e8ef;background:#fbfcfd;border-radius:14px}
+.hpFullScreenGame .hpShopItem button{background:var(--academy-blue);border-radius:9px;color:#fff}
+.hpFullScreenGame .hpOnlinePill{white-space:nowrap}
+@media(max-width:760px){
+ .hpFullScreenGame .hpWorldSection.hpWorldStage{min-height:100svh;padding:0 8px 98px}
+ .hpFullScreenGame .hpWorld{height:calc(100svh - 108px);min-height:500px;border-radius:18px}
+ .hpFullScreenGame .hpWorldTopline{top:10px;left:10px;right:10px;gap:6px}
+ .hpFullScreenGame .hpWorldLabel{top:10px;left:10px;padding:9px 11px;max-width:calc(100% - 140px)}
+ .hpFullScreenGame .hpWorldLabel b{font-size:10px}
+ .hpFullScreenGame .hpWorldLabel small{font-size:8px}
+ .hpFullScreenGame .hpMapControls{top:10px;right:10px}
+ .hpFullScreenGame .hpMinimap{top:62px;right:10px;width:106px}
+ .hpFullScreenGame .hpOnlinePill{margin-left:auto;padding:8px 9px;gap:5px;border-radius:11px}
+ .hpFullScreenGame .hpOnlinePill small{font-size:8px}
+ .hpFullScreenGame .hpWorldQuest{left:10px;right:10px;bottom:10px;width:auto;max-width:none;padding:12px 14px;gap:5px}
+ .hpFullScreenGame .hpWorldQuest>b{font-size:14px}
+ .hpFullScreenGame .hpWorldQuest>span:not(.hpQuestEyebrow){font-size:10px}
+ .hpFullScreenGame .hpWorldQuest button{padding:10px 12px;margin-top:7px;font-size:10px}
+ .hpFullScreenGame .hpWorldControlsOverlay{left:10px;bottom:144px}
+ .hpFullScreenGame .hpDpad{grid-template-columns:repeat(3,34px);grid-template-rows:repeat(2,32px);gap:3px;padding:6px;border-radius:14px}
+ .hpFullScreenGame .hpDpad button{width:34px;height:32px;font-size:15px}
+ .hpFullScreenGame .hpMoveHint{display:none}
+ .hpFullScreenGame .hpWorldBottomHud{left:10px;bottom:10px;right:auto;width:calc(100% - 20px);display:flex;flex-direction:row;align-items:center;gap:5px;max-width:calc(100% - 20px);padding:0;flex-wrap:wrap}
+ .hpFullScreenGame .hpBottomMeter{min-width:0;flex:1;padding:7px 8px;border-radius:10px}
+ .hpFullScreenGame .hpBottomMeter>span{font-size:8px}
+ .hpFullScreenGame .hpBottomMeter>b{font-size:9px}
+ .hpFullScreenGame .hpWorldBottomHud>button{padding:8px;font-size:9px}
+ .hpFullScreenGame .hpHayDock{bottom:7px;width:calc(100% - 14px);gap:3px;padding:5px;border-radius:15px}
+ .hpFullScreenGame .hpDockItem{min-height:55px;padding:5px 2px;gap:3px}
+ .hpFullScreenGame .hpDockItem>span{width:26px;height:26px;border-radius:8px}
+ .hpFullScreenGame .hpDockItem>span svg{width:16px;height:16px}
+ .hpFullScreenGame .hpDockItem>b{font-size:9px}
+ .hpFullScreenGame .hpDockItem>small{display:none}
+}
+@media(max-width:390px){
+ .hpFullScreenGame .hpTop.hpTopOverlay{left:5px;right:5px;padding:0 7px;gap:5px}
+ .hpFullScreenGame .hpBrand b{font-size:11px}
+ .hpFullScreenGame .hpBrand small{display:none}
+ .hpFullScreenGame .hpKennelButton{padding:7px!important;font-size:9px!important}
+ .hpFullScreenGame .hpCurrencies>span{padding:6px;font-size:9px}
+ .hpFullScreenGame .hpOnlinePill{padding:7px;gap:4px}
+ .hpFullScreenGame .hpOnlinePill small{display:none}
+ .hpFullScreenGame .hpWorldQuest{bottom:9px;padding:10px}
+ .hpFullScreenGame .hpWorldQuest>b{font-size:12px}
+ .hpFullScreenGame .hpWorldQuest>span:not(.hpQuestEyebrow){font-size:9px}
+ .hpFullScreenGame .hpWorldControlsOverlay{bottom:140px}
+ .hpFullScreenGame .hpDpad{grid-template-columns:repeat(3,30px);grid-template-rows:repeat(2,29px)}
+ .hpFullScreenGame .hpDpad button{width:30px;height:29px}
+}
+@media(prefers-reduced-motion:reduce){.hpFullScreenGame *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
