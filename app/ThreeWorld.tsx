@@ -25,6 +25,9 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
  const stationDataRef=useRef(stations);stationDataRef.current=stations;
  const groundClickRef=useRef(onGroundClick);groundClickRef.current=onGroundClick;
  const stationClickRef=useRef(onStationClick);stationClickRef.current=onStationClick;
+ // Depend on array contents, not identity: fresh [] fallbacks must not rebuild the 3D scene.
+ const academyUpgradesKey=academyUpgrades.join("|");
+ const collectedItemsKey=collectedItems.join("|");
  useEffect(()=>{
   if(!canvas.current)return;
   const el=canvas.current,scene=new THREE.Scene();scene.background=new THREE.Color(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef");scene.fog=new THREE.Fog(place==="hory"?"#c5d7e7":place==="jezero"?"#c8e2ec":"#c9e2ef",95,185);
@@ -140,7 +143,7 @@ export default function ThreeWorld({place,player,dog,academyLevel=1,academyUpgra
   const onTouchEnd=()=>{lastPinchDistance=0;};
   el.addEventListener("click",onCanvasClick);el.addEventListener("wheel",onWheel,{passive:false});el.addEventListener("touchstart",onTouchStart,{passive:true});el.addEventListener("touchmove",onTouchMove,{passive:false});el.addEventListener("touchend",onTouchEnd);const resize=()=>{const w=el.clientWidth||1000,h=el.clientHeight||620,a=w/h,viewH=a<1.15?52:43;renderer.setSize(w,h,false);camera.left=-viewH*a/2;camera.right=viewH*a/2;camera.top=viewH/2;camera.bottom=-viewH/2;camera.updateProjectionMatrix();renderer.render(scene,camera);};const obs=new ResizeObserver(resize);obs.observe(el);draw.current=()=>renderer.render(scene,camera);resize();
   return()=>{obs.disconnect();el.removeEventListener("click",onCanvasClick);el.removeEventListener("wheel",onWheel);el.removeEventListener("touchstart",onTouchStart);el.removeEventListener("touchmove",onTouchMove);el.removeEventListener("touchend",onTouchEnd);draw.current=null;cameraRef.current=null;collectMeshes.current=[];stationHits.current=[];renderer.dispose();scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});actors.current={person:null,dog:null};};
- },[place,academyLevel,academyUpgrades,collectedItems]);
+ },[place,academyLevel,academyUpgradesKey,collectedItemsKey]);
  useEffect(()=>{const map=(p:Point)=>({x:(p.x-50)*1.42,z:(p.y-50)*1.08});const p=map(player),d=map(dog);if(actors.current.person)actors.current.person.position.set(p.x,0,p.z);if(actors.current.dog)actors.current.dog.position.set(d.x,0,d.z);
   // Camera follows the player so the expanded world can be explored beyond the starting clearing.
   const camera=cameraRef.current;if(camera){const focus=new THREE.Vector3(d.x,0,d.z);camera.position.set(focus.x+32,focus.y+42,focus.z+34);camera.lookAt(focus);}const t=performance.now()*.002;collectMeshes.current.forEach(({mesh},i)=>{mesh.position.y=.08+Math.sin(t+i*1.7)*.13;mesh.rotation.y=t*.65+i;});draw.current?.();
