@@ -236,3 +236,18 @@ body:has(.hpFullScreenGame){background:var(--academy-canvas);color:var(--academy
  .hpFullScreenGame .hpWorldControlsOverlay{bottom:10px!important}
  .hpFullScreenGame .hpTapHint{max-width:145px!important}
 }
+
+
+/* Phase 3: the 3D ground receives clicks; only floating activity markers remain interactive. */
+.hpFullScreenGame .hpWorldSvg{pointer-events:none!important}
+.hpFullScreenGame .hpWorldSvg .hpStation{pointer-events:auto!important}
+.hpFullScreenGame .hpThreeCanvas{cursor:crosshair!important;touch-action:manipulation}
+.hpFullScreenGame .hpExploreHUD{display:flex;align-items:center;gap:6px;min-height:35px;padding:8px 11px;border:1px solid rgba(255,255,255,.94);border-radius:13px;background:rgba(255,253,246,.94);color:#4e7548;box-shadow:0 8px 22px rgba(39,65,42,.1);white-space:nowrap}
+.hpFullScreenGame .hpExploreHUD b{font-size:12px;font-variant-numeric:tabular-nums}
+.hpFullScreenGame .hpExploreHUD small{font-size:9px;color:#7b8c72}
+.hpFullScreenGame .hpWorldCaption{pointer-events:none}
+@media(max-width:760px){
+ .hpFullScreenGame .hpExploreHUD{min-height:30px;padding:6px 8px;gap:4px}
+ .hpFullScreenGame .hpExploreHUD small{font-size:8px}
+ .hpFullScreenGame .hpExploreHUD svg{width:12px;height:12px}
+}
