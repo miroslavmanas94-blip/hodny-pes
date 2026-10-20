@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Award, BookOpen, Check, ChevronRight, CircleHelp, Coins, Compass, Dog, Footprints, Heart, Map as MapIcon, MapPin, Menu, Pause, PawPrint, Play, RotateCcw, ShieldCheck, Sparkles, Star, Target, Trophy, X, Zap, ClipboardList, ShoppingBag, HandHeart, Eye, Wifi, WifiOff } from "lucide-react";
+import { Award, BookOpen, Check, ChevronRight, CircleHelp, Coins, Compass, Dog, Footprints, Heart, Map as MapIcon, MapPin, Menu, Pause, PawPrint, Play, RotateCcw, ShieldCheck, Sparkles, Star, Target, Trophy, X, Zap, ClipboardList, ShoppingBag, HandHeart, Eye, Wifi, WifiOff, Users } from "lucide-react";
 import "./training-game.css";
 import "./extreme-redesign.css";
 import "./academy-redesign.css";
